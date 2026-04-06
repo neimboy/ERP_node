@@ -12,7 +12,9 @@ class CuentaContable extends Model
 
     // Una cuenta aparece en muchos detalles de asientos
     public function detalles()
-    {
-        return $this->hasMany(AsientoDetalle::class, 'Id_Cuenta');
-    }
+{
+    return $this->hasMany(AsientoDetalle::class, 'Id_Cuenta')
+                ->with('asiento')
+                ->orderBy('Id_Asiento');
+}
 }

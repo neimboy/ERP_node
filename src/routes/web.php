@@ -1,45 +1,123 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
-// Importación de Controladores
-use App\Http\Controllers\Inventario\{AlmacenController, ProductoController};
-use App\Http\Controllers\Ventas\{ClienteController, OrdenController, FacturaController};
-use App\Http\Controllers\Contabilidad\{AsientoController};
-use App\Http\Controllers\RRHH\{EmpleadoController, NominaController};
-use App\Http\Controllers\Produccion\{ProyectoController};
+// CONTABILIDAD
+use App\Http\Controllers\Contabilidad\AsientoController;
 use App\Http\Controllers\Contabilidad\PlanContableController;
+
+// VENTAS
+use App\Http\Controllers\Ventas\ClienteController;
+use App\Http\Controllers\Ventas\OrdenController;
+use App\Http\Controllers\Ventas\FacturaController;
+use App\Http\Controllers\Ventas\PagoController;
+
+// RRHH
+use App\Http\Controllers\RRHH\EmpleadoController;
+use App\Http\Controllers\RRHH\NominaController;
+
+// INVENTARIO
+use App\Http\Controllers\Inventario\AlmacenController;
+use App\Http\Controllers\Inventario\ProductoController;
+
+// PRODUCCIÓN
+use App\Http\Controllers\Produccion\ProyectoController;
+
+// ADMINISTRACIÓN
+use App\Http\Controllers\Admin\UserController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-// --- MÓDULO DE INVENTARIOS ---
-Route::prefix('inventario')->group(function () {
-    Route::resource('almacenes', AlmacenController::class);
-    Route::resource('productos', ProductoController::class);
+// ==========================================
+// DASHBOARD & PERFIL (AUTENTICADOS)
+// ==========================================
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// --- MÓDULO DE VENTAS Y CRM ---
-Route::prefix('ventas')->group(function () {
-    Route::resource('clientes', ClienteController::class);
-    Route::resource('ordenes', OrdenController::class);
-    Route::resource('facturas', FacturaController::class);
+// ==========================================
+// ERP - MÓDULOS (CONTROL DE ACCESO)
+// ==========================================
+Route::middleware(['auth'])->group(function () {
+
+    // 🔐 ADMIN - GESTIÓN DE USUARIOS
+    // Solo accesible por el Super Admin
+    Route::prefix('admin')
+        ->middleware('role:Super Admin')
+        ->group(function () {
+            Route::get('usuarios', [UserController::class, 'index'])->name('admin.users');
+            Route::post('usuarios/{id}/rol', [UserController::class, 'assignRole'])->name('admin.users.assignRole');
+        });
+
+    // 🔵 CONTABILIDAD
+    Route::prefix('contabilidad')
+        ->middleware('role:Super Admin,Contador')
+        ->group(function () {
+            
+            // Plan de Cuentas
+            Route::get('plan-cuentas', [PlanContableController::class, 'index'])->name('contabilidad.plan_cuentas');
+            Route::post('plan-cuentas', [PlanContableController::class, 'store'])->name('contabilidad.plan_cuentas.store');
+
+            // Asientos (CRUD) - Aquí podrías añadir ->middleware('permission:view_contabilidad') si usas permisos individuales
+            Route::resource('asientos', AsientoController::class);
+
+            // Reportes
+            Route::get('libro-mayor', [AsientoController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
+            Route::get('estado-resultados', [AsientoController::class, 'estadoResultados'])->name('contabilidad.estado_resultados');
+            Route::get('balance-general', [AsientoController::class, 'balanceGeneral'])->name('contabilidad.balance_general');
+        });
+
+    // 🟢 VENTAS
+    Route::prefix('ventas')
+        ->middleware('role:Super Admin,Ventas')
+        ->group(function () {
+            Route::resource('clientes', ClienteController::class);
+            Route::resource('ordenes', OrdenController::class);
+            Route::resource('facturas', FacturaController::class);
+            Route::resource('pagos', PagoController::class);
+        });
+
+    // 🟡 INVENTARIO
+    Route::prefix('inventario')
+        ->middleware('role:Super Admin,Almacenero')
+        ->group(function () {
+            Route::resource('almacenes', AlmacenController::class);
+            Route::resource('productos', ProductoController::class);
+        });
+
+    // 🔴 RRHH
+    Route::prefix('rrhh')
+        ->middleware('role:Super Admin,RRHH')
+        ->group(function () {
+            Route::resource('empleados', EmpleadoController::class);
+            Route::resource('nominas', NominaController::class);
+        });
+
+    // 🟣 PRODUCCIÓN
+    Route::prefix('produccion')
+        ->middleware('role:Super Admin,Produccion')
+        ->group(function () {
+            Route::resource('proyectos', ProyectoController::class);
+        });
 });
 
-// --- MÓDULO DE CONTABILIDAD ---
-Route::prefix('contabilidad')->group(function () {
-    Route::get('plan-cuentas', [PlanContableController::class, 'index'])->name('contabilidad.plan_cuentas');
-    Route::post('plan-cuentas', [PlanContableController::class, 'store'])->name('contabilidad.plan_cuentas.store');
-    Route::resource('asientos', AsientoController::class);
-});
-
-// --- MÓDULO DE RRHH ---
-Route::prefix('rrhh')->group(function () {
-    Route::resource('empleados', EmpleadoController::class);
-    Route::resource('nominas', NominaController::class);
-});
-
-// --- MÓDULO DE PRODUCCIÓN ---
-Route::prefix('produccion')->group(function () {
-    Route::resource('proyectos', ProyectoController::class);
-});
+// ==========================
+// AUTH (BREEZE)
+// ==========================
+require __DIR__.'/auth.php';
