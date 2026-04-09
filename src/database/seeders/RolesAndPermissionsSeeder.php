@@ -123,6 +123,16 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $almaceneroUser->assignRole('Almacenero');
 
+        // Usuario Producción
+        $produccionUser = User::firstOrCreate(
+            ['email' => 'produccion@erp.com'],
+            [
+                'name' => 'Usuario Producción',
+                'password' => Hash::make('12345678'),
+            ]
+        );
+        $produccionUser->assignRole('Produccion');
+
         // ==========================
         // MENSAJES
         // ==========================
@@ -132,5 +142,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->command->info('Contador: contador@erp.com / 12345678');
         $this->command->info('Ventas: ventas@erp.com / 12345678');
         $this->command->info('Almacenero: almacen@erp.com / 12345678');
+        $this->command->info('Produccion: produccion@erp.com / 12345678');
     }
 }
