@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Produccion;
 
 use App\Http\Controllers\Controller;
+use App\Models\Proyecto;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ProyectoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index():View
     {
-        //
+        $proyectos = Proyecto::all();
+        return view('produccion.index',compact('proyectos'));
     }
 
     /**
@@ -20,7 +23,7 @@ class ProyectoController extends Controller
      */
     public function create()
     {
-        //
+        return view('produccion.create');
     }
 
     /**

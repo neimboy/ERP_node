@@ -41,7 +41,7 @@ Route::get('/', function () {
 // DASHBOARD & PERFIL (AUTENTICADOS)
 // ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('contabilidad')
         ->middleware('role:Super Admin,Contador')
         ->group(function () {
-            
+
             // Plan de Cuentas
             Route::get('plan-cuentas', [PlanContableController::class, 'index'])->name('contabilidad.plan_cuentas');
             Route::post('plan-cuentas', [PlanContableController::class, 'store'])->name('contabilidad.plan_cuentas.store');
