@@ -3,63 +3,57 @@
 namespace App\Http\Controllers\Produccion;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\AsignacionRequest;
+use App\Models\Asignacion;
+use App\Models\Empleado;
+use App\Models\Proyecto;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class AsignacionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): View
     {
-        //
+        $asignaciones = Asignacion::with('empleado', 'proyecto')->get();
+        return view('produccion.asignaciones.index', compact('asignaciones'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
-        //
+        $empleados = Empleado::all();
+        $proyectos = Proyecto::all();
+        return view('produccion.asignaciones.create', compact('empleados', 'proyectos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(AsignacionRequest $request): RedirectResponse
     {
-        //
+        Asignacion::create($request->validated());
+        return redirect()->route('asignaciones.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function show(Asignacion $asignacion): View
     {
-        //
+        $asignacion->load('empleado', 'proyecto');
+        return view('produccion.asignaciones.show', compact('asignacion'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Asignacion $asignacion): View
     {
-        //
+        $empleados = Empleado::all();
+        $proyectos = Proyecto::all();
+        return view('produccion.asignaciones.edit', compact('asignacion', 'empleados', 'proyectos'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(AsignacionRequest $request, Asignacion $asignacion): RedirectResponse
     {
-        //
+        $asignacion->update($request->validated());
+        return redirect()->route('asignaciones.show', $asignacion);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Asignacion $asignacion): RedirectResponse
     {
-        //
+        $asignacion->delete();
+        return redirect()->route('asignaciones.index');
     }
 }

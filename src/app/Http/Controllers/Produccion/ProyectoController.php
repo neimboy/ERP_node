@@ -3,66 +3,53 @@
 namespace App\Http\Controllers\Produccion;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProyectoRequest;
 use App\Models\Proyecto;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ProyectoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index():View
+
+    public function index(): View
     {
-        $proyectos = Proyecto::all();
-        return view('produccion.index',compact('proyectos'));
+        $proyectos = Proyecto::with('cliente')->get();
+        return view('produccion.index', compact('proyectos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
-        return view('produccion.create');
+        $clientes = \App\Models\Cliente::all();
+        return view('produccion.create', compact('clientes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(ProyectoRequest $request):RedirectResponse
     {
-        //
+        Proyecto::create($request->validated());
+        return redirect()->route('proyectos.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Proyecto $proyecto): View
     {
-        //
+        $proyecto->load('cliente', 'asignaciones.empleado');
+        return view('produccion.show', compact('proyecto'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Proyecto $proyecto): View
     {
-        //
+        $clientes = \App\Models\Cliente::all();
+        return view('produccion.edit', compact('proyecto', 'clientes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(ProyectoRequest $request, Proyecto $proyecto):RedirectResponse
     {
-        //
+        $proyecto->update($request->validated());
+        return redirect()->route('proyectos.show', $proyecto);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Proyecto $proyecto):RedirectResponse
     {
-        //
+        $proyecto->delete();
+        return redirect()->route('proyectos.index');
     }
 }

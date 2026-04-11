@@ -23,6 +23,7 @@ use App\Http\Controllers\Inventario\ProductoController;
 
 // PRODUCCIÓN
 use App\Http\Controllers\Produccion\ProyectoController;
+use App\Http\Controllers\Produccion\AsignacionController;
 
 // ADMINISTRACIÓN
 use App\Http\Controllers\Admin\UserController;
@@ -114,6 +115,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:Super Admin,Produccion')
         ->group(function () {
             Route::resource('proyectos', ProyectoController::class);
+            Route::resource('asignaciones', AsignacionController::class);
         });
 });
 
