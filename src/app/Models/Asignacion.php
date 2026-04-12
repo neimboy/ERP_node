@@ -8,6 +8,8 @@ class Asignacion extends Model
 {
     protected $table = 'asignaciones';
     protected $primaryKey = 'Id_Asignacion';
+    public $incrementing = false;
+    protected $keyType = 'int';
     public $timestamps = false;
 
     protected $fillable = [
@@ -15,6 +17,11 @@ class Asignacion extends Model
         'Id_Proyecto',
         'Horas_Asignadas'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'Id_Asignacion';
+    }
 
     public function empleado()
     {

@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Proyecto extends Model
 {
+    protected $table = 'proyectos';
+    protected $primaryKey = 'Id_Proyecto';
+    public $incrementing = false;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'Id_Cliente',
         'Nombre',
@@ -13,6 +18,11 @@ class Proyecto extends Model
         'Fecha_Fin',
         'Estado'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'Id_Proyecto';
+    }
 
     public function cliente()
     {
@@ -22,5 +32,12 @@ class Proyecto extends Model
     public function asignaciones()
     {
         return $this->hasMany(Asignacion::class, 'Id_Proyecto', 'Id_Proyecto');
+    }
+
+    public function empleados()
+    {
+        return $this->belongsToMany(Empleado::class, 'asignaciones', 'Id_Proyecto', 'Id_Empleado')
+                    ->withPivot('Horas_Asignadas')
+                    ->withTimestamps();
     }
 }

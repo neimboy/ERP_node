@@ -17,4 +17,11 @@ class Empleado extends Model
         'Fecha_Ingreso',
         'Estado'
     ];
+
+    public function proyectos()
+    {
+        return $this->belongsToMany(Proyecto::class, 'asignaciones', 'Id_Empleado', 'Id_Proyecto')
+                    ->withPivot('Horas_Asignadas')
+                    ->withTimestamps();
+    }
 }

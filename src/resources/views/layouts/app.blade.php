@@ -24,7 +24,7 @@
                     <div class="hidden md:ml-6 md:flex md:space-x-4 items-center">
 
                         <a href="{{ route('dashboard') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium 
+                           class="px-3 py-2 rounded-md text-sm font-medium
                            {{ request()->routeIs('dashboard') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                             Dashboard
                         </a>
@@ -33,7 +33,7 @@
                             {{-- 🔐 ADMINISTRACIÓN (Solo Super Admin) --}}
                             @role('Super Admin')
                                 <div class="relative">
-                                    <button @click="openAdmin = !openAdmin" 
+                                    <button @click="openAdmin = !openAdmin"
                                             class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none {{ request()->is('admin*') ? 'bg-red-50' : '' }}">
                                         <span>Administración</span>
                                         <i class="fas fa-chevron-down ml-2 text-xs"></i>
@@ -55,7 +55,7 @@
                             {{-- 🔵 CONTABILIDAD --}}
                             @role('Super Admin|Contador')
                                 <div class="relative">
-                                    <button @click="openContabilidad = !openContabilidad" 
+                                    <button @click="openContabilidad = !openContabilidad"
                                             class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('contabilidad*') ? 'bg-gray-100' : '' }}">
                                         <span>Contabilidad</span>
                                         <i class="fas fa-chevron-down ml-2 text-xs"></i>
@@ -68,9 +68,9 @@
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
                                             <a href="{{ route('contabilidad.plan_cuentas') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📘 Plan de Cuentas</a>
                                             <a href="{{ route('asientos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📄 Asientos Contables</a>
-                                            
+
                                             <div class="border-t border-gray-100 my-1"></div>
-                                            
+
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Reportes</span>
                                             <a href="{{ route('contabilidad.libro_mayor') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📊 Libro Mayor</a>
                                             <a href="{{ route('contabilidad.estado_resultados') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📈 Estado de Resultados</a>
@@ -82,7 +82,7 @@
 
                             @can('view_ventas')
                                 <a href="{{ route('clientes.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium 
+                                   class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('ventas*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Ventas
                                 </a>
@@ -90,7 +90,7 @@
 
                             @can('view_inventario')
                                 <a href="{{ route('productos.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium 
+                                   class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('inventario*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Inventario
                                 </a>
@@ -98,7 +98,7 @@
 
                             @can('view_rrhh')
                                 <a href="{{ route('empleados.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium 
+                                   class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('rrhh*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     RRHH
                                 </a>
@@ -106,9 +106,14 @@
 
                             @can('view_produccion')
                                 <a href="{{ route('proyectos.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium 
+                                   class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('produccion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Producción
+                                </a>
+                                <a href="{{ route('asignaciones.index') }}"
+                                   class="px-3 py-2 rounded-md text-sm font-medium
+                                   {{ request()->is('asiganacion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
+                                    Asignaciones
                                 </a>
                             @endcan
                         @endauth
@@ -141,7 +146,7 @@
                 {{ session('success') }}
             </div>
         @endif
-        
+
         @if(session('error'))
             <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
                 {{ session('error') }}
