@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Inventario extends Model
+class Movimiento extends Model
 {
-     protected $fillable = ['producto_id', 'cantidad_actual', 'ubicacion'];
+    protected $fillable = ['producto_id', 'tipo', 'cantidad', 'fecha', 'referencia'];
 
     public function producto()
     {
