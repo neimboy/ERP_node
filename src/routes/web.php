@@ -12,6 +12,7 @@ use App\Http\Controllers\Ventas\ClienteController;
 use App\Http\Controllers\Ventas\OrdenController;
 use App\Http\Controllers\Ventas\FacturaController;
 use App\Http\Controllers\Ventas\PagoController;
+use App\Http\Controllers\Ventas\OportunidadController;
 
 // RRHH
 use App\Http\Controllers\RRHH\EmpleadoController;
@@ -92,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
+            Route::resource('oportunidades', OportunidadController::class);
         });
 
     // 🟡 INVENTARIO

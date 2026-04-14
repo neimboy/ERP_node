@@ -3,63 +3,67 @@
 namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cliente;
+use App\Http\Requests\StoreClienteRequest;
+use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct()
     {
-        //
+        $this->middleware(['auth', 'role:Super Admin,Ventas']);
+        $this->authorizeResource(Cliente::class, 'cliente');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function index(Request $request)
+    {
+        $q = $request->get('q');
+
+        $clientes = Cliente::query()
+            ->when($q, function ($query) use ($q) {
+                $query->where('Nombre', 'like', "%{$q}%")
+                      ->orWhere('Correo', 'like', "%{$q}%");
+            })
+            ->orderBy('Nombre')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('ventas.clientes.index', compact('clientes', 'q'));
+    }
+
     public function create()
     {
-        //
+        $cliente = new Cliente();
+        return view('ventas.clientes.create', compact('cliente'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreClienteRequest $request)
     {
-        //
+        Cliente::create($request->validated());
+        return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Cliente $cliente)
     {
-        //
+        return view('ventas.clientes.show', compact('cliente'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Cliente $cliente)
     {
-        //
+        return view('ventas.clientes.edit', compact('cliente'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
-        //
+        $cliente->update($request->validated());
+        return redirect()->route('clientes.index')->with('success', 'Cliente actualizado.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Cliente $cliente)
     {
-        //
+        $cliente->delete();
+        return redirect()->route('clientes.index')->with('success', 'Cliente eliminado.');
     }
 }
+
