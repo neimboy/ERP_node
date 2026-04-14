@@ -12,7 +12,8 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        //
+        $empleados = \App\Models\Empleado::all();
+        return view('rrhh.empleados.index', compact('empleados'));
     }
 
     /**
@@ -20,7 +21,7 @@ class EmpleadoController extends Controller
      */
     public function create()
     {
-        //
+        return view('rrhh.empleados.create');
     }
 
     /**
@@ -28,7 +29,23 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+        'DNI'           => 'required|unique:empleados,DNI',
+        'Nombre_Empleado'        => 'required|string|max:150',
+        'Fecha_Ingreso' => 'required|date',
+        'Correo_Empleado'        => 'nullable|email',
+    ]);
+    //  Guardar en la base de datos usando el Modelo
+    \App\Models\Empleado::create([
+        'DNI'             => $request->DNI,
+        'Nombre_Empleado' => $request->Nombre_Empleado,
+        'Correo_Empleado' => $request->Correo_Empleado,
+        'Telefono'        => $request->Telefono,
+        'Fecha_Ingreso'   => $request->Fecha_Ingreso,
+        'Estado'          => 1, // Lo creamos como activo por defecto
+    ]);
+
+    return redirect()->route('empleados.index')->with('success', '¡Empleado guardado exitosamente!');
     }
 
     /**
