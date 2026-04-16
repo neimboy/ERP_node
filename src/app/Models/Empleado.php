@@ -11,8 +11,8 @@ class Empleado extends Model
 
     protected $fillable = [
         'DNI',
-        'Nombre',
-        'Correo',
+        'Nombre_Empleado',
+        'Correo_Empleado',
         'Telefono',
         'Fecha_Ingreso',
         'Estado'

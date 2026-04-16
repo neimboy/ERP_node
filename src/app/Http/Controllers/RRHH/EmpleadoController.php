@@ -4,6 +4,7 @@ namespace App\Http\Controllers\RRHH;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Empleado;
 
 class EmpleadoController extends Controller
 {
@@ -45,7 +46,7 @@ class EmpleadoController extends Controller
         'Estado'          => 1, // Lo creamos como activo por defecto
     ]);
 
-    return redirect()->route('empleados.index')->with('success', '¡Empleado guardado exitosamente!');
+    return redirect()->route('rrhh.empleados.index')->with('success', '¡Empleado guardado exitosamente!');
     }
 
     /**
@@ -61,7 +62,8 @@ class EmpleadoController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $empleado = Empleado::findOrFail($id);
+        return view('rrhh.empleados.edit', compact('empleado'));
     }
 
     /**
@@ -69,7 +71,18 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'DNI' => 'required',
+            'Nombre_Empleado' => 'required',
+            'Correo_Empleado' => 'required|email',
+            'Telefono' => 'required',
+            'Fecha_Ingreso' => 'required|date',
+    ]);
+
+    $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
+    $empleado->update($request->all());
+
+    return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
     }
 
     /**
@@ -77,6 +90,9 @@ class EmpleadoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
+        $empleado->delete();
+
+        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado eliminado correctamente');
     }
 }

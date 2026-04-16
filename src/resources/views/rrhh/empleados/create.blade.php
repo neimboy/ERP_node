@@ -9,7 +9,7 @@
     <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h2 class="text-2xl font-bold mb-6 border-b pb-2">Registrar Nuevo Empleado</h2>
         
-        <form action="{{ route('empleados.store') }}" method="POST">
+        <form action="{{ route('rrhh.empleados.store') }}" method="POST">
             @csrf
             <div class="grid grid-cols-1 gap-4">
                 <div>
@@ -31,6 +31,13 @@
                 <div>
                     <label class="block font-semibold">Fecha de Ingreso:</label>
                     <input type="date" name="Fecha_Ingreso" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label class="block font-semibold">Estado:</label>
+                    <select name="Estado" class="w-full border p-2 rounded">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo (Baja)</option>
+                    </select>
                 </div>
                 <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 hover:bg-blue-700">
                     GUARDAR EMPLEADO
