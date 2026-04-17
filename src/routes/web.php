@@ -93,7 +93,15 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
-            Route::resource('oportunidades', OportunidadController::class);
+            // Forzar nombre del parámetro a `oportunidad` (singular en español)
+            Route::resource('oportunidades', OportunidadController::class)
+                ->parameters(['oportunidades' => 'oportunidad']);
+            // Ruta personalizada para cerrar una oportunidad
+            Route::post('oportunidades/{oportunidad}/cerrar', [OportunidadController::class, 'cerrar'])
+                ->name('oportunidades.cerrar');
+            // Ruta para generar una Orden de Venta desde una oportunidad ganada
+            Route::post('oportunidades/{oportunidad}/generar-orden', [OportunidadController::class, 'generarOrden'])
+                ->name('oportunidades.generarOrden');
         });
 
     // 🟡 INVENTARIO
@@ -125,3 +133,4 @@ Route::middleware(['auth'])->group(function () {
 // AUTH (BREEZE)
 // ==========================
 require __DIR__.'/auth.php';
+
