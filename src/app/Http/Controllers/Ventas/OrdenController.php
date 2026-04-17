@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use App\Services\VentasService;
 
 class OrdenController extends Controller
 {
@@ -87,81 +88,9 @@ class OrdenController extends Controller
 
     public function store(StoreOrdenRequest $request)
     {
-        $orden = null;
-
-        DB::transaction(function () use ($request, &$orden) {
-            $orden = Orden::create([
-                'Id_Cliente' => $request->Id_Cliente,
-                'Fecha' => now(),
-                'Estado' => 'Pendiente',
-            ]);
-
-            $total = 0;
-
-            foreach ($request->lineas as $line) {
-                $producto = Producto::where('Id_Producto', $line['Id_Producto'])->lockForUpdate()->first();
-
-                if (!$producto) {
-                    throw ValidationException::withMessages(['lineas' => "Producto no encontrado ({$line['Id_Producto']})"]);
-                }
-
-                $cantidad = (int) $line['cantidad'];
-
-                // Usar `stock_simulado` si existe (modo "Nivel Pro"), con fallback a los campos de stock existentes
-                $stockDisponible = $producto->stock_simulado ?? $producto->stock ?? $producto->Stock ?? 0;
-
-                if ($stockDisponible < $cantidad) {
-                    // Devolver error de validación para redirigir con errores
-                    throw ValidationException::withMessages(['stock' => 'No hay stock disponible']);
-                }
-
-                // Reducir el stock simulado o el stock real según lo disponible (diseñado para cambiar fácilmente luego)
-                if (!is_null($producto->stock_simulado)) {
-                    $producto->stock_simulado = $stockDisponible - $cantidad;
-                    $producto->save();
-                } elseif (array_key_exists('stock', $producto->getAttributes()) || array_key_exists('Stock', $producto->getAttributes())) {
-                    // actualizar columna de stock existente
-                    if (array_key_exists('stock', $producto->getAttributes())) {
-                        $producto->stock = $stockDisponible - $cantidad;
-                    } else {
-                        $producto->Stock = $stockDisponible - $cantidad;
-                    }
-                    $producto->save();
-                } elseif (method_exists($producto, 'decrementStock')) {
-                    // fallback a método del modelo si existe
-                    $producto->decrementStock($cantidad);
-                }
-
-                $precio = $producto->Precio_Venta ?? $producto->precio ?? 0;
-
-                DetalleOrden::create([
-                    'Id_Orden' => $orden->Id_Orden,
-                    'Id_Producto' => $producto->Id_Producto,
-                    'Cantidad' => $cantidad,
-                    'Precio' => $precio,
-                ]);
-
-                $total += $precio * $cantidad;
-            }
-
-            $factura = Factura::create([
-                'Id_Orden' => $orden->Id_Orden,
-                'Fecha' => now(),
-                'Total' => $total,
-                'Estado_Pago' => 'Pendiente',
-            ]);
-
-            // Integración contable (si está disponible)
-            try {
-                if (class_exists('\App\Services\IntegracionContableService')) {
-                    \App\Services\IntegracionContableService::registrarFactura($factura);
-                } else {
-                    Log::warning('IntegracionContableService no disponible - TODO: integrar');
-                }
-            } catch (\Exception $e) {
-                Log::error('Error Integracion contable: ' . $e->getMessage());
-            }
-        });
+        // Delegar la lógica compleja al servicio de ventas (transacciones, stock y facturación)
+        $ventasService = new VentasService();
+        $orden = $ventasService->crearOrdenConLineas((int) $request->Id_Cliente, $request->lineas);
 
         return redirect()->route('ordenes.show', $orden?->Id_Orden ?? 0)->with('success', 'Orden creada correctamente.');
     }

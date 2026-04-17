@@ -99,6 +99,9 @@ Route::middleware(['auth'])->group(function () {
             // Ruta personalizada para cerrar una oportunidad
             Route::post('oportunidades/{oportunidad}/cerrar', [OportunidadController::class, 'cerrar'])
                 ->name('oportunidades.cerrar');
+            // Marcar oportunidad como ganada (genera orden+factura a través del servicio)
+            Route::post('oportunidades/{oportunidad}/ganar', [OportunidadController::class, 'ganarOportunidad'])
+                ->name('oportunidades.ganar');
             // Ruta para generar una Orden de Venta desde una oportunidad ganada
             Route::post('oportunidades/{oportunidad}/generar-orden', [OportunidadController::class, 'generarOrden'])
                 ->name('oportunidades.generarOrden');

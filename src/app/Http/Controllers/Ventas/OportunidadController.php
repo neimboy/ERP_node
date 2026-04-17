@@ -10,6 +10,7 @@ use App\Models\Orden;
 use App\Models\Factura;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Services\VentasService;
 
 class OportunidadController extends Controller
 {
@@ -135,5 +136,18 @@ class OportunidadController extends Controller
         });
 
         return redirect()->route('ordenes.show', $orden?->Id_Orden ?? 0)->with('success', 'Orden creada a partir de la oportunidad.');
+    }
+
+    /**
+     * Marca la oportunidad como ganada y crea orden+factura mediante el servicio.
+     */
+    public function ganarOportunidad(Oportunidad $oportunidad, VentasService $ventasService)
+    {
+        try {
+            $orden = $ventasService->ganarOportunidad($oportunidad);
+            return redirect()->route('ordenes.show', $orden->Id_Orden)->with('success', 'Oportunidad marcada como ganada y orden generada.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'No se pudo procesar la operación: ' . $e->getMessage());
+        }
     }
 }

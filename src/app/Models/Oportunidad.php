@@ -32,4 +32,9 @@ class Oportunidad extends Model
     {
         return $this->belongsTo(Cliente::class, 'Id_Cliente', 'Id_Cliente');
     }
+
+    public function orden()
+    {
+        return $this->belongsTo(Orden::class, 'Id_Orden', 'Id_Orden');
+    }
 }
