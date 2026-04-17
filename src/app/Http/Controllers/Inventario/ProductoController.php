@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Inventario;
+
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
 use Illuminate\Http\Request;
