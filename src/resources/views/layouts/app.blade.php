@@ -41,7 +41,7 @@
 
                                     <div x-show="openAdmin" @click.away="openAdmin = false"
                                          class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                         x-transition>
+                                         x-transition style="display: none;">
                                         <div class="py-1 px-2">
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Sistema</span>
                                             <a href="{{ route('admin.users') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
@@ -63,7 +63,7 @@
 
                                     <div x-show="openContabilidad" @click.away="openContabilidad = false"
                                          class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                         x-transition>
+                                         x-transition style="display: none;">
                                         <div class="py-1 px-2">
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
                                             <a href="{{ route('contabilidad.plan_cuentas') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📘 Plan de Cuentas</a>
@@ -80,6 +80,7 @@
                                 </div>
                             @endrole
 
+                            {{-- 🟢 VENTAS --}}
                             @can('view_ventas')
                                 <a href="{{ route('clientes.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
@@ -88,6 +89,7 @@
                                 </a>
                             @endcan
 
+                            {{-- 📦 INVENTARIO --}}
                             @can('view_inventario')
                                 <a href="{{ route('productos.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
@@ -96,27 +98,30 @@
                                 </a>
                             @endcan
 
+                            {{-- 👥 RRHH --}}
                             @can('view_rrhh')
-                                <a href="{{ route('empleados.index') }}"
+                                <a href="{{ route('rrhh.empleados.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('rrhh*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     RRHH
                                 </a>
                             @endcan
 
+                            {{-- 🛠️ PRODUCCIÓN --}}
                             @can('view_produccion')
                                 <a href="{{ route('proyectos.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('produccion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
+                                   {{ request()->is('proyectos*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Producción
                                 </a>
+
                                 <a href="{{ route('asignaciones.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('asiganacion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
+                                   {{ request()->is('asignaciones*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Asignaciones
                                 </a>
                             @endcan
-                        @endauth
+                        @endauth {{-- SE AGREGÓ ESTE CIERRE QUE FALTABA --}}
 
                     </div>
                 </div>

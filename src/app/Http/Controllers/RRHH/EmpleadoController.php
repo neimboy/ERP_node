@@ -39,8 +39,8 @@ class EmpleadoController extends Controller
     //  Guardar en la base de datos usando el Modelo
     \App\Models\Empleado::create([
         'DNI'             => $request->DNI,
-        'Nombre_Empleado' => $request->Nombre_Empleado,
-        'Correo_Empleado' => $request->Correo_Empleado,
+        'Nombre' => $request->Nombre,
+        'Correo' => $request->Correo,
         'Telefono'        => $request->Telefono,
         'Fecha_Ingreso'   => $request->Fecha_Ingreso,
         'Estado'          => 1, // Lo creamos como activo por defecto
@@ -73,8 +73,8 @@ class EmpleadoController extends Controller
     {
         $request->validate([
             'DNI' => 'required',
-            'Nombre_Empleado' => 'required',
-            'Correo_Empleado' => 'required|email',
+            'Nombre' => 'required',
+            'Correo' => 'required|email',
             'Telefono' => 'required',
             'Fecha_Ingreso' => 'required|date',
     ]);
