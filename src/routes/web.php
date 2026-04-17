@@ -12,6 +12,7 @@ use App\Http\Controllers\Ventas\ClienteController;
 use App\Http\Controllers\Ventas\OrdenController;
 use App\Http\Controllers\Ventas\FacturaController;
 use App\Http\Controllers\Ventas\PagoController;
+use App\Http\Controllers\Ventas\OportunidadController;
 
 // RRHH
 use App\Http\Controllers\RRHH\EmpleadoController;
@@ -92,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
+            Route::resource('oportunidades', OportunidadController::class);
         });
 
     // 🟡 INVENTARIO
@@ -102,12 +104,29 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('productos', ProductoController::class);
         });
 
+    
     // 🔴 RRHH
     Route::prefix('rrhh')
-        ->middleware('role:Super Admin,RRHH')
+        ->middleware('role:Super Admin,RRHH') // Quitamos el 'auth' porque ya viene del grupo de arriba
         ->group(function () {
-            Route::resource('empleados', EmpleadoController::class);
-            Route::resource('nominas', NominaController::class);
+                
+            // Usamos la forma corta para los nombres
+            Route::resource('empleados', EmpleadoController::class)
+                ->names('rrhh.empleados');
+
+            Route::resource('nominas', NominaController::class)
+                ->names('rrhh.nominas');
+        });
+
+    // 🟣 PRODUCCIÓN
+    Route::prefix('produccion')
+        ->middleware('role:Super Admin,Produccion')
+        ->group(function () {
+            Route::resource('proyectos', ProyectoController::class)
+                ->names('produccion.proyectos');
+                
+            Route::resource('asignaciones', AsignacionController::class)
+                ->names('produccion.asignaciones');
         });
 
     // 🟣 PRODUCCIÓN
@@ -117,8 +136,8 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('proyectos', ProyectoController::class);
             Route::resource('asignaciones', AsignacionController::class);
         });
-});
 
+});
 // ==========================
 // AUTH (BREEZE)
 // ==========================

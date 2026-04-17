@@ -11,6 +11,19 @@ use Illuminate\Http\Request;
 class FacturaController extends Controller
 {
     // ... otros métodos
+    public function index()
+    {
+        $facturas = Factura::with('orden.cliente')->orderByDesc('Fecha')->paginate(15);
+        return view('ventas.facturas.index', compact('facturas'));
+    }
+
+    public function show(Factura $factura)
+    {
+        // Eager load order, client and order details with products
+        $factura->load('orden.cliente', 'orden.detalles.producto');
+
+        return view('ventas.facturas.show', compact('factura'));
+    }
 
     public function store(Request $request)
     {
