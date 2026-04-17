@@ -40,12 +40,19 @@
                     <td class="p-2">{{ $op->Estado }}</td>
                     <td class="p-2">{{ $op->Fecha_Cierre?->format('d/m/Y') }}</td>
                     <td class="p-2">
-                        <a href="{{ route('oportunidades.edit', $op) }}" class="text-indigo-600 mr-2">Editar</a>
+                        <a href="{{ route('oportunidades.edit', ['oportunidad' => $op->Id_Oportunidad]) }}" class="text-indigo-600 mr-2">Editar</a>
 
-                        <form action="{{ route('oportunidades.cerrar', $op) }}" method="POST" class="inline" onsubmit="return confirm('Cerrar oportunidad?')">
+                        <form action="{{ route('oportunidades.cerrar', ['oportunidad' => $op->Id_Oportunidad]) }}" method="POST" class="inline" onsubmit="return confirm('Cerrar oportunidad?')">
                             @csrf
                             <button type="submit" class="text-green-700 mr-2">Cerrar</button>
                         </form>
+
+                        @if($op->Estado === 'Ganada' && empty($op->Id_Orden))
+                            <form action="{{ route('oportunidades.generarOrden', ['oportunidad' => $op->Id_Oportunidad]) }}" method="POST" class="inline" onsubmit="return confirm('Generar Orden de Venta para esta oportunidad?')">
+                                @csrf
+                                <button type="submit" class="text-blue-600 mr-2">Generar Orden de Venta</button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

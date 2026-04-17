@@ -16,10 +16,6 @@ use Illuminate\Validation\ValidationException;
 
 class OrdenController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:Super Admin,Ventas']);
-    }
 
     /**
      * Display a listing of the resource.
@@ -111,14 +107,32 @@ class OrdenController extends Controller
 
                 $cantidad = (int) $line['cantidad'];
 
-                if ($producto->stock < $cantidad) {
-                    throw ValidationException::withMessages(['stock' => "Stock insuficiente para {$producto->Nombre}"]);
+                // Usar `stock_simulado` si existe (modo "Nivel Pro"), con fallback a los campos de stock existentes
+                $stockDisponible = $producto->stock_simulado ?? $producto->stock ?? $producto->Stock ?? 0;
+
+                if ($stockDisponible < $cantidad) {
+                    // Devolver error de validación para redirigir con errores
+                    throw ValidationException::withMessages(['stock' => 'No hay stock disponible']);
                 }
 
-                // Reducir stock (método en el modelo Producto)
-                $producto->decrementStock($cantidad);
+                // Reducir el stock simulado o el stock real según lo disponible (diseñado para cambiar fácilmente luego)
+                if (!is_null($producto->stock_simulado)) {
+                    $producto->stock_simulado = $stockDisponible - $cantidad;
+                    $producto->save();
+                } elseif (array_key_exists('stock', $producto->getAttributes()) || array_key_exists('Stock', $producto->getAttributes())) {
+                    // actualizar columna de stock existente
+                    if (array_key_exists('stock', $producto->getAttributes())) {
+                        $producto->stock = $stockDisponible - $cantidad;
+                    } else {
+                        $producto->Stock = $stockDisponible - $cantidad;
+                    }
+                    $producto->save();
+                } elseif (method_exists($producto, 'decrementStock')) {
+                    // fallback a método del modelo si existe
+                    $producto->decrementStock($cantidad);
+                }
 
-                $precio = $producto->Precio_Venta ?? 0;
+                $precio = $producto->Precio_Venta ?? $producto->precio ?? 0;
 
                 DetalleOrden::create([
                     'Id_Orden' => $orden->Id_Orden,

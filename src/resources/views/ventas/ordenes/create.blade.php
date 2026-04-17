@@ -11,12 +11,15 @@
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Cliente</label>
-            <select name="Id_Cliente" class="mt-1 block w-full border p-2 rounded" required>
-                <option value="">Seleccione</option>
-                @foreach($clientes as $c)
-                    <option value="{{ $c->Id_Cliente }}">{{ $c->Nombre }}{{ $c->Correo ? ' - '.$c->Correo : '' }}</option>
-                @endforeach
-            </select>
+            <div class="mt-1 flex gap-2">
+                <select name="Id_Cliente" class="flex-1 block w-full border p-2 rounded" required>
+                    <option value="">Seleccione</option>
+                    @foreach($clientes as $c)
+                        <option value="{{ $c->Id_Cliente }}">{{ $c->Nombre }}{{ $c->Correo ? ' - '.$c->Correo : '' }}</option>
+                    @endforeach
+                </select>
+                <a href="{{ route('clientes.create') }}" target="_blank" class="px-3 py-2 bg-gray-800 text-white rounded whitespace-nowrap">Agregar cliente</a>
+            </div>
         </div>
 
         <div class="mb-4">

@@ -6,7 +6,10 @@
 <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-bold">Oportunidades</h2>
-        <a href="{{ route('oportunidades.create') }}" class="px-3 py-2 bg-gray-800 text-white rounded">Nueva Oportunidad</a>
+        <div class="flex items-center space-x-2">
+            <a href="{{ url()->previous() ?: route('clientes.index') }}" class="px-3 py-2 bg-gray-200 rounded">Volver</a>
+            <a href="{{ route('oportunidades.create') }}" class="px-3 py-2 bg-gray-800 text-white rounded">Nueva Oportunidad</a>
+        </div>
     </div>
 
     <table class="w-full">

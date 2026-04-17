@@ -15,4 +15,12 @@ class Cliente extends Model
         'Correo',
         'Telefono'
     ];
+
+    /**
+     * Oportunidades relacionadas con el cliente (CRM).
+     */
+    public function oportunidades()
+    {
+        return $this->hasMany(Oportunidad::class, 'Id_Cliente', 'Id_Cliente');
+    }
 }

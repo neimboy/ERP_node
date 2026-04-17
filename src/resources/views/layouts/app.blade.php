@@ -141,6 +141,14 @@
     </nav>
 
     <main class="py-6 px-4 sm:px-6 lg:px-8">
+        @if (isset($header))
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-4">
+                <div class="bg-white p-4 rounded shadow-sm">
+                    {{ $header }}
+                </div>
+            </div>
+        @endif
+
         @if(session('success'))
             <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
                 {{ session('success') }}
@@ -153,7 +161,11 @@
             </div>
         @endif
 
-        @yield('content')
+        @if (isset($slot))
+            {{ $slot }}
+        @else
+            @yield('content')
+        @endif
     </main>
 
 </body>

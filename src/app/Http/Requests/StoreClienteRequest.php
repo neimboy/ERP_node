@@ -8,7 +8,7 @@ class StoreClienteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->hasRole('Ventas');
+        return $this->user() && $this->user()->can('create', \App\Models\Cliente::class);
     }
 
     public function rules(): array
