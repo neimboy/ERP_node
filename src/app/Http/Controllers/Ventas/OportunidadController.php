@@ -11,6 +11,8 @@ use App\Models\Factura;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Services\VentasService;
+use App\Http\Requests\StoreOportunidadRequest;
+use App\Http\Requests\UpdateOportunidadRequest;
 
 class OportunidadController extends Controller
 {
@@ -18,8 +20,22 @@ class OportunidadController extends Controller
 
     public function index()
     {
-        $oportunidades = Oportunidad::with('cliente')->orderByDesc('created_at')->paginate(15);
-        return view('ventas.oportunidades.index', compact('oportunidades'));
+        $q = request('q');
+        $estado = request('estado');
+
+        $oportunidades = Oportunidad::with('cliente', 'orden')
+            ->when($q, function ($query) use ($q) {
+                $query->where('Titulo', 'like', "%{$q}%")
+                      ->orWhereHas('cliente', function ($q2) use ($q) { $q2->where('Nombre', 'like', "%{$q}%"); });
+            })
+            ->when($estado, function ($query) use ($estado) {
+                $query->where('Estado', $estado);
+            })
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('ventas.oportunidades.index', compact('oportunidades', 'q', 'estado'));
     }
 
     public function create()
@@ -28,18 +44,9 @@ class OportunidadController extends Controller
         return view('ventas.oportunidades.create', compact('clientes'));
     }
 
-    public function store(Request $request)
+    public function store(StoreOportunidadRequest $request)
     {
-        $data = $request->validate([
-            'Id_Cliente' => 'required|exists:clientes,Id_Cliente',
-            'Titulo' => 'required|string|max:255',
-            'Descripcion' => 'nullable|string',
-            'Monto_Estimado' => 'nullable|numeric',
-            // Agregar 'Ganada' y 'Cerrada/Ganada' como estados válidos
-            'Estado' => 'required|in:Prospecto,Negociación,Cerrado,Ganada,Cerrada/Ganada',
-            'Fecha_Cierre' => 'nullable|date',
-        ]);
-
+        $data = $request->validated();
         Oportunidad::create($data);
 
         return redirect()->route('clientes.show', $data['Id_Cliente'])->with('success', 'Oportunidad creada correctamente.');
@@ -56,18 +63,9 @@ class OportunidadController extends Controller
         return view('ventas.oportunidades.edit', compact('oportunidad', 'clientes'));
     }
 
-    public function update(Request $request, Oportunidad $oportunidad)
+    public function update(UpdateOportunidadRequest $request, Oportunidad $oportunidad)
     {
-        $data = $request->validate([
-            'Id_Cliente' => 'required|exists:clientes,Id_Cliente',
-            'Titulo' => 'required|string|max:255',
-            'Descripcion' => 'nullable|string',
-            'Monto_Estimado' => 'nullable|numeric',
-            // Agregar 'Ganada' y 'Cerrada/Ganada' como estados válidos
-            'Estado' => 'required|in:Prospecto,Negociación,Cerrado,Ganada,Cerrada/Ganada',
-            'Fecha_Cierre' => 'nullable|date',
-        ]);
-
+        $data = $request->validated();
         $oportunidad->update($data);
 
         return redirect()->route('clientes.show', $data['Id_Cliente'])->with('success', 'Oportunidad actualizada.');
@@ -75,6 +73,11 @@ class OportunidadController extends Controller
 
     public function destroy(Oportunidad $oportunidad)
     {
+        // No permitir eliminar si ya existe una orden asociada
+        if (!empty($oportunidad->Id_Orden)) {
+            return back()->with('error', 'No se puede eliminar la oportunidad porque tiene una orden asociada.');
+        }
+
         $clienteId = $oportunidad->Id_Cliente;
         $oportunidad->delete();
         return redirect()->route('clientes.show', $clienteId)->with('success', 'Oportunidad eliminada.');

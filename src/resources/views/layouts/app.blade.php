@@ -12,7 +12,7 @@
 
 <body class="bg-gray-100">
 
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false }">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openVentas: false }">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
 
@@ -82,11 +82,25 @@
 
                             {{-- 🟢 VENTAS --}}
                             @can('view_ventas')
-                                <a href="{{ route('clientes.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('ventas*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    Ventas
-                                </a>
+                                <div class="relative">
+                                    <button @click="openVentas = !openVentas"
+                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('ventas*') ? 'bg-gray-100' : '' }}">
+                                        <span>Ventas</span>
+                                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                                    </button>
+
+                                    <div x-show="openVentas" @click.away="openVentas = false"
+                                         class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                         x-transition style="display: none;">
+                                        <div class="py-1 px-2">
+                                            <a href="{{ route('clientes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">👥 Clientes</a>
+                                            <a href="{{ route('oportunidades.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💼 Oportunidades</a>
+                                            <a href="{{ route('ordenes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">🧾 Órdenes</a>
+                                            <a href="{{ route('facturas.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📄 Facturas</a>
+                                            <a href="{{ route('pagos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💵 Pagos</a>
+                                        </div>
+                                    </div>
+                                </div>
                             @endcan
 
                             {{-- 📦 INVENTARIO --}}
@@ -165,6 +179,31 @@
                 {{ session('error') }}
             </div>
         @endif
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: @json(session('success')),
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                @endif
+
+                @if(session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: @json(session('error')),
+                        timer: 3500,
+                        showConfirmButton: false
+                    });
+                @endif
+            });
+        </script>
 
         @if (isset($slot))
             {{ $slot }}
