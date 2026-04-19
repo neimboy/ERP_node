@@ -118,13 +118,15 @@ Route::middleware(['auth'])->group(function () {
 
     // 🔴 RRHH
     Route::prefix('rrhh')
-        ->middleware('role:Super Admin,RRHH') // Quitamos el 'auth' porque ya viene del grupo de arriba
+        ->middleware('role:Super Admin,RRHH') 
         ->group(function () {
 
+<<<<<<< HEAD
             // Usamos la forma corta para los nombres
+=======
+>>>>>>> efd82bf (Correccion y mejoramiento del modulo RRHH)
             Route::resource('empleados', EmpleadoController::class)
                 ->names('rrhh.empleados');
-
             Route::resource('nominas', NominaController::class)
                 ->names('rrhh.nominas');
         });

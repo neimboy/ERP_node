@@ -133,7 +133,7 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $produccionUser->assignRole('Produccion');
 
-        // Usuario RRHH (Tu usuario para pruebas)
+        // Usuario RRHH 
         $rrhhUser = User::firstOrCreate(
             ['email' => 'rrhh@erp.com'], 
             [
