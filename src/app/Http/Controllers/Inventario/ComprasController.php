@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inventario;
 
+use App\Http\Controllers\Controller;
 use App\Models\Compra;
 use App\Models\Proveedor;
 use App\Models\DetalleCompra;
@@ -12,13 +13,15 @@ class ComprasController extends Controller
     public function index()
     {
         $compras = Compra::with('proveedor', 'detalles')->get();
-        return view('compras.index', compact('compras'));
+        // ✅ apunta a resources/views/inventarios/index.blade.php
+        return view('inventarios.index', compact('compras'));
     }
 
     public function create()
     {
         $proveedores = Proveedor::all();
-        return view('compras.create', compact('proveedores'));
+        // ✅ apunta a resources/views/inventarios/create.blade.php
+        return view('inventarios.create', compact('proveedores'));
     }
 
     public function store(Request $request)

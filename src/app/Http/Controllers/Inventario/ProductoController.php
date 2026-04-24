@@ -1,29 +1,38 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inventario;
 
+use App\Http\Controllers\Controller;
 use App\Models\Producto;
+use App\Models\Proveedor;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 
-class ProductosController extends Controller
+class ProductoController extends Controller
 {
     public function index()
     {
-        $productos = Producto::all();
-        return view('productos.index', compact('productos'));
+        // ✅ Cargamos proveedor y categoría
+        $productos = Producto::with(['proveedor', 'categoria'])->get();
+        return view('inventarios.productos.index', compact('productos'));
     }
 
     public function create()
     {
-        return view('productos.create');
+        $proveedores = Proveedor::all();
+        $categorias = Categoria::all();
+        return view('inventarios.productos.create', compact('proveedores', 'categorias'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'precio' => 'required|numeric',
-            'stock' => 'required|integer',
+            'Codigo' => 'required|string|max:50|unique:productos,Codigo',
+            'Nombre' => 'required|string|max:150',
+            'Precio_Compra' => 'nullable|numeric',
+            'Precio_Venta' => 'nullable|numeric',
+            'Id_Proveedor' => 'required|exists:proveedores,Id_Proveedor',
+            'Id_Categoria' => 'required|exists:categorias,Id_Categoria',
         ]);
 
         Producto::create($request->all());
@@ -32,20 +41,25 @@ class ProductosController extends Controller
 
     public function show(Producto $producto)
     {
-        return view('productos.show', compact('producto'));
+        return view('inventarios.productos.show', compact('producto'));
     }
 
     public function edit(Producto $producto)
     {
-        return view('productos.edit', compact('producto'));
+        $proveedores = Proveedor::all();
+        $categorias = Categoria::all();
+        return view('inventarios.productos.edit', compact('producto', 'proveedores', 'categorias'));
     }
 
     public function update(Request $request, Producto $producto)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'precio' => 'required|numeric',
-            'stock' => 'required|integer',
+            'Codigo' => 'required|string|max:50|unique:productos,Codigo,' . $producto->Id_Producto . ',Id_Producto',
+            'Nombre' => 'required|string|max:150',
+            'Precio_Compra' => 'nullable|numeric',
+            'Precio_Venta' => 'nullable|numeric',
+            'Id_Proveedor' => 'required|exists:proveedores,Id_Proveedor',
+            'Id_Categoria' => 'required|exists:categorias,Id_Categoria',
         ]);
 
         $producto->update($request->all());

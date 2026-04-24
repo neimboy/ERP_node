@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inventario;
 
+use App\Http\Controllers\Controller;
 use App\Models\Movimiento;
 use App\Models\Producto;
 use Illuminate\Http\Request;
@@ -11,13 +12,15 @@ class MovimientosController extends Controller
     public function index()
     {
         $movimientos = Movimiento::with('producto')->get();
-        return view('movimientos.index', compact('movimientos'));
+        // ✅ apunta a resources/views/inventarios/index.blade.php
+        return view('inventarios.index', compact('movimientos'));
     }
 
     public function create()
     {
         $productos = Producto::all();
-        return view('movimientos.create', compact('productos'));
+        // ✅ apunta a resources/views/inventarios/create.blade.php
+        return view('inventarios.create', compact('productos'));
     }
 
     public function store(Request $request)

@@ -11,12 +11,14 @@ class AlmacenController extends Controller
     public function index()
     {
         $almacenes = Almacen::all();
-        return view('almacenes.index', compact('almacenes'));
+        // ✅ apunta a resources/views/inventarios/index.blade.php
+        return view('inventarios.index', compact('almacenes'));
     }
 
     public function create()
     {
-        return view('almacenes.create');
+        // ✅ apunta a resources/views/inventarios/create.blade.php
+        return view('inventarios.create');
     }
 
     public function store(Request $request)
@@ -32,12 +34,14 @@ class AlmacenController extends Controller
 
     public function show(Almacen $almacen)
     {
-        return view('almacenes.show', compact('almacen'));
+        // ✅ apunta a resources/views/inventarios/show.blade.php
+        return view('inventarios.show', compact('almacen'));
     }
 
     public function edit(Almacen $almacen)
     {
-        return view('almacenes.edit', compact('almacen'));
+        // ✅ apunta a resources/views/inventarios/edit.blade.php
+        return view('inventarios.edit', compact('almacen'));
     }
 
     public function update(Request $request, Almacen $almacen)
