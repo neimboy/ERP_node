@@ -9,7 +9,10 @@ class UpdateClienteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->hasRole('Ventas');
+        $cliente = $this->route('cliente');
+        return $this->user() && ($cliente
+            ? $this->user()->can('update', $cliente)
+            : $this->user()->can('update', \App\Models\Cliente::class));
     }
 
     public function rules(): array

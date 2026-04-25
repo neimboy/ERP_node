@@ -39,6 +39,7 @@
                 <select name="Estado" class="mt-1 block w-full border p-2 rounded">
                     <option value="Prospecto">Prospecto</option>
                     <option value="Negociación">Negociación</option>
+                    <option value="Ganada">Ganada</option>
                     <option value="Cerrado">Cerrado</option>
                 </select>
             </div>

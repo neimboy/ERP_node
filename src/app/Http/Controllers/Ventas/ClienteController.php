@@ -20,16 +20,33 @@ class ClienteController extends Controller
     {
         $q = $request->get('q');
 
+        $allowed = [10, 25, 50, 100];
+
+        if ($request->has('per_page')) {
+            $perPage = intval($request->get('per_page', 10));
+            if (!in_array($perPage, $allowed)) {
+                $perPage = 10;
+            }
+            // guardar preferencia en sesión para futuras visitas
+            $request->session()->put('clientes.per_page', $perPage);
+        } else {
+            // si no viene por GET, intentar leer desde la sesión
+            $perPage = intval($request->session()->get('clientes.per_page', 10));
+            if (!in_array($perPage, $allowed)) {
+                $perPage = 10;
+            }
+        }
+
         $clientes = Cliente::query()
             ->when($q, function ($query) use ($q) {
                 $query->where('Nombre', 'like', "%{$q}%")
                       ->orWhere('Correo', 'like', "%{$q}%");
             })
             ->orderBy('Nombre')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
-        return view('ventas.clientes.index', compact('clientes', 'q'));
+        return view('ventas.clientes.index', compact('clientes', 'q', 'perPage'));
     }
 
     public function create()

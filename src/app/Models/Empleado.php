@@ -8,6 +8,7 @@ class Empleado extends Model
 {
     protected $table = 'empleados';
     protected $primaryKey = 'Id_Empleado';
+    
 
     protected $fillable = [
         'DNI',

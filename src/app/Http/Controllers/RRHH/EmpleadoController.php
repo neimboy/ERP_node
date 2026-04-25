@@ -8,89 +8,79 @@ use App\Models\Empleado;
 
 class EmpleadoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $empleados = \App\Models\Empleado::all();
+        $empleados = Empleado::all();
         return view('rrhh.empleados.index', compact('empleados'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('rrhh.empleados.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-        'DNI'           => 'required|unique:empleados,DNI',
-        'Nombre_Empleado'        => 'required|string|max:150',
-        'Fecha_Ingreso' => 'required|date',
-        'Correo_Empleado'        => 'nullable|email',
-    ]);
-    //  Guardar en la base de datos usando el Modelo
-    \App\Models\Empleado::create([
-        'DNI'             => $request->DNI,
-        'Nombre' => $request->Nombre,
-        'Correo' => $request->Correo,
-        'Telefono'        => $request->Telefono,
-        'Fecha_Ingreso'   => $request->Fecha_Ingreso,
-        'Estado'          => 1, // Lo creamos como activo por defecto
-    ]);
+         $request->validate([
+            'DNI'           => ['required', 'string', 'size:8', 'unique:empleados,DNI'],
+            'Nombre'        => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z\sñÑáéíóúÁÉÍÓÚ]+$/'],
+            'Correo'        => ['required', 'email', 'max:150', 'unique:empleados,Correo', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com)$/i'],
+            'Telefono'      => ['required', 'string', 'regex:/^9[0-9]{8}$/'], 
+            'Fecha_Ingreso' => ['required', 'date'],
+        ], [
+            'DNI.size'       => 'El DNI debe tener exactamente 8 números.',
+            'DNI.unique'     => 'Este DNI ya está registrado.',
+            'Nombre.regex'   => 'El nombre no debe contener números ni caracteres especiales.',
+            'Correo.regex'   => 'Solo se permiten correos de Gmail o Outlook.',
+            'Correo.unique'  => 'Este correo ya está en uso.',
+            'Telefono.regex' => 'El teléfono debe iniciar con 9 y tener 9 dígitos.',
+        ]);
 
-    return redirect()->route('rrhh.empleados.index')->with('success', '¡Empleado guardado exitosamente!');
+        // 2. GUARDADO CON PROTECCIÓN
+        try {
+            \App\Models\Empleado::create([
+                'DNI'           => $request->DNI,
+                'Nombre'        => $request->Nombre,
+                'Correo'        => $request->Correo,
+                'Telefono'      => $request->Telefono,
+                'Fecha_Ingreso' => $request->Fecha_Ingreso,
+                'Estado'        => 1, 
+            ]);
+
+            return redirect()->route('rrhh.empleados.index')
+                            ->with('success', '¡Empleado guardado exitosamente!');
+
+        } catch (\Exception $e) {
+            // Si hay un error de base de datos, volvemos atrás con el mensaje
+            return back()->withInput()->with('error', 'Error en la base de datos: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        $empleado = Empleado::findOrFail($id);
+        $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
         return view('rrhh.empleados.edit', compact('empleado'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'DNI' => 'required',
-            'Nombre' => 'required',
-            'Correo' => 'required|email',
-            'Telefono' => 'required',
+            'DNI'           => 'required|string|size:8|unique:empleados,DNI,'.$id.',Id_Empleado',
+            'Nombre'        => 'required|string|regex:/^[a-zA-Z\sñÑáéíóúÁÉÍÓÚ]+$/',
+            'Correo'        => 'required|email',
+            'Telefono'      => 'required|string|regex:/^9[0-9]{8}$/',
             'Fecha_Ingreso' => 'required|date',
-    ]);
+        ]);
 
-    $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
-    $empleado->update($request->all());
+        $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
+        $empleado->update($request->all());
 
-    return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
+        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
+        $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->delete();
 
         return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado eliminado correctamente');

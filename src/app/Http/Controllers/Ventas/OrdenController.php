@@ -13,21 +13,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use App\Services\VentasService;
 
 class OrdenController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:Super Admin,Ventas']);
-    }
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $ordenes = Orden::with(['cliente', 'detalles.producto'])->orderByDesc('Fecha')->paginate(15);
-        return view('ventas.ordenes.index', compact('ordenes'));
+        $q = request('q');
+        $estado = request('estado');
+
+        $ordenes = Orden::with(['cliente', 'detalles.producto'])
+            ->when($q, function ($query) use ($q) {
+                $query->where('Id_Orden', $q)
+                      ->orWhereHas('cliente', function ($q2) use ($q) { $q2->where('Nombre', 'like', "%{$q}%"); });
+            })
+            ->when($estado, function ($query) use ($estado) {
+                $query->where('Estado', $estado);
+            })
+            ->orderByDesc('Fecha')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('ventas.ordenes.index', compact('ordenes', 'q', 'estado'));
     }
 
     public function create()
@@ -45,6 +56,38 @@ class OrdenController extends Controller
     {
         $orden->load('detalles.producto', 'cliente');
         return view('ventas.ordenes.show', compact('orden'));
+    }
+
+    public function edit(Orden $orden)
+    {
+        $clientes = Cliente::orderBy('Nombre')->get();
+        $productos = Producto::select('Id_Producto', 'Nombre', 'Precio_Venta')->get();
+        $orden->load('detalles');
+        return view('ventas.ordenes.edit', compact('orden', 'clientes', 'productos'));
+    }
+
+    public function update(Request $request, Orden $orden)
+    {
+        $data = $request->validate([
+            'Estado' => 'required|string|max:50',
+        ]);
+
+        $orden->update(['Estado' => $data['Estado']]);
+
+        return redirect()->route('ordenes.show', $orden)->with('success', 'Orden actualizada.');
+    }
+
+    public function destroy(Orden $orden)
+    {
+        if ($orden->factura) {
+            return back()->with('error', 'No se puede eliminar una orden que ya tiene factura.');
+        }
+
+        // eliminar detalles primero
+        $orden->detalles()->delete();
+        $orden->delete();
+
+        return redirect()->route('ordenes.index')->with('success', 'Orden eliminada.');
     }
 
     /**
@@ -91,63 +134,9 @@ class OrdenController extends Controller
 
     public function store(StoreOrdenRequest $request)
     {
-        $orden = null;
-
-        DB::transaction(function () use ($request, &$orden) {
-            $orden = Orden::create([
-                'Id_Cliente' => $request->Id_Cliente,
-                'Fecha' => now(),
-                'Estado' => 'Pendiente',
-            ]);
-
-            $total = 0;
-
-            foreach ($request->lineas as $line) {
-                $producto = Producto::where('Id_Producto', $line['Id_Producto'])->lockForUpdate()->first();
-
-                if (!$producto) {
-                    throw ValidationException::withMessages(['lineas' => "Producto no encontrado ({$line['Id_Producto']})"]);
-                }
-
-                $cantidad = (int) $line['cantidad'];
-
-                if ($producto->stock < $cantidad) {
-                    throw ValidationException::withMessages(['stock' => "Stock insuficiente para {$producto->Nombre}"]);
-                }
-
-                // Reducir stock (método en el modelo Producto)
-                $producto->decrementStock($cantidad);
-
-                $precio = $producto->Precio_Venta ?? 0;
-
-                DetalleOrden::create([
-                    'Id_Orden' => $orden->Id_Orden,
-                    'Id_Producto' => $producto->Id_Producto,
-                    'Cantidad' => $cantidad,
-                    'Precio' => $precio,
-                ]);
-
-                $total += $precio * $cantidad;
-            }
-
-            $factura = Factura::create([
-                'Id_Orden' => $orden->Id_Orden,
-                'Fecha' => now(),
-                'Total' => $total,
-                'Estado_Pago' => 'Pendiente',
-            ]);
-
-            // Integración contable (si está disponible)
-            try {
-                if (class_exists('\App\Services\IntegracionContableService')) {
-                    \App\Services\IntegracionContableService::registrarFactura($factura);
-                } else {
-                    Log::warning('IntegracionContableService no disponible - TODO: integrar');
-                }
-            } catch (\Exception $e) {
-                Log::error('Error Integracion contable: ' . $e->getMessage());
-            }
-        });
+        // Delegar la lógica compleja al servicio de ventas (transacciones, stock y facturación)
+        $ventasService = new VentasService();
+        $orden = $ventasService->crearOrdenConLineas((int) $request->Id_Cliente, $request->lineas);
 
         return redirect()->route('ordenes.show', $orden?->Id_Orden ?? 0)->with('success', 'Orden creada correctamente.');
     }

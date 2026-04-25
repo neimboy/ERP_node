@@ -29,6 +29,7 @@
                         <th class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">DNI</th>
                         <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
                         <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Correo</th>
+                        <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Telefono</th>
                         <th class="px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
                         <th class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
                         <th class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
@@ -38,8 +39,9 @@
                     @foreach($empleados as $empleado)
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-indigo-600">{{ $empleado->DNI }}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Nombre_Empleado }}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Correo_Empleado }}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Nombre }}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Correo }}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Telefono }}</td>
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $empleado->Id_Empleado }}</td>
                         
                         <td class="px-3 py-3 whitespace-nowrap text-center">

@@ -93,7 +93,18 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
-            Route::resource('oportunidades', OportunidadController::class);
+            // Forzar nombre del parámetro a `oportunidad` (singular en español)
+            Route::resource('oportunidades', OportunidadController::class)
+                ->parameters(['oportunidades' => 'oportunidad']);
+            // Ruta personalizada para cerrar una oportunidad
+            Route::post('oportunidades/{oportunidad}/cerrar', [OportunidadController::class, 'cerrar'])
+                ->name('oportunidades.cerrar');
+            // Marcar oportunidad como ganada (genera orden+factura a través del servicio)
+            Route::post('oportunidades/{oportunidad}/ganar', [OportunidadController::class, 'ganarOportunidad'])
+                ->name('oportunidades.ganar');
+            // Ruta para generar una Orden de Venta desde una oportunidad ganada
+            Route::post('oportunidades/{oportunidad}/generar-orden', [OportunidadController::class, 'generarOrden'])
+                ->name('oportunidades.generarOrden');
         });
 
     // 🟡 INVENTARIO
@@ -104,16 +115,18 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('productos', ProductoController::class);
         });
 
-    
+
     // 🔴 RRHH
     Route::prefix('rrhh')
-        ->middleware('role:Super Admin,RRHH') // Quitamos el 'auth' porque ya viene del grupo de arriba
+        ->middleware('role:Super Admin,RRHH') 
         ->group(function () {
-                
+
+<<<<<<< HEAD
             // Usamos la forma corta para los nombres
+=======
+>>>>>>> efd82bf (Correccion y mejoramiento del modulo RRHH)
             Route::resource('empleados', EmpleadoController::class)
                 ->names('rrhh.empleados');
-
             Route::resource('nominas', NominaController::class)
                 ->names('rrhh.nominas');
         });
@@ -124,7 +137,7 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
             Route::resource('proyectos', ProyectoController::class)
                 ->names('produccion.proyectos');
-                
+
             Route::resource('asignaciones', AsignacionController::class)
                 ->names('produccion.asignaciones');
         });
@@ -142,3 +155,4 @@ Route::middleware(['auth'])->group(function () {
 // AUTH (BREEZE)
 // ==========================
 require __DIR__.'/auth.php';
+

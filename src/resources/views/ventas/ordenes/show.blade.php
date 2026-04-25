@@ -7,7 +7,7 @@
                 @if($orden->factura)
                     <a href="{{ route('facturas.show', $orden->factura) }}" class="px-4 py-2 bg-blue-600 text-white rounded">Ver Factura</a>
                 @else
-                    <form action="{{ route('ordenes.facturar', $orden) }}" method="POST" onsubmit="return confirm('Generar factura para esta orden?')">
+                    <form action="{{ route('ordenes.facturar', $orden) }}" method="POST" data-swal-confirm data-swal-message="Generar factura para esta orden?">
                         @csrf
                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Generar Factura</button>
                     </form>
@@ -29,7 +29,19 @@
             </div>
 
             <div class="mb-4">
-                <strong>Estado:</strong> {{ $orden->Estado }}
+                <strong>Estado:</strong>
+                @php
+                    $status = $orden->Estado ?? 'N/A';
+                    $map = [
+                        'Pagada' => 'bg-green-100 text-green-800',
+                        'Pagado' => 'bg-green-100 text-green-800',
+                        'Pendiente' => 'bg-yellow-100 text-yellow-800',
+                        'Pendiente_Pago' => 'bg-yellow-100 text-yellow-800',
+                        'Facturada' => 'bg-blue-100 text-blue-800',
+                    ];
+                    $cls = $map[$status] ?? 'bg-gray-100 text-gray-800';
+                @endphp
+                <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded {{ $cls }}">{{ $status }}</span>
             </div>
 
             <div class="mt-4">
@@ -49,4 +61,28 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form[data-swal-confirm]').forEach(function(form){
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    var msg = form.dataset.swalMessage || '¿Confirmar?';
+                    Swal.fire({
+                        title: 'Confirmar',
+                        text: msg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar'
+                    }).then(function(result){
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </x-app-layout>

@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4">Editar Oportunidad</h2>
 
-    <form action="{{ route('oportunidades.update', $oportunidad) }}" method="POST">
+    <form action="{{ route('oportunidades.update', ['oportunidad' => $oportunidad->Id_Oportunidad]) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -44,6 +44,7 @@
                 <select name="Estado" class="mt-1 block w-full border p-2 rounded">
                     <option value="Prospecto" {{ old('Estado', $oportunidad->Estado) == 'Prospecto' ? 'selected' : '' }}>Prospecto</option>
                     <option value="Negociación" {{ old('Estado', $oportunidad->Estado) == 'Negociación' ? 'selected' : '' }}>Negociación</option>
+                    <option value="Ganada" {{ old('Estado', $oportunidad->Estado) == 'Ganada' ? 'selected' : '' }}>Ganada</option>
                     <option value="Cerrado" {{ old('Estado', $oportunidad->Estado) == 'Cerrado' ? 'selected' : '' }}>Cerrado</option>
                 </select>
                 @error('Estado') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
@@ -62,15 +63,23 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                <form action="{{ route('oportunidades.destroy', $oportunidad) }}" method="POST" onsubmit="return confirm('Eliminar oportunidad?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-3 py-2 bg-red-600 text-white rounded">Eliminar</button>
-                </form>
+                @if($oportunidad->Estado === 'Ganada' && empty($oportunidad->Id_Orden))
+                    <form action="{{ route('oportunidades.generarOrden', ['oportunidad' => $oportunidad->Id_Oportunidad]) }}" method="POST" class="inline" onsubmit="return confirm('Generar Orden de Venta para esta oportunidad?')">
+                        @csrf
+                        <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded">Generar Orden de Venta</button>
+                    </form>
+                @endif
 
-                <button class="px-3 py-2 bg-indigo-600 text-white rounded">Guardar</button>
+                <button type="button" onclick="if(confirm('Eliminar oportunidad?')) { document.getElementById('delete-oportunidad-form').submit(); }" class="px-3 py-2 bg-red-600 text-white rounded">Eliminar</button>
+
+                <button type="submit" class="px-3 py-2 bg-indigo-600 text-white rounded">Guardar</button>
             </div>
         </div>
+    </form>
+
+    <form id="delete-oportunidad-form" action="{{ route('oportunidades.destroy', ['oportunidad' => $oportunidad->Id_Oportunidad]) }}" method="POST" style="display:none;">
+        @csrf
+        @method('DELETE')
     </form>
 </div>
 @endsection
