@@ -72,7 +72,7 @@
                     @foreach($proyecto->asignaciones as $index => $asignacion)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 text-gray-500">{{ $index + 1 }}</td>
-                        <td class="px-6 py-4 font-medium text-gray-900">{{ $asignacion->empleado->Nombre_Empleado ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $asignacion->Horas_Asignadas }} hrs</td>
                         <td class="px-6 py-4 text-right">
                             <form action="{{ route('asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST" class="inline">

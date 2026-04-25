@@ -15,7 +15,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
                 <p class="text-sm text-gray-500 mb-1">Empleado</p>
-                <p class="font-medium text-gray-900">{{ $asignacion->empleado->Nombre_Empleado ?? 'N/A' }}</p>
+                <p class="font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500 mb-1">Proyecto</p>

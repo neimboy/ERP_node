@@ -120,26 +120,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('rrhh')
         ->middleware('role:Super Admin,RRHH') 
         ->group(function () {
-
-<<<<<<< HEAD
-            // Usamos la forma corta para los nombres
-=======
->>>>>>> efd82bf (Correccion y mejoramiento del modulo RRHH)
-            Route::resource('empleados', EmpleadoController::class)
-                ->names('rrhh.empleados');
-            Route::resource('nominas', NominaController::class)
-                ->names('rrhh.nominas');
-        });
-
-    // 🟣 PRODUCCIÓN
-    Route::prefix('produccion')
-        ->middleware('role:Super Admin,Produccion')
-        ->group(function () {
-            Route::resource('proyectos', ProyectoController::class)
-                ->names('produccion.proyectos');
-
-            Route::resource('asignaciones', AsignacionController::class)
-                ->names('produccion.asignaciones');
+            Route::resource('empleados', EmpleadoController::class);
+            Route::resource('nominas', NominaController::class);
         });
 
     // 🟣 PRODUCCIÓN
@@ -147,6 +129,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:Super Admin,Produccion')
         ->group(function () {
             Route::resource('proyectos', ProyectoController::class);
+
             Route::resource('asignaciones', AsignacionController::class);
         });
 

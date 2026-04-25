@@ -19,26 +19,26 @@ class EmpleadoController extends Controller
         return view('rrhh.empleados.create');
     }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
-            'DNI'             => 'required|unique:empleados,DNI',
-            'Nombre_Empleado'  => 'required|string|max:150',
-            'Correo_Empleado' => 'nullable|email',
-            'Telefono'        => 'nullable|string|max:20',
-            'Fecha_Ingreso'   => 'required|date',
+            'DNI'           => 'required|unique:empleados,DNI',
+            'Nombre'        => 'required|string|max:150',
+            'Correo'       => 'nullable|email',
+            'Telefono'      => 'nullable|string|max:20',
+            'Fecha_Ingreso' => 'required|date',
         ]);
 
         \App\Models\Empleado::create([
-            'DNI'           => $request->DNI,
-            'Nombre_Empleado'=> $request->Nombre_Empleado,
-            'Correo_Empleado'=> $request->Correo_Empleado,
-            'Telefono'       => $request->Telefono,
-            'Fecha_Ingreso'  => $request->Fecha_Ingreso,
-            'Estado'        => $request->Estado ?? 1,
+            'DNI'        => $request->DNI,
+            'Nombre'     => $request->Nombre,
+            'Correo'    => $request->Correo,
+            'Telefono'  => $request->Telefono,
+            'Fecha_Ingreso' => $request->Fecha_Ingreso,
+            'Estado'   => $request->Estado ?? 1,
         ]);
 
-        return redirect()->route('rrhh.empleados.index')->with('success', '¡Empleado guardado exitosamente!');
+        return redirect()->route('empleados.index')->with('success', '¡Empleado guardado exitosamente!');
     }
 
     public function edit(string $id)
@@ -50,17 +50,17 @@ class EmpleadoController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'DNI'             => 'required',
-            'Nombre_Empleado' => 'required',
-            'Correo_Empleado' => 'nullable|email',
-            'Telefono'        => 'nullable|string|max:20',
-            'Fecha_Ingreso'   => 'required|date',
+            'DNI'        => 'required',
+            'Nombre'     => 'required',
+            'Correo'    => 'nullable|email',
+            'Telefono'   => 'nullable|string|max:20',
+            'Fecha_Ingreso' => 'required|date',
         ]);
 
         $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->update($request->all());
 
-        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
+        return redirect()->route('empleados.index')->with('success', 'Empleado actualizado');
     }
 
     public function destroy(string $id)
@@ -68,6 +68,6 @@ class EmpleadoController extends Controller
         $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->delete();
 
-        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado eliminado correctamente');
+        return redirect()->route('empleados.index')->with('success', 'Empleado eliminado correctamente');
     }
 }

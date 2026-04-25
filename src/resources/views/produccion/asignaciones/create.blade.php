@@ -23,7 +23,7 @@
                     <select name="Id_Empleado" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
                         <option value="">Seleccione un Empleado</option>
                         @foreach($empleados as $empleado)
-                            <option value="{{ $empleado->Id_Empleado }}">{{ $empleado->Nombre_Empleado }}</option>
+                            <option value="{{ $empleado->Id_Empleado }}">{{ $empleado->Nombre }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -5,7 +5,7 @@
                 <h1 class="text-3xl font-bold text-gray-800">Panel de Recursos Humanos</h1>
                 <p class="text-gray-500">Gestión de empleados registrados</p>
             </div>
-            <a href="{{ route('rrhh.empleados.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors font-bold">
+            <a href="{{ route('empleados.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors font-bold">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Nuevo Empleado
             </a>
@@ -54,8 +54,8 @@
 
                         <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium">
                             <div class="flex justify-center space-x-3">
-                                <a href="{{ route('rrhh.empleados.edit', $empleado->Id_Empleado) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Editar</a>
-                                <form action="{{ route('rrhh.empleados.destroy', $empleado->Id_Empleado) }}" method="POST" class="form-eliminar">
+                                <a href="{{ route('empleados.edit', $empleado->Id_Empleado) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Editar</a>
+                                <form action="{{ route('empleados.destroy', $empleado->Id_Empleado) }}" method="POST" class="form-eliminar">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmarEliminar(this)" class="text-red-600 hover:text-red-900 font-bold">Eliminar</button>
