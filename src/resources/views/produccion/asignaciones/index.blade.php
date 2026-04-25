@@ -19,10 +19,10 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4 flex-1">
                         <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <span class="text-indigo-600 font-semibold">{{ substr($asignacion->empleado->Nombre ?? 'N/A', 0, 1) }}</span>
+                            <span class="text-indigo-600 font-semibold">{{ substr($asignacion->empleado->Nombre_Empleado ?? 'N/A', 0, 1) }}</span>
                         </div>
                         <div class="flex-1">
-                            <p class="font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</p>
+                            <p class="font-medium text-gray-900">{{ $asignacion->empleado->Nombre_Empleado ?? 'N/A' }}</p>
                             <p class="text-sm text-gray-500">{{ $asignacion->proyecto->Nombre ?? 'N/A' }}</p>
                         </div>
                     </div>

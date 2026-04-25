@@ -18,7 +18,7 @@
                 <select name="Id_Empleado" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
                     @foreach($empleados as $empleado)
                         <option value="{{ $empleado->Id_Empleado }}" {{ $empleado->Id_Empleado == $asignacion->Id_Empleado ? 'selected' : '' }}>
-                            {{ $empleado->Nombre }}
+                            {{ $empleado->Nombre_Empleado }}
                         </option>
                     @endforeach
                 </select>

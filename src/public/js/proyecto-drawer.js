@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 empleadosHtml += '<div class="flex items-center justify-between py-2 border-b border-gray-100">' +
                     '<div class="flex items-center gap-3">' +
                         '<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">' +
-                            '<span class="text-indigo-600 font-medium text-sm">' + (emp.empleado ? emp.empleado.Nombre.charAt(0) : '?') + '</span>' +
+                            '<span class="text-indigo-600 font-medium text-sm">' + (emp.empleado ? emp.empleado.Nombre_Empleado.charAt(0) : '?') + '</span>' +
                         '</div>' +
-                        '<span class="text-gray-700">' + (emp.empleado ? emp.empleado.Nombre : 'N/A') + '</span>' +
+                        '<span class="text-gray-700">' + (emp.empleado ? emp.empleado.Nombre_Empleado : 'N/A') + '</span>' +
                     '</div>' +
                     '<span class="text-gray-500 text-sm">' + emp.Horas_Asignadas + ' hrs</span>' +
                 '</div>';

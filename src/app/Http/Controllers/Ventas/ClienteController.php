@@ -12,30 +12,12 @@ class ClienteController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'role:Super Admin,Ventas']);
-        $this->authorizeResource(Cliente::class, 'cliente');
+        $this->middleware('auth');
     }
 
     public function index(Request $request)
     {
         $q = $request->get('q');
-
-        $allowed = [10, 25, 50, 100];
-
-        if ($request->has('per_page')) {
-            $perPage = intval($request->get('per_page', 10));
-            if (!in_array($perPage, $allowed)) {
-                $perPage = 10;
-            }
-            // guardar preferencia en sesión para futuras visitas
-            $request->session()->put('clientes.per_page', $perPage);
-        } else {
-            // si no viene por GET, intentar leer desde la sesión
-            $perPage = intval($request->session()->get('clientes.per_page', 10));
-            if (!in_array($perPage, $allowed)) {
-                $perPage = 10;
-            }
-        }
 
         $clientes = Cliente::query()
             ->when($q, function ($query) use ($q) {
@@ -43,21 +25,27 @@ class ClienteController extends Controller
                       ->orWhere('Correo', 'like', "%{$q}%");
             })
             ->orderBy('Nombre')
-            ->paginate($perPage)
+            ->paginate(15)
             ->withQueryString();
 
-        return view('ventas.clientes.index', compact('clientes', 'q', 'perPage'));
+        return view('ventas.clientes.index', compact('clientes', 'q'));
     }
 
     public function create()
     {
-        $cliente = new Cliente();
-        return view('ventas.clientes.create', compact('cliente'));
+        return view('ventas.clientes.create');
     }
 
-    public function store(StoreClienteRequest $request)
+    public function store(Request $request)
     {
-        Cliente::create($request->validated());
+        $request->validate([
+            'Documento' => 'required|unique:clientes,Documento',
+            'Nombre' => 'required|string|max:150',
+            'Correo' => 'nullable|email',
+            'Telefono' => 'nullable|string|max:20',
+        ]);
+
+        Cliente::create($request->all());
         return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente.');
     }
 
@@ -71,9 +59,16 @@ class ClienteController extends Controller
         return view('ventas.clientes.edit', compact('cliente'));
     }
 
-    public function update(UpdateClienteRequest $request, Cliente $cliente)
+    public function update(Request $request, Cliente $cliente)
     {
-        $cliente->update($request->validated());
+        $request->validate([
+            'Documento' => 'required',
+            'Nombre' => 'required|string|max:150',
+            'Correo' => 'nullable|email',
+            'Telefono' => 'nullable|string|max:20',
+        ]);
+
+        $cliente->update($request->all());
         return redirect()->route('clientes.index')->with('success', 'Cliente actualizado.');
     }
 
