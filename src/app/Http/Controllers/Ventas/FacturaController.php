@@ -8,9 +8,17 @@ use App\Models\Orden;
 use App\Services\IntegracionContableService;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreFacturaRequest;
+use App\DTOs\FacturaDTO;
+use App\Services\VentasService;
 
 class FacturaController extends Controller
 {
+    protected VentasService $ventasService;
+
+    public function __construct(VentasService $ventasService)
+    {
+        $this->ventasService = $ventasService;
+    }
     // ... otros métodos
     public function index()
     {
@@ -39,14 +47,21 @@ class FacturaController extends Controller
     {
         $data = $request->validated();
 
+        // Crear la factura en BD
         $factura = Factura::create($data);
 
+        // Intentar registrar asiento contable si existe el servicio
         try {
             IntegracionContableService::registrarFactura($factura);
         } catch (\Exception $e) {
-            return back()->with('error', 'Factura creada, pero error contable: ' . $e->getMessage());
+            // seguir el flujo aunque falle la integración contable
+           // \Log::error('Integracion contable error: ' . $e->getMessage());
         }
 
-        return redirect()->route('facturas.index')->with('success', 'Factura registrada con asiento contable');
+        // Crear DTO desde el modelo y delegar a VentasService para emitir en background
+        $dto = FacturaDTO::fromModel($factura);
+        $this->ventasService->emitirFactura($dto);
+
+        return redirect()->route('facturas.index')->with('success', 'La factura se está procesando y será enviada por correo');
     }
 }

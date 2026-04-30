@@ -114,7 +114,7 @@
 
                             {{-- 👥 RRHH --}}
                             @can('view_rrhh')
-                                <a href="{{ route('empleados.index') }}"
+                                <a href="{{ route('rrhh.empleados.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('rrhh*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     RRHH
@@ -123,13 +123,13 @@
 
                             {{-- 🛠️ PRODUCCIÓN --}}
                             @can('view_produccion')
-                                <a href="{{ route('proyectos.index') }}"
+                                <a href="{{ route('produccion.proyectos.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('proyectos*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Producción
                                 </a>
 
-                                <a href="{{ route('asignaciones.index') }}"
+                                <a href="{{ route('produccion.asignaciones.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
                                    {{ request()->is('asignaciones*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Asignaciones

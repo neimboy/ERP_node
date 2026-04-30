@@ -5,10 +5,10 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
-            <a href="{{ route('proyectos.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
+            <a href="{{ route('produccion.proyectos.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
             <h1 class="text-2xl font-bold text-gray-800">{{ $proyecto->Nombre }}</h1>
         </div>
-        <a href="{{ route('proyectos.edit', $proyecto->Id_Proyecto) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
+        <a href="{{ route('produccion.proyectos.edit', $proyecto->Id_Proyecto) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
@@ -43,7 +43,7 @@
 
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-gray-800">Empleados Asignados ({{ $proyecto->asignaciones->count() }})</h2>
-        <a href="{{ route('asignaciones.create', ['proyecto_id' => $proyecto->Id_Proyecto]) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">+ Agregar</a>
+        <a href="{{ route('produccion.asignaciones.create', ['proyecto_id' => $proyecto->Id_Proyecto]) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">+ Agregar</a>
     </div>
 
     @if($proyecto->asignaciones->isEmpty())
@@ -75,7 +75,7 @@
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $asignacion->Horas_Asignadas }} hrs</td>
                         <td class="px-6 py-4 text-right">
-                            <form action="{{ route('asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST" class="inline">
+                            <form action="{{ route('produccion.asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium" onclick="return confirm('¿Eliminar esta asignación?')">Eliminar</button>

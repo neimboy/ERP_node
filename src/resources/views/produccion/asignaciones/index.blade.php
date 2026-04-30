@@ -5,7 +5,7 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Asignaciones</h1>
-        <a href="{{ route('asignaciones.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nueva</a>
+        <a href="{{ route('produccion.asignaciones.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nueva</a>
     </div>
 
     @if($asignaciones->isEmpty())
@@ -31,7 +31,7 @@
                             <p class="text-indigo-600 font-semibold">{{ $asignacion->Horas_Asignadas }}</p>
                             <p class="text-xs text-gray-500">horas</p>
                         </div>
-                        <a href="{{ route('asignaciones.show', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver</a>
+                        <a href="{{ route('produccion.asignaciones.show', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver</a>
                     </div>
                 </div>
             </div>

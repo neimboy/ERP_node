@@ -11,9 +11,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Repositories\Ventas\VentaRepositoryInterface;
+use App\DTOs\FacturaDTO;
+use App\Jobs\GenerarFacturaPDFJob;
 
 class VentasService
 {
+    protected VentaRepositoryInterface $ventaRepo;
+
+    public function __construct(VentaRepositoryInterface $ventaRepo)
+    {
+        $this->ventaRepo = $ventaRepo;
+    }
+
     /**
      * Marca la oportunidad como ganada, crea la orden y factura asociada (todo atómico).
      *
@@ -154,5 +164,20 @@ class VentasService
 
             return $orden;
         });
+    }
+
+    /**
+     * Emitir factura: simula persistencia y dispara job para generar PDF y enviar correo.
+     *
+     * @param FacturaDTO $dto
+     * @return void
+     */
+    public function emitirFactura(FacturaDTO $dto): void
+    {
+        // Simular guardado final de la factura
+        Log::info("[VentasService] Emisión de factura (simulada) Id={$dto->id}, Total={$dto->total}");
+
+        // Dispatch job para generar PDF y enviar correo en background
+        GenerarFacturaPDFJob::dispatch($dto->id);
     }
 }

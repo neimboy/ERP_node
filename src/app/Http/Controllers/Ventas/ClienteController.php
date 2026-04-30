@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ClienteController extends Controller
 {
@@ -39,10 +40,10 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Documento' => 'required|unique:clientes,Documento',
+            'Documento' => 'required|unique:clientes,Documento|max:8',
             'Nombre' => 'required|string|max:150',
             'Correo' => 'nullable|email',
-            'Telefono' => 'nullable|string|max:20',
+            'Telefono' => 'nullable|string|max:9',
         ]);
 
         Cliente::create($request->all());
@@ -62,10 +63,14 @@ class ClienteController extends Controller
     public function update(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'Documento' => 'required',
+            'Documento' => [
+                'required',
+                Rule::unique('clientes', 'Documento')->ignore($cliente->Id_Cliente, 'Id_Cliente'),
+                'max:8'
+            ],
             'Nombre' => 'required|string|max:150',
             'Correo' => 'nullable|email',
-            'Telefono' => 'nullable|string|max:20',
+            'Telefono' => 'nullable|string|max:9',
         ]);
 
         $cliente->update($request->all());

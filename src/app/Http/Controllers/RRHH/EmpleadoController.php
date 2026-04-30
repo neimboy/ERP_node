@@ -38,7 +38,7 @@ public function store(Request $request)
             'Estado'   => $request->Estado ?? 1,
         ]);
 
-        return redirect()->route('empleados.index')->with('success', '¡Empleado guardado exitosamente!');
+        return redirect()->route('rrhh.empleados.index')->with('success', '¡Empleado guardado exitosamente!');
     }
 
     public function edit(string $id)
@@ -60,7 +60,7 @@ public function store(Request $request)
         $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->update($request->all());
 
-        return redirect()->route('empleados.index')->with('success', 'Empleado actualizado');
+        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
     }
 
     public function destroy(string $id)
@@ -68,6 +68,6 @@ public function store(Request $request)
         $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->delete();
 
-        return redirect()->route('empleados.index')->with('success', 'Empleado eliminado correctamente');
+        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado eliminado correctamente');
     }
 }

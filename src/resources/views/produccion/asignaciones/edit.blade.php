@@ -9,10 +9,10 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 max-w-xl">
-        <form action="{{ route('asignaciones.update', $asignacion->Id_Asignacion) }}" method="POST" class="p-6 space-y-5">
+        <form action="{{ route('produccion.asignaciones.update', $asignacion->Id_Asignacion) }}" method="POST" class="p-6 space-y-5">
             @csrf
             @method('PUT')
-            
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Empleado</label>
                 <select name="Id_Empleado" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>

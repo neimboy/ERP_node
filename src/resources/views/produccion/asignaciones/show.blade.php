@@ -5,10 +5,10 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
-            <a href="{{ route('asignaciones.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
+            <a href="{{ route('produccion.asignaciones.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
             <h1 class="text-2xl font-bold text-gray-800">Detalle de Asignación</h1>
         </div>
-        <a href="{{ route('asignaciones.edit', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
+        <a href="{{ route('produccion.asignaciones.edit', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <form action="{{ route('asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST">
+    <form action="{{ route('produccion.asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST">
         @csrf
         @method('DELETE')
         <button type="submit" class="text-red-600 hover:text-red-800 font-medium" onclick="return confirm('¿Estás seguro de eliminar esta asignación?')">Eliminar asignación</button>

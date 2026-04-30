@@ -5,7 +5,7 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Proyectos</h1>
-        <a href="{{ route('proyectos.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nuevo</a>
+        <a href="{{ route('produccion.proyectos.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nuevo</a>
     </div>
 
     @if($proyectos->isEmpty())
@@ -55,7 +55,7 @@
                 </svg>
             </button>
         </div>
-        
+
         <div class="flex-1 overflow-y-auto p-5" id="drawerContent">
             <div class="text-center text-gray-500">Cargando...</div>
         </div>

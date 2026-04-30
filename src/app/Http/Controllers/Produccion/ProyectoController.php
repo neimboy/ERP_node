@@ -26,7 +26,7 @@ class ProyectoController extends Controller
     public function store(ProyectoRequest $request):RedirectResponse
     {
         Proyecto::create($request->validated());
-        return redirect()->route('proyectos.index');
+        return redirect()->route('produccion.proyectos.index');
     }
 
     public function show(Proyecto $proyecto): View
@@ -44,12 +44,12 @@ class ProyectoController extends Controller
     public function update(ProyectoRequest $request, Proyecto $proyecto):RedirectResponse
     {
         $proyecto->update($request->validated());
-        return redirect()->route('proyectos.show', $proyecto);
+        return redirect()->route('produccion.proyectos.show', $proyecto);
     }
 
     public function destroy(Proyecto $proyecto):RedirectResponse
     {
         $proyecto->delete();
-        return redirect()->route('proyectos.index');
+        return redirect()->route('produccion.proyectos.index');
     }
 }

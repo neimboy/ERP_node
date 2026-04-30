@@ -1,29 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalle Pago</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
-        <h1 class="text-2xl font-bold mb-4">Pago #{{ $pago->Id_Pago }}</h1>
+@extends('layouts.app')
+@section('title', 'Detalle de Pago')
 
-        <div class="mb-3"><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($pago->Fecha)->format('Y-m-d') }}</div>
-        <div class="mb-3"><strong>Factura:</strong>
-            @if($pago->factura)
-                <a href="{{ route('facturas.show', $pago->factura) }}" class="text-blue-600">FAC-{{ str_pad($pago->factura->Id_Factura,6,'0',STR_PAD_LEFT) }}</a>
-                | Cliente: {{ optional(optional($pago->factura)->orden->cliente)->Nombre ?? 'N/A' }}
-            @else
-                N/A
-            @endif
-        </div>
-        <div class="mb-3"><strong>Monto:</strong> S/ {{ number_format($pago->Monto,2) }}</div>
-        <div class="mb-3"><strong>Método:</strong> {{ $pago->Metodo }}</div>
-
-        <div class="mt-6">
-            <a href="{{ route('pagos.index') }}" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Volver</a>
-            <a href="{{ route('pagos.edit', $pago) }}" class="bg-green-600 text-white px-4 py-2 rounded">Editar</a>
-        </div>
+@section('content')
+<div class="container mx-auto px-4 py-6 max-w-2xl">
+    <div class="mb-6">
+        <a href="{{ route('pagos.index') }}" class="text-gray-500 hover:text-gray-700">← Volver</a>
+        <h1 class="text-2xl font-bold mt-2">Detalle de Pago</h1>
     </div>
-</body>
-</html>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <dl class="grid grid-cols-1 gap-4">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">ID</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ $pago->Id ?? '-' }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Número de Factura</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ $pago->Numero_Factura ?? '-' }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Cliente</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ $pago->cliente->Nombre ?? '-' }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Monto</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ number_format($pago->Monto ?? 0, 2) }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Fecha</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ optional($pago->Fecha)->format('Y-m-d') ?? ($pago->created_at?->format('Y-m-d') ?? '-') }}</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+@endsection
+

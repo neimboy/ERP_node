@@ -93,7 +93,6 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
-            // Forzar nombre del parámetro a `oportunidad` (singular en español)
             Route::resource('oportunidades', OportunidadController::class)
                 ->parameters(['oportunidades' => 'oportunidad']);
             // Ruta personalizada para cerrar una oportunidad
@@ -118,19 +117,24 @@ Route::middleware(['auth'])->group(function () {
 
     // 🔴 RRHH
     Route::prefix('rrhh')
-        ->middleware('role:Super Admin,RRHH') 
+        ->middleware('role:Super Admin,RRHH')
         ->group(function () {
-            Route::resource('empleados', EmpleadoController::class);
-            Route::resource('nominas', NominaController::class);
+            // Usamos la forma corta para los nombres
+            Route::resource('empleados', EmpleadoController::class)
+                ->names('rrhh.empleados');
+            Route::resource('nominas', NominaController::class)
+                ->names('rrhh.nominas');
         });
 
     // 🟣 PRODUCCIÓN
     Route::prefix('produccion')
         ->middleware('role:Super Admin,Produccion')
         ->group(function () {
-            Route::resource('proyectos', ProyectoController::class);
+            Route::resource('proyectos', ProyectoController::class)
+                ->names('produccion.proyectos');
 
-            Route::resource('asignaciones', AsignacionController::class);
+            Route::resource('asignaciones', AsignacionController::class)
+                ->names('produccion.asignaciones');
         });
 
 });

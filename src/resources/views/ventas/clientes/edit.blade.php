@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4">Editar Cliente</h2>
 
-    <form action="{{ route('clientes.update', $cliente) }}" method="POST">
+    <form action="{{ route('clientes.update', $cliente) }}" method="POST" data-cliente-form="1">
         @csrf
         @method('PATCH')
 
