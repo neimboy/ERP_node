@@ -15,4 +15,9 @@ class Periodo extends Model
     {
         return $this->hasMany(Asiento::class, 'Id_Periodo');
     }
+
+    public function nominas()
+    {
+        return $this->hasMany(Nomina::class, 'Id_Periodo');
+    }
 }

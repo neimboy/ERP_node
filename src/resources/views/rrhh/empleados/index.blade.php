@@ -1,3 +1,5 @@
+@extends('layouts.app')
+@section('content')
 <div class="min-h-screen bg-gray-100 p-8">
     <div class="max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
@@ -55,11 +57,6 @@
                         <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium">
                             <div class="flex justify-center space-x-3">
                                 <a href="{{ route('rrhh.empleados.edit', $empleado->Id_Empleado) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Editar</a>
-                                <form action="{{ route('rrhh.empleados.destroy', $empleado->Id_Empleado) }}" method="POST" class="form-eliminar">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" onclick="confirmarEliminar(this)" class="text-red-600 hover:text-red-900 font-bold">Eliminar</button>
-                                </form>
                             </div>
                         </td>
                     </tr>
@@ -75,7 +72,7 @@
         </div>
     </div>
 </div>
-
+@endsection
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 

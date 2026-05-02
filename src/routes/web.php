@@ -17,6 +17,8 @@ use App\Http\Controllers\Ventas\OportunidadController;
 // RRHH
 use App\Http\Controllers\RRHH\EmpleadoController;
 use App\Http\Controllers\RRHH\NominaController;
+use App\Http\Controllers\RRHH\PuestoController;
+use App\Http\Controllers\RRHH\ContratoController;
 
 // INVENTARIO
 use App\Http\Controllers\Inventario\AlmacenController;
@@ -121,14 +123,14 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:Super Admin,RRHH') 
         ->group(function () {
 
-<<<<<<< HEAD
-            // Usamos la forma corta para los nombres
-=======
->>>>>>> efd82bf (Correccion y mejoramiento del modulo RRHH)
             Route::resource('empleados', EmpleadoController::class)
                 ->names('rrhh.empleados');
             Route::resource('nominas', NominaController::class)
                 ->names('rrhh.nominas');
+            Route::resource('puestos', PuestoController::class)
+                ->names('rrhh.puestos');
+            Route::resource('contratos', ContratoController::class)
+                ->names('rrhh.contratos');
         });
 
     // 🟣 PRODUCCIÓN

@@ -114,11 +114,51 @@
 
                             {{-- 👥 RRHH --}}
                             @can('view_rrhh')
-                                <a href="{{ route('rrhh.empleados.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('rrhh*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    RRHH
-                                </a>
+                                <div class="relative" x-data="{ openRRHH: false }">
+                                    <button @click="openRRHH = !openRRHH"
+                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('rrhh*') ? 'bg-gray-100' : '' }}">
+                                        <span>RRHH</span>
+                                        <svg class="ml-2 h-4 w-4 transition-transform" :class="openRRHH ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="openRRHH" 
+                                        @click.away="openRRHH = false"
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                        class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        style="display: none;">
+                                        <div class="py-1 px-2">
+                                            {{-- Empleados --}}
+                                            <a href="{{ route('rrhh.empleados.index') }}" 
+                                            class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md {{ request()->is('rrhh/empleados*') ? 'bg-blue-50 font-bold text-blue-600' : '' }}">
+                                            👥 Empleados
+                                            </a>
+
+                                            {{-- Puestos --}}
+                                            <a href="{{ route('rrhh.puestos.index') }}" 
+                                            class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md {{ request()->is('rrhh/puestos*') ? 'bg-blue-50 font-bold text-blue-600' : '' }}">
+                                            💼 Puestos / Cargos
+                                            </a>
+
+                                            {{-- Contratos --}}
+                                            <a href="{{ route('rrhh.contratos.index') }}" 
+                                            class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md {{ request()->is('rrhh/contratos*') ? 'bg-blue-50 font-bold text-blue-600' : '' }}">
+                                            📜 Contratos Laborales
+                                            </a>
+
+                                            <div class="border-t border-gray-100 my-1"></div>
+
+                                            {{-- Nóminas --}}
+                                            <a href="{{ route('rrhh.nominas.index') }}" 
+                                            class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md {{ request()->is('rrhh/nominas*') ? 'bg-blue-50 font-bold text-blue-600' : '' }}">
+                                            💰 Nóminas
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             @endcan
 
                             {{-- 🛠️ PRODUCCIÓN --}}
