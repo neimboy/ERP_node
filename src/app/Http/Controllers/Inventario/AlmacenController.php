@@ -11,21 +11,21 @@ class AlmacenController extends Controller
     public function index()
     {
         $almacenes = Almacen::all();
-        // ✅ apunta a resources/views/inventarios/index.blade.php
-        return view('inventarios.index', compact('almacenes'));
+        // ✅ apunta a resources/views/inventarios/almacenes/index.blade.php
+        return view('inventarios.almacenes.index', compact('almacenes'));
     }
 
     public function create()
     {
-        // ✅ apunta a resources/views/inventarios/create.blade.php
-        return view('inventarios.create');
+        // ✅ apunta a resources/views/inventarios/almacenes/create.blade.php
+        return view('inventarios.almacenes.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'ubicacion' => 'nullable|string|max:255',
+            'Nombre' => 'required|string|max:150',
+            'Direccion' => 'nullable|string',
         ]);
 
         Almacen::create($request->all());
@@ -34,21 +34,21 @@ class AlmacenController extends Controller
 
     public function show(Almacen $almacen)
     {
-        // ✅ apunta a resources/views/inventarios/show.blade.php
-        return view('inventarios.show', compact('almacen'));
+        // ✅ apunta a resources/views/inventarios/almacenes/show.blade.php
+        return view('inventarios.almacenes.show', compact('almacen'));
     }
 
     public function edit(Almacen $almacen)
     {
-        // ✅ apunta a resources/views/inventarios/edit.blade.php
-        return view('inventarios.edit', compact('almacen'));
+        // ✅ apunta a resources/views/inventarios/almacenes/edit.blade.php
+        return view('inventarios.almacenes.edit', compact('almacen'));
     }
 
     public function update(Request $request, Almacen $almacen)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'ubicacion' => 'nullable|string|max:255',
+            'Nombre' => 'required|string|max:150',
+            'Direccion' => 'nullable|string',
         ]);
 
         $almacen->update($request->all());

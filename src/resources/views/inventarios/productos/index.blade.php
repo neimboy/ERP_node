@@ -15,7 +15,11 @@
         </a>
         <a href="{{ route('categorias.index') }}" 
         class="bg-yellow-600 text-white px-4 py-2 rounded mb-4 inline-block">
-        Gestionar Categorías
+            Gestionar Categorías
+        </a>
+        <a href="{{ route('almacenes.index') }}" 
+           class="bg-green-600 text-white px-4 py-2 rounded mb-4 inline-block">
+           Gestionar Almacenes
         </a>
         <a href="{{ route('inventario.dashboard') }}" 
            class="bg-gray-600 text-white px-4 py-2 rounded mb-4 inline-block">
