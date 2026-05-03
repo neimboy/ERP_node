@@ -107,21 +107,42 @@
                                             <div class="py-1 px-2">
                                                 <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
                                                 
+                                                {{-- Enlace a Almacenes --}}
+                                                <a href="{{ route('almacenes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-warehouse mr-2 text-green-600"></i> Almacenes
+                                                </a>
+
                                                 {{-- Enlace a Productos --}}
                                                 <a href="{{ route('productos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
                                                     <i class="fas fa-boxes mr-2 text-green-600"></i> Productos
                                                 </a>
-                                                
-                                                {{-- Enlace a Proveedores --}}
-                                                <a href="{{ route('proveedores.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
-                                                    <i class="fas fa-truck mr-2 text-green-600"></i> Proveedores
+
+                                                {{-- Enlace a Categorías --}}
+                                                <a href="{{ route('categorias.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-tags mr-2 text-green-600"></i> Categorías
+                                                </a>
+
+                                                {{-- Enlace a Inventarios --}}
+                                                <a href="{{ route('inventarios.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-clipboard-list mr-2 text-green-600"></i> Inventarios
+                                                </a>
+
+                                                {{-- Enlace a Movimientos --}}
+                                                <a href="{{ route('movimientos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-exchange-alt mr-2 text-green-600"></i> Movimientos
                                                 </a>
 
                                                 <div class="border-t border-gray-100 my-1"></div>
 
-                                                
-                                                
-                                                
+                                                {{-- Enlace a Compras --}}
+                                                <a href="{{ route('compras.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-shopping-cart mr-2 text-green-600"></i> Compras
+                                                </a>
+
+                                                {{-- Enlace a Proveedores --}}
+                                                <a href="{{ route('proveedores.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-truck mr-2 text-green-600"></i> Proveedores
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

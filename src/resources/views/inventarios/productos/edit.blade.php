@@ -1,78 +1,80 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Producto - ERP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 p-8">
-    <div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-bold mb-4">Editar Producto</h1>
+@extends('layouts.app')
 
-        <form action="{{ route('productos.update', $producto->Id_Producto) }}" method="POST">
-            @csrf
-            @method('PUT')
+@section('content')
+<div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-2xl font-bold mb-4 text-gray-800">Editar Producto</h1>
 
-            <div class="mb-4">
-                <label class="block mb-1">Código</label>
-                <input type="text" name="Codigo" value="{{ $producto->Codigo }}" 
-                       class="w-full border rounded p-2" required>
-            </div>
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
 
-            <div class="mb-4">
-                <label class="block mb-1">Nombre</label>
-                <input type="text" name="Nombre" value="{{ $producto->Nombre }}" 
-                       class="w-full border rounded p-2" required>
-            </div>
+    <form action="{{ route('productos.update', $producto) }}" method="POST" class="space-y-4">
+        @csrf
+        @method('PUT')
 
-            <div class="mb-4">
-                <label class="block mb-1">Precio Compra</label>
-                <input type="number" step="0.01" name="Precio_Compra" 
-                       value="{{ $producto->Precio_Compra }}" 
-                       class="w-full border rounded p-2">
-            </div>
+        <div>
+            <label class="block font-semibold text-gray-700">Código</label>
+            <input type="text" name="Codigo" value="{{ $producto->Codigo }}" 
+                   class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" required>
+        </div>
 
-            <div class="mb-4">
-                <label class="block mb-1">Precio Venta</label>
-                <input type="number" step="0.01" name="Precio_Venta" 
-                       value="{{ $producto->Precio_Venta }}" 
-                       class="w-full border rounded p-2">
-            </div>
+        <div>
+            <label class="block font-semibold text-gray-700">Nombre</label>
+            <input type="text" name="Nombre" value="{{ $producto->Nombre }}" 
+                   class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" required>
+        </div>
 
-            <div class="mb-4">
-                <label class="block mb-1">Proveedor</label>
-                <select name="Id_Proveedor" class="w-full border rounded p-2" required>
-                    @foreach($proveedores as $proveedor)
-                        <option value="{{ $proveedor->Id_Proveedor }}" 
-                            {{ $producto->Id_Proveedor == $proveedor->Id_Proveedor ? 'selected' : '' }}>
-                            {{ $proveedor->Nombre }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+        <div>
+            <label class="block font-semibold text-gray-700">Precio Compra</label>
+            <input type="number" step="0.01" name="Precio_Compra" 
+                   value="{{ $producto->Precio_Compra }}" 
+                   class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300">
+        </div>
 
-            <div class="mb-4">
-                <label class="block mb-1">Categoría</label>
-                <select name="Id_Categoria" class="w-full border rounded p-2" required>
-                    @foreach($categorias as $categoria)
-                        <option value="{{ $categoria->Id_Categoria }}" 
-                            {{ $producto->Id_Categoria == $categoria->Id_Categoria ? 'selected' : '' }}>
-                            {{ $categoria->Nombre }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+        <div>
+            <label class="block font-semibold text-gray-700">Precio Venta</label>
+            <input type="number" step="0.01" name="Precio_Venta" 
+                   value="{{ $producto->Precio_Venta }}" 
+                   class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300">
+        </div>
 
-            <div class="flex justify-between">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
-                    Actualizar
-                </button>
-                <a href="{{ route('productos.index') }}" 
-                   class="bg-gray-500 text-white px-4 py-2 rounded">
-                   Volver
-                </a>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        <div>
+            <label class="block font-semibold text-gray-700">Proveedor</label>
+            <select name="Id_Proveedor" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" required>
+                @foreach($proveedores as $proveedor)
+                    <option value="{{ $proveedor->Id_Proveedor }}" 
+                        {{ $producto->Id_Proveedor == $proveedor->Id_Proveedor ? 'selected' : '' }}>
+                        {{ $proveedor->Nombre }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label class="block font-semibold text-gray-700">Categoría</label>
+            <select name="Id_Categoria" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" required>
+                @foreach($categorias as $categoria)
+                    <option value="{{ $categoria->Id_Categoria }}" 
+                        {{ $producto->Id_Categoria == $categoria->Id_Categoria ? 'selected' : '' }}>
+                        {{ $categoria->Nombre }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="flex space-x-3">
+            <button type="submit" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                Actualizar
+            </button>
+            <a href="{{ route('productos.index') }}" 
+               class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                ← Volver
+            </a>
+        </div>
+    </form>
+</div>
+@endsection

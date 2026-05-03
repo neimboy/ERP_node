@@ -1,62 +1,48 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Proveedores - ERP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 p-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Listado de Proveedores</h1>
+@extends('layouts.app')
 
-        <div class="flex space-x-4 mb-4">
-            <a href="{{ route('proveedores.create') }}" 
-               class="bg-blue-600 text-white px-4 py-2 rounded">
-               Nuevo Proveedor
-            </a>
+@section('content')
+<div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Proveedores</h1>
 
-            <a href="{{ route('dashboard') }}" 
-               class="bg-gray-600 text-white px-4 py-2 rounded">
-               ← Volver al Inventario
-            </a>
-        </div>
+    <div class="flex flex-wrap gap-3 mb-6">
+        <a href="{{ route('proveedores.create') }}" 
+           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+           + Nuevo Proveedor
+        </a>
+    </div>
 
-        <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead>
-                <tr class="bg-gray-100 text-sm">
-                    <th class="p-3 text-left">Nombre</th>
-                    <th class="p-3 text-left">RUC</th>
-                    <th class="p-3 text-left">Teléfono</th>
-                    <th class="p-3 text-left">Email</th>
-                    <th class="p-3 text-left">Dirección</th>
-                    <th class="p-3 text-right">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($proveedores as $proveedor)
-                <tr class="border-t">
-                    <td class="p-3">{{ $proveedor->Nombre }}</td>
-                    <td class="p-3">{{ $proveedor->RUC }}</td>
-                    <td class="p-3">{{ $proveedor->Telefono }}</td>
-                    <td class="p-3">{{ $proveedor->Email }}</td>
-                    <td class="p-3">{{ $proveedor->Direccion }}</td>
-                    <td class="p-3 text-right">
-                        <a href="{{ route('proveedores.show', $proveedor->Id_Proveedor) }}" class="text-green-600">Ver</a>
-                        <a href="{{ route('proveedores.edit', $proveedor->Id_Proveedor) }}" class="text-blue-600 ml-2">Editar</a>
-                        <form action="{{ route('proveedores.destroy', $proveedor->Id_Proveedor) }}" method="POST" class="inline">
+    <table class="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+        <thead class="bg-gray-100 text-sm">
+            <tr>
+                <th class="border px-4 py-2 text-left">Nombre</th>
+                <th class="border px-4 py-2 text-left">RUC</th>
+                <th class="border px-4 py-2 text-left">Teléfono</th>
+                <th class="border px-4 py-2 text-right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($proveedores as $proveedor)
+                <tr class="hover:bg-gray-50">
+                    <td class="border px-4 py-2">{{ $proveedor->Nombre }}</td>
+                    <td class="border px-4 py-2">{{ $proveedor->RUC }}</td>
+                    <td class="border px-4 py-2">{{ $proveedor->Telefono }}</td>
+                    <td class="border px-4 py-2 text-right">
+                        <a href="{{ route('proveedores.show', $proveedor) }}" class="text-green-600 hover:underline">Ver</a> |
+                        <a href="{{ route('proveedores.edit', $proveedor) }}" class="text-blue-600 hover:underline">Editar</a> |
+                        <form action="{{ route('proveedores.destroy', $proveedor) }}" method="POST" class="inline"
+                              onsubmit="return confirm('¿Seguro que deseas eliminar este proveedor?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600 ml-2">Eliminar</button>
+                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
                         </form>
                     </td>
                 </tr>
-                @empty
+            @empty
                 <tr>
-                    <td colspan="6" class="text-center p-4">No hay proveedores registrados</td>
+                    <td colspan="4" class="text-center p-4 text-gray-500">No hay proveedores registrados</td>
                 </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+@endsection

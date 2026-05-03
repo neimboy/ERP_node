@@ -24,5 +24,10 @@ class Proveedor extends Model
     {
         return $this->hasMany(Producto::class, 'Id_Proveedor', 'Id_Proveedor');
     }
+    public function getRouteKeyName()
+    {
+        return 'Id_Proveedor';
+    }
+
 }
 

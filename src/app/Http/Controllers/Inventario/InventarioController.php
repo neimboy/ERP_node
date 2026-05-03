@@ -83,8 +83,8 @@ class InventarioController extends Controller
             'productosCount' => Producto::count(),
             'almacenesCount' => Almacen::count(),
             'stockTotal'     => Inventario::sum('Cantidad'),
-            'compras'        => Compra::latest()->take(5)->get(),
-            'ordenes'        => Orden::latest()->take(5)->get(),
+            //'compras'        => Compra::latest()->take(5)->get(),
+            //'ordenes'        => Orden::latest()->take(5)->get(),
         ]);
     }
 }

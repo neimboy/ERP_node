@@ -127,7 +127,9 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('compras', ComprasController::class);
 
             // Proveedores
-            Route::resource('proveedores', ProveedoresController::class);
+            Route::resource('proveedores', ProveedoresController::class)
+                ->parameters(['proveedores' => 'proveedor']);
+
         });
 
 

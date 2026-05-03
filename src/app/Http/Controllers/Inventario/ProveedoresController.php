@@ -10,7 +10,7 @@ class ProveedoresController extends Controller
 {
     public function index()
     {
-        $proveedores = Proveedor::all();
+        $proveedores = Proveedor::latest()->get();
         return view('inventarios.proveedores.index', compact('proveedores'));
     }
 
@@ -27,8 +27,13 @@ class ProveedoresController extends Controller
             'Telefono' => 'nullable|string|max:20',
         ]);
 
-        Proveedor::create($request->all());
+        Proveedor::create($request->only(['RUC','Nombre','Telefono']));
         return redirect()->route('proveedores.index')->with('success', 'Proveedor creado correctamente.');
+    }
+
+    public function show(Proveedor $proveedor)
+    {
+        return view('inventarios.proveedores.show', compact('proveedor'));
     }
 
     public function edit(Proveedor $proveedor)
@@ -44,7 +49,7 @@ class ProveedoresController extends Controller
             'Telefono' => 'nullable|string|max:20',
         ]);
 
-        $proveedor->update($request->all());
+        $proveedor->update($request->only(['RUC','Nombre','Telefono']));
         return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado correctamente.');
     }
 
@@ -54,4 +59,3 @@ class ProveedoresController extends Controller
         return redirect()->route('proveedores.index')->with('success', 'Proveedor eliminado correctamente.');
     }
 }
-
