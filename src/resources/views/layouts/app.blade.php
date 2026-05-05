@@ -12,7 +12,11 @@
 
 <body class="bg-gray-100">
 
+<<<<<<< HEAD
     <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false }">
+=======
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openVentas: false }">
+>>>>>>> origin/main
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
 
@@ -41,7 +45,7 @@
 
                                     <div x-show="openAdmin" @click.away="openAdmin = false"
                                          class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                         x-transition>
+                                         x-transition style="display: none;">
                                         <div class="py-1 px-2">
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Sistema</span>
                                             <a href="{{ route('admin.users') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
@@ -63,7 +67,7 @@
 
                                     <div x-show="openContabilidad" @click.away="openContabilidad = false"
                                          class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                         x-transition>
+                                         x-transition style="display: none;">
                                         <div class="py-1 px-2">
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
                                             <a href="{{ route('contabilidad.plan_cuentas') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📘 Plan de Cuentas</a>
@@ -80,12 +84,27 @@
                                 </div>
                             @endrole
 
+                            {{-- 🟢 VENTAS --}}
                             @can('view_ventas')
-                                <a href="{{ route('clientes.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('ventas*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    Ventas
-                                </a>
+                                <div class="relative">
+                                    <button @click="openVentas = !openVentas"
+                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('ventas*') ? 'bg-gray-100' : '' }}">
+                                        <span>Ventas</span>
+                                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                                    </button>
+
+                                    <div x-show="openVentas" @click.away="openVentas = false"
+                                         class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                         x-transition style="display: none;">
+                                        <div class="py-1 px-2">
+                                            <a href="{{ route('clientes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">👥 Clientes</a>
+                                            <a href="{{ route('oportunidades.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💼 Oportunidades</a>
+                                            <a href="{{ route('ordenes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">🧾 Órdenes</a>
+                                            <a href="{{ route('facturas.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📄 Facturas</a>
+                                            <a href="{{ route('pagos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💵 Pagos</a>
+                                        </div>
+                                    </div>
+                                </div>
                             @endcan
 
                             {{-- 🟢 MÓDULO DE INVENTARIO --}}
@@ -140,6 +159,7 @@
                                     </div>
                                 @endcan
 
+                            {{-- 👥 RRHH --}}
                             @can('view_rrhh')
                                 <a href="{{ route('empleados.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
@@ -148,19 +168,21 @@
                                 </a>
                             @endcan
 
+                            {{-- 🛠️ PRODUCCIÓN --}}
                             @can('view_produccion')
                                 <a href="{{ route('proyectos.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('produccion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
+                                   {{ request()->is('proyectos*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Producción
                                 </a>
+
                                 <a href="{{ route('asignaciones.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('asiganacion*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
+                                   {{ request()->is('asignaciones*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
                                     Asignaciones
                                 </a>
                             @endcan
-                        @endauth
+                        @endauth {{-- SE AGREGÓ ESTE CIERRE QUE FALTABA --}}
 
                     </div>
                 </div>
@@ -185,6 +207,14 @@
     </nav>
 
     <main class="py-6 px-4 sm:px-6 lg:px-8">
+        @if (isset($header))
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-4">
+                <div class="bg-white p-4 rounded shadow-sm">
+                    {{ $header }}
+                </div>
+            </div>
+        @endif
+
         @if(session('success'))
             <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
                 {{ session('success') }}
@@ -197,7 +227,36 @@
             </div>
         @endif
 
-        @yield('content')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: @json(session('success')),
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                @endif
+
+                @if(session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: @json(session('error')),
+                        timer: 3500,
+                        showConfirmButton: false
+                    });
+                @endif
+            });
+        </script>
+
+        @if (isset($slot))
+            {{ $slot }}
+        @else
+            @yield('content')
+        @endif
     </main>
 
 </body>

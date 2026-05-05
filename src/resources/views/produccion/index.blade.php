@@ -13,9 +13,9 @@
             <p class="text-gray-500">No hay proyectos registrados.</p>
         </div>
     @else
-        <div class="grid gap-4">
+        <div class="grid gap-3">
             @foreach($proyectos as $proyecto)
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+            <div class="bg-white rounded-xl shadow-sm border-2 border-gray-100 hover:border-indigo-200 p-5 hover:shadow-md transition cursor-pointer proyecto-card" data-proyecto-id="{{ $proyecto->Id_Proyecto }}">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-2">
@@ -37,11 +37,33 @@
                             <span>Fin: {{ $proyecto->Fecha_Fin ?? 'N/A' }}</span>
                         </div>
                     </div>
-                    <a href="{{ route('proyectos.show', $proyecto->Id_Proyecto) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver</a>
                 </div>
             </div>
             @endforeach
         </div>
     @endif
 </div>
+
+<div id="proyectoDrawer" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 transition-opacity" id="drawerOverlay"></div>
+    <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transform transition-transform duration-300 flex flex-col" id="drawerPanel">
+        <div class="flex items-center justify-between p-5 border-b border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800">Detalle del Proyecto</h2>
+            <button type="button" id="closeDrawer" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-5" id="drawerContent">
+            <div class="text-center text-gray-500">Cargando...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.proyectosData = @json($proyectos);
+</script>
+<script src="{{ asset('js/proyecto-drawer.js') }}"></script>
 @endsection

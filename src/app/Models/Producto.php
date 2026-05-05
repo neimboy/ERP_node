@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
-{  
+{
     protected $table = 'productos';
     protected $primaryKey = 'Id_Producto';
     public $timestamps = true;
@@ -21,19 +21,26 @@ class Producto extends Model
     ];
 
     // 🔹 Relaciones
-    public function inventario()
+    public function inventarios()
     {
-        return $this->hasOne(Inventario::class, 'Id_Producto', 'Id_Producto');
+        // Un producto puede estar en varios almacenes
+        return $this->hasMany(Inventario::class, 'Id_Producto', 'Id_Producto');
     }
 
     public function movimientos()
     {
+        // Relación agregada por tu compañero
         return $this->hasMany(Movimiento::class, 'Id_Producto', 'Id_Producto');
     }
 
     public function detalleCompras()
     {
         return $this->hasMany(DetalleCompra::class, 'Id_Producto', 'Id_Producto');
+    }
+
+    public function detallesOrden()
+    {
+        return $this->hasMany(DetalleOrden::class, 'Id_Producto', 'Id_Producto');
     }
 
     public function categoria()

@@ -7,17 +7,40 @@ use App\Models\Factura;
 use App\Models\Orden;
 use App\Services\IntegracionContableService;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreFacturaRequest;
 
 class FacturaController extends Controller
 {
     // ... otros métodos
-
-    public function store(Request $request)
+    public function index()
     {
-        // Tu lógica existente para crear la factura...
-        $factura = Factura::create($request->all());
+        $q = request('q');
+        $facturas = Factura::with('orden.cliente')
+            ->when($q, function ($query) use ($q) {
+                $query->where('Id_Factura', $q)
+                      ->orWhereHas('orden.cliente', function ($q2) use ($q) { $q2->where('Nombre', 'like', "%{$q}%"); });
+            })
+            ->orderByDesc('Fecha')
+            ->paginate(10)
+            ->withQueryString();
 
-        // 🆕 Generar asiento contable automáticamente
+        return view('ventas.facturas.index', compact('facturas', 'q'));
+    }
+
+    public function show(Factura $factura)
+    {
+        // Eager load order, client and order details with products
+        $factura->load('orden.cliente', 'orden.detalles.producto');
+
+        return view('ventas.facturas.show', compact('factura'));
+    }
+
+    public function store(StoreFacturaRequest $request)
+    {
+        $data = $request->validated();
+
+        $factura = Factura::create($data);
+
         try {
             IntegracionContableService::registrarFactura($factura);
         } catch (\Exception $e) {

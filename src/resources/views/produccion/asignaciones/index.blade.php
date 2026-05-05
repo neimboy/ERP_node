@@ -13,29 +13,29 @@
             <p class="text-gray-500">No hay asignaciones registradas.</p>
         </div>
     @else
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proyecto</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Horas</th>
-                        <th class="px-6 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach($asignaciones as $asignacion)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ $asignacion->proyecto->Nombre ?? 'N/A' }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ $asignacion->Horas_Asignadas }} hrs</td>
-                        <td class="px-6 py-4 text-right">
-                            <a href="{{ route('asignaciones.show', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver</a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="grid gap-3">
+            @foreach($asignaciones as $asignacion)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <span class="text-indigo-600 font-semibold">{{ substr($asignacion->empleado->Nombre ?? 'N/A', 0, 1) }}</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</p>
+                            <p class="text-sm text-gray-500">{{ $asignacion->proyecto->Nombre ?? 'N/A' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-indigo-600 font-semibold">{{ $asignacion->Horas_Asignadas }}</p>
+                            <p class="text-xs text-gray-500">horas</p>
+                        </div>
+                        <a href="{{ route('asignaciones.show', $asignacion->Id_Asignacion) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver</a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
     @endif
 </div>

@@ -13,7 +13,7 @@ class ProyectoController extends Controller
 
     public function index(): View
     {
-        $proyectos = Proyecto::with('cliente')->get();
+        $proyectos = Proyecto::with('cliente', 'asignaciones.empleado')->get();
         return view('produccion.index', compact('proyectos'));
     }
 
