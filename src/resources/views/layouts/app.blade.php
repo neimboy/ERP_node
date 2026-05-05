@@ -11,12 +11,8 @@
 </head>
 
 <body class="bg-gray-100">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false }">
 
-<<<<<<< HEAD
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false }">
-=======
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openVentas: false }">
->>>>>>> origin/main
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
 
