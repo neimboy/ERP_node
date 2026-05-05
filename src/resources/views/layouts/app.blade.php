@@ -127,17 +127,9 @@
                                                     <i class="fas fa-clipboard-list mr-2 text-green-600"></i> Inventarios
                                                 </a>
 
-                                                {{-- Enlace a Movimientos --}}
-                                                <a href="{{ route('movimientos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
-                                                    <i class="fas fa-exchange-alt mr-2 text-green-600"></i> Movimientos
-                                                </a>
+                                               
 
                                                 <div class="border-t border-gray-100 my-1"></div>
-
-                                                {{-- Enlace a Compras --}}
-                                                <a href="{{ route('compras.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
-                                                    <i class="fas fa-shopping-cart mr-2 text-green-600"></i> Compras
-                                                </a>
 
                                                 {{-- Enlace a Proveedores --}}
                                                 <a href="{{ route('proveedores.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
