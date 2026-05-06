@@ -21,6 +21,7 @@
                 <th class="border px-4 py-2 text-left">Precio Venta</th>
                 <th class="border px-4 py-2 text-left">Proveedor</th>
                 <th class="border px-4 py-2 text-left">Categoría</th>
+                <th class="border px-4 py-2 text-left">Stock</th> <!-- 🔹 Nueva columna -->
                 <th class="border px-4 py-2 text-right">Acciones</th>
             </tr>
         </thead>
@@ -33,6 +34,9 @@
                     <td class="border px-4 py-2">{{ number_format($producto->Precio_Venta, 2) }}</td>
                     <td class="border px-4 py-2">{{ $producto->proveedor->Nombre ?? 'Sin proveedor' }}</td>
                     <td class="border px-4 py-2">{{ $producto->categoria->Nombre ?? 'Sin categoría' }}</td>
+                    <td class="border px-4 py-2">
+                        {{ $producto->stockEnAlmacen(1) }} <!-- 🔹 Ejemplo: stock en almacén 1 -->
+                    </td>
                     <td class="border px-4 py-2 text-right">
                         <a href="{{ route('productos.show', $producto) }}" class="text-green-600 hover:underline">Ver</a> |
                         <a href="{{ route('productos.edit', $producto) }}" class="text-blue-600 hover:underline">Editar</a> |
@@ -46,7 +50,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center p-4 text-gray-500">No hay productos registrados</td>
+                    <td colspan="8" class="text-center p-4 text-gray-500">No hay productos registrados</td>
                 </tr>
             @endforelse
         </tbody>

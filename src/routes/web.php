@@ -142,6 +142,13 @@ Route::middleware(['auth'])->group(function () {
             // Proveedores
             Route::resource('proveedores', ProveedoresController::class)
                 ->parameters(['proveedores' => 'proveedor']);
+            // Consultar stock
+            Route::get('/inventario/stock/{producto}/{almacen}', 
+                [InventarioController::class, 'verStock']);
+
+            // Verificar stock antes de vender
+            Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}', 
+                [InventarioController::class, 'verificarStock']);
 
         });
 

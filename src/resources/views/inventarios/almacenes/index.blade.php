@@ -16,6 +16,7 @@
             <tr>
                 <th class="border px-4 py-2 text-left">Nombre</th>
                 <th class="border px-4 py-2 text-left">Dirección</th>
+                <th class="border px-4 py-2 text-left">Stock Total</th> <!-- 🔹 Nueva columna -->
                 <th class="border px-4 py-2 text-right">Acciones</th>
             </tr>
         </thead>
@@ -24,6 +25,16 @@
                 <tr class="hover:bg-gray-50">
                     <td class="border px-4 py-2">{{ $almacen->Nombre }}</td>
                     <td class="border px-4 py-2">{{ $almacen->Direccion }}</td>
+                    <td class="border px-4 py-2">
+                        <!-- 🔹 Calcula el stock total de productos en este almacén -->
+                        @php
+                            $stockTotal = 0;
+                            foreach($almacen->inventarios as $inventario) {
+                                $stockTotal += $inventario->producto->stockEnAlmacen($almacen->Id_Almacen);
+                            }
+                        @endphp
+                        {{ $stockTotal }}
+                    </td>
                     <td class="border px-4 py-2 text-right">
                         <a href="{{ route('almacenes.show', $almacen) }}" class="text-green-600 hover:underline">Ver</a> |
                         <a href="{{ route('almacenes.edit', $almacen) }}" class="text-blue-600 hover:underline">Editar</a> |
@@ -37,7 +48,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3" class="text-center p-4 text-gray-500">No hay almacenes registrados</td>
+                    <td colspan="4" class="text-center p-4 text-gray-500">No hay almacenes registrados</td>
                 </tr>
             @endforelse
         </tbody>

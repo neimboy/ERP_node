@@ -87,4 +87,37 @@ class InventarioController extends Controller
             //'ordenes'        => Orden::latest()->take(5)->get(),
         ]);
     }
+
+    public function verStock($productoId, $almacenId)
+    {
+        $producto = Producto::findOrFail($productoId);
+        $stock = $producto->stockEnAlmacen($almacenId);
+
+        return response()->json([
+            'producto' => $producto->Nombre,
+            'almacen' => $almacenId,
+            'stock' => $stock
+        ]);
+    }
+
+    public function verificarStock($productoId, $almacenId, $cantidadSolicitada)
+    {
+        $producto = Producto::findOrFail($productoId);
+        $stock = $producto->stockEnAlmacen($almacenId);
+
+        if ($stock >= $cantidadSolicitada) {
+            return response()->json([
+                'status' => 'ok',
+                'mensaje' => 'Stock suficiente',
+                'stock' => $stock
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'Stock insuficiente',
+                'stock' => $stock
+            ]);
+        }
+    }
+
 }

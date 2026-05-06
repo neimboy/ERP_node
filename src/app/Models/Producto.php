@@ -43,6 +43,11 @@ class Producto extends Model
         return $this->hasMany(DetalleOrden::class, 'Id_Producto', 'Id_Producto');
     }
 
+    public function detallesOrdenCompra()
+    {
+        return $this->hasMany(DetalleOrdenCompra::class, 'Id_Producto', 'Id_Producto');
+    }
+
     public function categoria()
     {
         return $this->belongsTo(Categoria::class, 'Id_Categoria', 'Id_Categoria');
@@ -52,4 +57,30 @@ class Producto extends Model
     {
         return $this->belongsTo(Proveedor::class, 'Id_Proveedor', 'Id_Proveedor');
     }
+
+    public function stock()
+    {
+        $entradas = $this->detallesOrdenCompra()->sum('Cantidad');
+        $salidas = $this->detallesOrden()->sum('Cantidad');
+
+        return $entradas - $salidas;
+    }
+
+    public function stockEnAlmacen($almacenId)
+    {
+        $entradas = $this->detallesOrdenCompra()
+            ->whereHas('ordenCompra', function($q) use ($almacenId) {
+                $q->where('Id_Almacen', $almacenId);
+            })
+            ->sum('Cantidad');
+
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) use ($almacenId) {
+                $q->where('Id_Almacen', $almacenId);
+            })
+            ->sum('Cantidad');
+
+        return $entradas - $salidas;
+    }
+
 }
