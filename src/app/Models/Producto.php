@@ -68,17 +68,15 @@ class Producto extends Model
 
     public function stockEnAlmacen($almacenId)
     {
+        // Entradas filtradas por almacén
         $entradas = $this->detallesOrdenCompra()
             ->whereHas('ordenCompra', function($q) use ($almacenId) {
                 $q->where('Id_Almacen', $almacenId);
             })
             ->sum('Cantidad');
 
-        $salidas = $this->detallesOrden()
-            ->whereHas('orden', function($q) use ($almacenId) {
-                $q->where('Id_Almacen', $almacenId);
-            })
-            ->sum('Cantidad');
+        // Salidas globales (sin filtro por almacén)
+        $salidas = $this->detallesOrden()->sum('Cantidad');
 
         return $entradas - $salidas;
     }

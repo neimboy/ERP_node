@@ -14,17 +14,26 @@ class DetalleOrdenCompra extends Model
         'Id_Orden_Compra',
         'Id_Producto',
         'Cantidad',
-        'Costo'
+        'Costo', // 🔹 este es tu campo real
     ];
 
-    // 🔹 Relaciones
+    // Relación con OrdenCompra
     public function ordenCompra()
     {
         return $this->belongsTo(OrdenCompra::class, 'Id_Orden_Compra', 'Id_Orden_Compra');
     }
 
+    // Relación con Producto
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'Id_Producto', 'Id_Producto');
     }
+
+    // 🔹 Accesor para subtotal
+    public function getSubtotalAttribute()
+    {
+        return $this->Cantidad * $this->Costo;
+    }
+
+
 }

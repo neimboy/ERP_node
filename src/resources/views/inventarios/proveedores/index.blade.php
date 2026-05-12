@@ -4,12 +4,24 @@
 <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Proveedores</h1>
 
-    <div class="flex flex-wrap gap-3 mb-6">
+    <div class="flex justify-between items-center mb-6">
+    <!-- Botón Nuevo Proveedor -->
         <a href="{{ route('proveedores.create') }}" 
-           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-           + Nuevo Proveedor
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        + Nuevo Proveedor
         </a>
+
+        <!-- Barra de búsqueda -->
+        <form action="{{ route('proveedores.index') }}" method="GET" class="flex gap-2">
+            <input type="text" name="search" value="{{ request('search') }}"
+                placeholder="Buscar proveedor (nombre o RUC)..."
+                class="border-gray-300 rounded-lg shadow-sm px-3 py-2">
+            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                Buscar
+            </button>
+        </form>
     </div>
+
 
     <table class="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
         <thead class="bg-gray-100 text-sm">

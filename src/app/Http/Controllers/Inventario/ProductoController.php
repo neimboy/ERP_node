@@ -10,10 +10,17 @@ use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // ✅ Cargamos proveedor y categoría
-        $productos = Producto::with(['proveedor', 'categoria'])->get();
+        $query = Producto::with(['proveedor', 'categoria']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('Nombre', 'like', "%{$search}%")
+                ->orWhere('Codigo', 'like', "%{$search}%");
+        }
+
+        $productos = $query->paginate(10);
         return view('inventarios.productos.index', compact('productos'));
     }
 

@@ -121,9 +121,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [InventarioController::class, 'dashboard'])
                 ->name('inventario.dashboard');
 
-            // CRUD de almacenes
-            Route::resource('almacenes', AlmacenController::class);
-
+            // CRUD de almacenes 
+            Route::resource('almacenes', AlmacenController::class)
+                ->parameters(['almacenes' => 'almacen']);
             // CRUD de productos
             Route::resource('productos', ProductoController::class);
 
@@ -149,6 +149,7 @@ Route::middleware(['auth'])->group(function () {
             // Verificar stock antes de vender
             Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}', 
                 [InventarioController::class, 'verificarStock']);
+            Route::patch('/compras/{id}/estado', [ComprasController::class, 'updateEstado'])->name('compras.updateEstado');
 
         });
 

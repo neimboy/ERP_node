@@ -27,6 +27,31 @@
         </div>
     </div>
 
+    <!-- Productos en el almacén -->
+    <h3 class="text-xl font-semibold mt-6 mb-3 text-gray-800">Productos en este almacén</h3>
+    <table class="table-auto w-full border-collapse border border-gray-300">
+        <thead>
+            <tr>
+                <th class="border px-4 py-2">Código</th>
+                <th class="border px-4 py-2">Nombre</th>
+                <th class="border px-4 py-2">Cantidad</th>
+                <th class="border px-4 py-2">Costo</th>
+                <th class="border px-4 py-2">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($almacen->productos as $detalle)
+                <tr>
+                    <td class="border px-4 py-2">{{ $detalle->producto->Codigo }}</td>
+                    <td class="border px-4 py-2">{{ $detalle->producto->Nombre }}</td>
+                    <td class="border px-4 py-2">{{ $detalle->Cantidad }}</td>
+                    <td class="border px-4 py-2">{{ number_format($detalle->Costo, 2) }}</td>
+                    <td class="border px-4 py-2">{{ number_format($detalle->subtotal, 2) }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
     <div class="mt-6 flex space-x-3">
         <a href="{{ route('almacenes.index') }}" 
            class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">

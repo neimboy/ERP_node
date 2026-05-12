@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categorias = Categoria::all();
+        $query = Categoria::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('Nombre', 'like', "%{$search}%");
+        }
+
+        $categorias = $query->paginate(10);
         return view('inventarios.categorias.index', compact('categorias'));
     }
+
 
     public function create()
     {

@@ -11,12 +11,8 @@
 </head>
 
 <body class="bg-gray-100">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false  }">
 
-<<<<<<< HEAD
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false }">
-=======
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openVentas: false }">
->>>>>>> origin/main
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
 
@@ -141,9 +137,9 @@
                                                     <i class="fas fa-tags mr-2 text-green-600"></i> Categorías
                                                 </a>
 
-                                                {{-- Enlace a Inventarios --}}
-                                                <a href="{{ route('inventarios.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
-                                                    <i class="fas fa-clipboard-list mr-2 text-green-600"></i> Inventarios
+                                                {{-- Enlace a compras --}}
+                                                <a href="{{ route('compras.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-clipboard-list mr-2 text-green-600"></i> compras
                                                 </a>
 
                                                

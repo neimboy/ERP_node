@@ -8,12 +8,20 @@ use Illuminate\Http\Request;
 
 class AlmacenController extends Controller
 {
-    public function index()
-    {
-        $almacenes = Almacen::all();
-        // ✅ apunta a resources/views/inventarios/almacenes/index.blade.php
-        return view('inventarios.almacenes.index', compact('almacenes'));
+    public function index(Request $request)
+{
+    $query = Almacen::query();
+
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where('Nombre', 'like', "%{$search}%")
+              ->orWhere('Direccion', 'like', "%{$search}%");
     }
+
+    $almacenes = $query->paginate(10); // con paginación
+    return view('inventarios.almacenes.index', compact('almacenes'));
+}
+
 
     public function create()
     {

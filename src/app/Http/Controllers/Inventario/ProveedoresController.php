@@ -8,11 +8,20 @@ use Illuminate\Http\Request;
 
 class ProveedoresController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $proveedores = Proveedor::latest()->get();
+        $query = Proveedor::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('Nombre', 'like', "%{$search}%")
+                ->orWhere('RUC', 'like', "%{$search}%");
+        }
+
+        $proveedores = $query->paginate(10);
         return view('inventarios.proveedores.index', compact('proveedores'));
     }
+
 
     public function create()
     {
