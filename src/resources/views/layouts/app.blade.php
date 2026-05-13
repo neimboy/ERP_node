@@ -11,7 +11,7 @@
 </head>
 
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false  }">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false }">
 
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
