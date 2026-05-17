@@ -45,8 +45,9 @@
                     <td class="border px-4 py-2">{{ $producto->proveedor->Nombre ?? 'Sin proveedor' }}</td>
                     <td class="border px-4 py-2">{{ $producto->categoria->Nombre ?? 'Sin categoría' }}</td>
                     <td class="border px-4 py-2">
-                        {{ $producto->stockEnAlmacen(1) }} <!-- 🔹 Ejemplo: stock en almacén 1 -->
+                        {{ $producto->stock }} <!-- ✅ usa el accesor dinámico -->
                     </td>
+
                     <td class="border px-4 py-2 text-right">
                         <a href="{{ route('productos.show', $producto) }}" class="text-green-600 hover:underline">Ver</a> |
                         <a href="{{ route('productos.edit', $producto) }}" class="text-blue-600 hover:underline">Editar</a> |

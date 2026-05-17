@@ -58,25 +58,41 @@ class Producto extends Model
         return $this->belongsTo(Proveedor::class, 'Id_Proveedor', 'Id_Proveedor');
     }
 
-    public function stock()
+
+    public function stockEnAlmacen($almacenId)
     {
-        $entradas = $this->detallesOrdenCompra()->sum('Cantidad');
-        $salidas = $this->detallesOrden()->sum('Cantidad');
+        // Entradas filtradas por almacén y estado Recibida
+        $entradas = $this->detallesOrdenCompra()
+            ->whereHas('ordenCompra', function($q) use ($almacenId) {
+                $q->where('Id_Almacen', $almacenId)
+                ->where('Estado', 'Recibida'); // ✅ solo recibidas
+            })
+            ->sum('Cantidad');
+
+        // Salidas filtradas por estado Confirmada
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) {
+                $q->where('Estado', 'Confirmada'); // ✅ solo confirmadas
+            })
+            ->sum('Cantidad');
 
         return $entradas - $salidas;
     }
 
-    public function stockEnAlmacen($almacenId)
+    // En Producto.php
+    public function getStockAttribute()
     {
-        // Entradas filtradas por almacén
         $entradas = $this->detallesOrdenCompra()
-            ->whereHas('ordenCompra', function($q) use ($almacenId) {
-                $q->where('Id_Almacen', $almacenId);
+            ->whereHas('ordenCompra', function($q) {
+                $q->where('Estado', 'Recibida'); // solo compras recibidas
             })
             ->sum('Cantidad');
 
-        // Salidas globales (sin filtro por almacén)
-        $salidas = $this->detallesOrden()->sum('Cantidad');
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) {
+                $q->where('Estado', 'Confirmada'); // solo ventas confirmadas
+            })
+            ->sum('Cantidad');
 
         return $entradas - $salidas;
     }
