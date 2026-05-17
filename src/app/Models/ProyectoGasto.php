@@ -4,24 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Movimiento extends Model
+class ProyectoGasto extends Model
 {
-    protected $table = 'movimientos';
-    protected $primaryKey = 'Id_Movimiento';
+    protected $table = 'proyecto_gastos';
+    protected $primaryKey = 'Id_Gasto';
     public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = [
-        'Id_Producto',
         'Id_Proyecto',
-        'Tipo',
-        'Cantidad',
+        'Descripcion',
+        'Monto',
     ];
-
-    public function producto()
-    {
-        return $this->belongsTo(Producto::class, 'Id_Producto', 'Id_Producto');
-    }
 
     public function proyecto()
     {
