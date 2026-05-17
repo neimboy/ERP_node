@@ -77,10 +77,17 @@
                                     ⚠ {{ $stats['stock_bajo'] }} con stock bajo
                                 </p>
                             @endif
+
+                            <!-- 🔗 Enlace al dashboard completo de Inventario -->
+                            <a href="{{ route('inventario.dashboard') }}" 
+                            class="text-sm text-blue-600 hover:underline">
+                            Ver detalle
+                            </a>
                         </div>
                     </div>
                 </div>
                 @endisset
+
 
                 {{-- RRHH --}}
                 @isset($stats['total_empleados'])

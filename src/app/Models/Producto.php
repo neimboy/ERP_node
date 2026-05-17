@@ -10,22 +10,26 @@ class Producto extends Model
     protected $primaryKey = 'Id_Producto';
     public $timestamps = true;
 
+    // ✅ Campos que realmente existen en la tabla
     protected $fillable = [
         'Codigo',
         'Nombre',
         'Precio_Compra',
         'Precio_Venta',
         'Id_Categoria',
-        'Id_Proveedor',
+        'Id_Proveedor'
     ];
 
-    public function inventario()
+    // 🔹 Relaciones
+    public function inventarios()
     {
+        // Un producto puede estar en varios almacenes
         return $this->hasMany(Inventario::class, 'Id_Producto', 'Id_Producto');
     }
 
     public function movimientos()
     {
+        // Relación agregada por tu compañero
         return $this->hasMany(Movimiento::class, 'Id_Producto', 'Id_Producto');
     }
 
@@ -38,4 +42,43 @@ class Producto extends Model
     {
         return $this->hasMany(DetalleOrden::class, 'Id_Producto', 'Id_Producto');
     }
+
+    public function detallesOrdenCompra()
+    {
+        return $this->hasMany(DetalleOrdenCompra::class, 'Id_Producto', 'Id_Producto');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'Id_Categoria', 'Id_Categoria');
+    }
+
+    public function proveedor()
+    {
+        return $this->belongsTo(Proveedor::class, 'Id_Proveedor', 'Id_Proveedor');
+    }
+
+    public function stock()
+    {
+        $entradas = $this->detallesOrdenCompra()->sum('Cantidad');
+        $salidas = $this->detallesOrden()->sum('Cantidad');
+
+        return $entradas - $salidas;
+    }
+
+    public function stockEnAlmacen($almacenId)
+    {
+        // Entradas filtradas por almacén
+        $entradas = $this->detallesOrdenCompra()
+            ->whereHas('ordenCompra', function($q) use ($almacenId) {
+                $q->where('Id_Almacen', $almacenId);
+            })
+            ->sum('Cantidad');
+
+        // Salidas globales (sin filtro por almacén)
+        $salidas = $this->detallesOrden()->sum('Cantidad');
+
+        return $entradas - $salidas;
+    }
+
 }

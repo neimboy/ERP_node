@@ -11,8 +11,8 @@
 </head>
 
 <body class="bg-gray-100">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false }">
 
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openVentas: false }">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
 
@@ -103,14 +103,57 @@
                                 </div>
                             @endcan
 
-                            {{-- 📦 INVENTARIO --}}
-                            @can('view_inventario')
-                                <a href="{{ route('productos.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('inventario*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    Inventario
-                                </a>
-                            @endcan
+                            {{-- 🟢 MÓDULO DE INVENTARIO --}}
+                                @can('view_inventario')
+                                    <div class="relative">
+                                        {{-- Botón Principal --}}
+                                        <button @click="openInventario = !openInventario"
+                                                class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('inventario*') ? 'bg-gray-100' : '' }}">
+                                            <span>Inventario</span>
+                                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                                        </button>
+
+                                        {{-- Menú Desplegable --}}
+                                        <div x-show="openInventario" 
+                                            @click.away="openInventario = false"
+                                            class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                            style="display: none;" {{-- Evita parpadeo al cargar --}}
+                                            x-transition>
+                                            <div class="py-1 px-2">
+                                                <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
+                                                
+                                                {{-- Enlace a Almacenes --}}
+                                                <a href="{{ route('almacenes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-warehouse mr-2 text-green-600"></i> Almacenes
+                                                </a>
+
+                                                {{-- Enlace a Productos --}}
+                                                <a href="{{ route('productos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-boxes mr-2 text-green-600"></i> Productos
+                                                </a>
+
+                                                {{-- Enlace a Categorías --}}
+                                                <a href="{{ route('categorias.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-tags mr-2 text-green-600"></i> Categorías
+                                                </a>
+
+                                                {{-- Enlace a compras --}}
+                                                <a href="{{ route('compras.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-clipboard-list mr-2 text-green-600"></i> compras
+                                                </a>
+
+                                               
+
+                                                <div class="border-t border-gray-100 my-1"></div>
+
+                                                {{-- Enlace a Proveedores --}}
+                                                <a href="{{ route('proveedores.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition">
+                                                    <i class="fas fa-truck mr-2 text-green-600"></i> Proveedores
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endcan
 
                             {{-- 👥 RRHH --}}
                             @can('view_rrhh')
