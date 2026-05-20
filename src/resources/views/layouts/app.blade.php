@@ -11,7 +11,7 @@
 </head>
 
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false }">
+    <nav class="bg-white shadow-lg" x-data="{ openContabilidad: false, openAdmin: false, openInventario: false, openVentas: false, openProduccion: false }">
 
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
@@ -164,19 +164,29 @@
                                 </a>
                             @endcan
 
-                            {{-- 🛠️ PRODUCCIÓN --}}
+                            {{-- PRODUCCIÓN --}}
                             @can('view_produccion')
-                                <a href="{{ route('proyectos.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('proyectos*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    Producción
-                                </a>
+                                <div class="relative" x-data="{ openProduccion: false }">
+                                    <button @click="openProduccion = !openProduccion"
+                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('produccion*') ? 'bg-gray-100' : '' }}">
+                                        <span>Producción</span>
+                                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                                    </button>
 
-                                <a href="{{ route('asignaciones.index') }}"
-                                   class="px-3 py-2 rounded-md text-sm font-medium
-                                   {{ request()->is('asignaciones*') ? 'bg-gray-200 text-black' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    Asignaciones
-                                </a>
+                                    <div x-show="openProduccion" @click.away="openProduccion = false"
+                                         class="absolute z-50 left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                         x-transition style="display: none;">
+                                        <div class="py-1 px-2">
+                                            <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Gestión</span>
+                                            <a href="{{ route('proyectos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">
+                                                <i class="fas fa-project-diagram mr-2 text-indigo-600"></i> Proyectos
+                                            </a>
+                                            <a href="{{ route('asignaciones.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">
+                                                <i class="fas fa-users mr-2 text-indigo-600"></i> Asignaciones
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             @endcan
                         @endauth {{-- SE AGREGÓ ESTE CIERRE QUE FALTABA --}}
 

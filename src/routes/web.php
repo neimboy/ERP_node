@@ -27,23 +27,12 @@ use App\Http\Controllers\Inventario\ComprasController;
 use App\Http\Controllers\Inventario\ProveedoresController;
 use App\Http\Controllers\Inventario\CategoriaController;
 
-
 // PRODUCCIÓN
 use App\Http\Controllers\Produccion\ProyectoController;
 use App\Http\Controllers\Produccion\AsignacionController;
 
 // ADMINISTRACIÓN
 use App\Http\Controllers\Admin\UserController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // ==========================================
 // DASHBOARD & PERFIL (AUTENTICADOS)
@@ -162,12 +151,22 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('nominas', NominaController::class);
         });
 
-    // 🟣 PRODUCCIÓN
+    // PRODUCCIÓN
     Route::prefix('produccion')
         ->middleware('role:Super Admin,Produccion')
         ->group(function () {
-            Route::resource('proyectos', ProyectoController::class);
-
+            Route::get('proyectos/tipo', [ProyectoController::class, 'tipoProyecto'])->name('proyectos.tipo');
+            Route::get('proyectos/create-produccion', [ProyectoController::class, 'createProduccion'])->name('proyectos.create-produccion');
+            Route::get('proyectos/create-servicio', [ProyectoController::class, 'createServicio'])->name('proyectos.create-servicio');
+            Route::post('proyectos/store-produccion', [ProyectoController::class, 'storeProduccion'])->name('proyectos.store-produccion');
+            Route::post('proyectos/store-servicio', [ProyectoController::class, 'storeServicio'])->name('proyectos.store-servicio');
+            Route::get('proyectos/productos-disponibles', [ProyectoController::class, 'productosDisponibles'])->name('proyectos.productos');
+            Route::post('proyectos/{proyecto}/agregar-productos', [ProyectoController::class, 'agregarProductos'])->name('proyectos.agregar-productos');
+            Route::post('proyectos/{proyecto}/devolver-productos', [ProyectoController::class, 'devolverProductos'])->name('proyectos.devolver-productos');
+            Route::post('proyectos/{proyecto}/notificar-sin-stock', [ProyectoController::class, 'notificarSinStock'])->name('proyectos.notificar-stock');
+            Route::put('proyectos/{proyecto}/update-produccion', [ProyectoController::class, 'updateProduccion'])->name('proyectos.update-produccion');
+            Route::put('proyectos/{proyecto}/update-servicio', [ProyectoController::class, 'updateServicio'])->name('proyectos.update-servicio');
+            Route::resource('proyectos', ProyectoController::class)->except(['create', 'store', 'update']);
             Route::resource('asignaciones', AsignacionController::class);
         });
 

@@ -12,11 +12,13 @@ class Proyecto extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
+        'Id_Proyecto',
         'Id_Cliente',
         'Nombre',
         'Fecha_Inicio',
         'Fecha_Fin',
-        'Estado'
+        'Estado',
+        'Tipo',
     ];
 
     public function getRouteKeyName()
@@ -39,5 +41,17 @@ class Proyecto extends Model
         return $this->belongsToMany(Empleado::class, 'asignaciones', 'Id_Proyecto', 'Id_Empleado')
                     ->withPivot('Horas_Asignadas')
                     ->withTimestamps();
+    }
+
+    public function productos()
+    {
+        return $this->belongsToMany(Producto::class, 'proyecto_productos', 'Id_Proyecto', 'Id_Producto')
+                    ->withPivot('Cantidad')
+                    ->withTimestamps();
+    }
+
+    public function gastos()
+    {
+        return $this->hasMany(ProyectoGasto::class, 'Id_Proyecto', 'Id_Proyecto');
     }
 }
