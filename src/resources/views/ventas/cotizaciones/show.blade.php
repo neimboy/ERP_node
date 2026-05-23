@@ -88,10 +88,44 @@
         </table>
     </div>
 
+    @php
+        $costosDirectos = $cotizacion->detalles->sum(function($d) {
+            if (method_exists($d, 'calcularTotal')) return $d->calcularTotal();
+            return $d->Total ?? ($d->Cantidad * ($d->Precio_Unitario ?? 0));
+        });
+        $gastosGenerales = round($costosDirectos * 0.06, 2);
+        $utilidad = round($costosDirectos * 0.10, 2);
+        $subtotalCalc = round($costosDirectos + $gastosGenerales + $utilidad, 2);
+        $impuestoCalc = round($subtotalCalc * 0.18, 2);
+        $presupuestoTotal = round($subtotalCalc + $impuestoCalc, 2);
+    @endphp
+
     <div class="flex justify-end mt-6 pt-4 border-t">
-        <div class="text-right">
-            <p class="text-gray-600 mb-2">Total:</p>
-            <p class="text-2xl font-bold text-gray-800">S/ {{ number_format($cotizacion->Total, 2) }}</p>
+        <div class="text-right w-80">
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <div>Costos directos</div>
+                <div>S/ {{ number_format($costosDirectos, 2) }}</div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <div>Gastos generales (6%)</div>
+                <div>S/ {{ number_format($gastosGenerales, 2) }}</div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <div>Utilidad (10%)</div>
+                <div>S/ {{ number_format($utilidad, 2) }}</div>
+            </div>
+            <div class="flex justify-between font-semibold text-gray-800 mt-2">
+                <div>Subtotal</div>
+                <div>S/ {{ number_format($subtotalCalc, 2) }}</div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mt-1">
+                <div>IGV (18%)</div>
+                <div>S/ {{ number_format($impuestoCalc, 2) }}</div>
+            </div>
+            <div class="flex justify-between text-2xl font-bold mt-3">
+                <div>Presupuesto Total</div>
+                <div>S/ {{ number_format($presupuestoTotal, 2) }}</div>
+            </div>
         </div>
     </div>
     @else

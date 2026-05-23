@@ -87,6 +87,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Resumen financiero -->
+            <div class="mt-4 bg-white p-4 border rounded">
+                <h4 class="font-semibold mb-2">Resumen</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>Costos directos (S/.)</div>
+                    <div class="text-right" id="costosDirectosDisplay">S/ 0.00</div>
+
+                    <div>Gastos generales (6% CD)</div>
+                    <div class="text-right" id="gastosGeneralesDisplay">S/ 0.00</div>
+
+                    <div>Utilidad (10% CD)</div>
+                    <div class="text-right" id="utilidadDisplay">S/ 0.00</div>
+
+                    <div class="font-semibold">Subtotal</div>
+                    <div class="text-right font-semibold" id="subtotalDisplay">S/ 0.00</div>
+
+                    <div>IGV (18%)</div>
+                    <div class="text-right" id="impuestoDisplay">S/ 0.00</div>
+
+                    <div class="text-lg font-bold">Presupuesto Total</div>
+                    <div class="text-right text-lg font-bold" id="totalDisplay">S/ 0.00</div>
+                </div>
+
+                <!-- Hidden inputs para envío (el servidor recalculará por seguridad) -->
+                <input type="hidden" name="subtotal" id="input-subtotal" value="0">
+                <input type="hidden" name="impuesto" id="input-impuesto" value="0">
+                <input type="hidden" name="total" id="input-total" value="0">
+            </div>
         </div>
 
         <!-- Botones -->
@@ -130,20 +159,65 @@ function attachLineListeners(row) {
         e.preventDefault();
         if (document.querySelectorAll('.lineaItem').length > 1) {
             row.remove();
+                recalc();
         } else {
             alert('Debes mantener al menos un producto');
         }
     });
-    
     productoSelect.addEventListener('change', function() {
         const precio = this.options[this.selectedIndex].dataset.precio || 0;
         precioInput.value = parseFloat(precio).toFixed(2);
+            recalc();
     });
+
+        // recalcular al cambiar cantidad, precio o descuento
+        const qty = row.querySelector('input[name$="[cantidad]"]');
+        const precio = row.querySelector('input[name$="[precio]"]');
+        const desc = row.querySelector('input[name$="[descuento]"]');
+        [qty, precio, desc].forEach(el => {
+            if (!el) return;
+            el.addEventListener('input', function() { recalc(); });
+        });
 }
 
 document.querySelectorAll('.lineaItem').forEach(row => {
     attachLineListeners(row);
 });
+recalc();
+
+function recalc() {
+    let costosDirectos = 0;
+    document.querySelectorAll('.lineaItem').forEach(row => {
+        const qtyEl = row.querySelector('input[name$="[cantidad]"]');
+        const priceEl = row.querySelector('input[name$="[precio]"]');
+        const descEl = row.querySelector('input[name$="[descuento]"]');
+        const qty = parseFloat(qtyEl?.value || 0) || 0;
+        const price = parseFloat(priceEl?.value || 0) || 0;
+        const desc = parseFloat(descEl?.value || 0) || 0;
+        const subtotal = qty * price;
+        const descuentoMonto = subtotal * (desc / 100);
+        const subtotalFinal = subtotal - descuentoMonto;
+        costosDirectos += subtotalFinal;
+    });
+
+    const gastosGenerales = parseFloat((costosDirectos * 0.06).toFixed(2));
+    const utilidad = parseFloat((costosDirectos * 0.10).toFixed(2));
+    const subtotalCalc = parseFloat((costosDirectos + gastosGenerales + utilidad).toFixed(2));
+    const impuestoCalc = parseFloat((subtotalCalc * 0.18).toFixed(2));
+    const totalCalc = parseFloat((subtotalCalc + impuestoCalc).toFixed(2));
+
+    document.getElementById('costosDirectosDisplay').textContent = 'S/ ' + costosDirectos.toFixed(2);
+    document.getElementById('gastosGeneralesDisplay').textContent = 'S/ ' + gastosGenerales.toFixed(2);
+    document.getElementById('utilidadDisplay').textContent = 'S/ ' + utilidad.toFixed(2);
+    document.getElementById('subtotalDisplay').textContent = 'S/ ' + subtotalCalc.toFixed(2);
+    document.getElementById('impuestoDisplay').textContent = 'S/ ' + impuestoCalc.toFixed(2);
+    document.getElementById('totalDisplay').textContent = 'S/ ' + totalCalc.toFixed(2);
+
+    // hidden inputs
+    document.getElementById('input-subtotal').value = subtotalCalc.toFixed(2);
+    document.getElementById('input-impuesto').value = impuestoCalc.toFixed(2);
+    document.getElementById('input-total').value = totalCalc.toFixed(2);
+}
 </script>
 
 @endsection

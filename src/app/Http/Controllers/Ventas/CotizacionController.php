@@ -10,6 +10,7 @@ use App\Models\DetalleCotizacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class CotizacionController extends Controller
 {
@@ -73,11 +74,11 @@ class CotizacionController extends Controller
 
                 $total = 0;
 
-                // Crear detalles
+                // Crear detalles (soporte para 'lineas' legacy)
                 if ($request->lineas) {
                     foreach ($request->lineas as $linea) {
                         $producto = Producto::find($linea['Id_Producto']);
-                        
+
                         if (!$producto) {
                             throw new \Exception('Producto no encontrado: ' . $linea['Id_Producto']);
                         }
@@ -85,7 +86,7 @@ class CotizacionController extends Controller
                         $cantidad = intval($linea['cantidad'] ?? 1);
                         $precio = floatval($linea['precio'] ?? $producto->Precio_Venta ?? 0);
                         $descuento = floatval($linea['descuento'] ?? 0);
-                        
+
                         $subtotal = $cantidad * $precio;
                         $desc_monto = $subtotal * ($descuento / 100);
                         $subtotal_final = $subtotal - $desc_monto;
@@ -103,8 +104,73 @@ class CotizacionController extends Controller
                     }
                 }
 
-                // Actualizar total
-                $cotizacion->update(['Total' => $total]);
+                // Si se usara una forma alternativa 'items', soportarla también
+                if ($request->items) {
+                    foreach ($request->items as $it) {
+                        $prodId = $it['producto_id'] ?? $it['Id_Producto'] ?? null;
+                        $producto = Producto::find($prodId);
+                        if (!$producto && $prodId) {
+                            // intentar buscar por Id_Producto
+                            $producto = Producto::where('Id_Producto', $prodId)->first();
+                        }
+
+                        $cantidad = floatval($it['cantidad'] ?? 1);
+                        $precio = floatval($it['precio'] ?? ($producto->Precio_Venta ?? 0));
+                        $descuento = floatval($it['descuento'] ?? 0);
+
+                        $subtotal = $cantidad * $precio;
+                        $desc_monto = $subtotal * ($descuento / 100);
+                        $subtotal_final = $subtotal - $desc_monto;
+
+                        DetalleCotizacion::create([
+                            'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
+                            'Id_Producto' => $producto->Id_Producto ?? null,
+                            'Cantidad' => $cantidad,
+                            'Precio_Unitario' => $precio,
+                            'Descuento' => $descuento,
+                            'Total' => $subtotal_final
+                        ]);
+
+                        $total += $subtotal_final;
+                    }
+                }
+
+                // Calcular desglose financiero
+                $costosDirectos = round(floatval($total), 2);
+                $gastosGenerales = round($costosDirectos * 0.06, 2); // 6% sobre CD
+                $utilidad = round($costosDirectos * 0.10, 2); // 10% sobre CD
+                $subtotalCalc = round($costosDirectos + $gastosGenerales + $utilidad, 2);
+                $impuestoCalc = round($subtotalCalc * 0.18, 2); // IGV 18%
+                $presupuestoTotal = round($subtotalCalc + $impuestoCalc, 2);
+
+                // Preparar datos para actualizar según columnas existentes
+                $updateData = [];
+                if (Schema::hasColumn('cotizaciones', 'Total')) {
+                    $updateData['Total'] = $presupuestoTotal;
+                }
+                if (Schema::hasColumn('cotizaciones', 'total')) {
+                    $updateData['total'] = $presupuestoTotal;
+                }
+                if (Schema::hasColumn('cotizaciones', 'Subtotal')) {
+                    $updateData['Subtotal'] = $subtotalCalc;
+                }
+                if (Schema::hasColumn('cotizaciones', 'subtotal')) {
+                    $updateData['subtotal'] = $subtotalCalc;
+                }
+                if (Schema::hasColumn('cotizaciones', 'Impuesto')) {
+                    $updateData['Impuesto'] = $impuestoCalc;
+                }
+                if (Schema::hasColumn('cotizaciones', 'impuesto')) {
+                    $updateData['impuesto'] = $impuestoCalc;
+                }
+
+                // Fallback: si no se detecta columna 'Total' intentar actualizar 'Total' (legacy)
+                if (empty($updateData)) {
+                    $updateData['Total'] = $presupuestoTotal;
+                }
+
+                // Actualizar totales
+                $cotizacion->update($updateData);
 
                 return $cotizacion;
             });
@@ -152,10 +218,102 @@ class CotizacionController extends Controller
     public function update(Request $request, Cotizacion $cotizacion)
     {
         try {
+            // Actualizar datos básicos
             $cotizacion->update([
                 'Id_Cliente' => $request->Id_Cliente,
                 'Estado' => $request->Estado,
             ]);
+
+            // Si se envían líneas nuevas, reemplazarlas y recalcular totales
+            if ($request->lineas || $request->items) {
+                DB::transaction(function () use ($request, $cotizacion) {
+                    // Eliminar detalles actuales
+                    $cotizacion->detalles()->delete();
+
+                    $total = 0;
+
+                    if ($request->lineas) {
+                        foreach ($request->lineas as $linea) {
+                            $producto = Producto::find($linea['Id_Producto']);
+                            if (!$producto) continue;
+                            $cantidad = intval($linea['cantidad'] ?? 1);
+                            $precio = floatval($linea['precio'] ?? $producto->Precio_Venta ?? 0);
+                            $descuento = floatval($linea['descuento'] ?? 0);
+                            $subtotal = $cantidad * $precio;
+                            $desc_monto = $subtotal * ($descuento / 100);
+                            $subtotal_final = $subtotal - $desc_monto;
+
+                            DetalleCotizacion::create([
+                                'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
+                                'Id_Producto' => $producto->Id_Producto,
+                                'Cantidad' => $cantidad,
+                                'Precio_Unitario' => $precio,
+                                'Descuento' => $descuento,
+                                'Total' => $subtotal_final
+                            ]);
+
+                            $total += $subtotal_final;
+                        }
+                    }
+
+                    if ($request->items) {
+                        foreach ($request->items as $it) {
+                            $prodId = $it['producto_id'] ?? $it['Id_Producto'] ?? null;
+                            $producto = Producto::find($prodId);
+                            $cantidad = floatval($it['cantidad'] ?? 1);
+                            $precio = floatval($it['precio'] ?? ($producto->Precio_Venta ?? 0));
+                            $descuento = floatval($it['descuento'] ?? 0);
+                            $subtotal = $cantidad * $precio;
+                            $desc_monto = $subtotal * ($descuento / 100);
+                            $subtotal_final = $subtotal - $desc_monto;
+
+                            DetalleCotizacion::create([
+                                'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
+                                'Id_Producto' => $producto->Id_Producto ?? null,
+                                'Cantidad' => $cantidad,
+                                'Precio_Unitario' => $precio,
+                                'Descuento' => $descuento,
+                                'Total' => $subtotal_final
+                            ]);
+
+                            $total += $subtotal_final;
+                        }
+                    }
+
+                    // Recalcular desglose
+                    $costosDirectos = round(floatval($total), 2);
+                    $gastosGenerales = round($costosDirectos * 0.06, 2);
+                    $utilidad = round($costosDirectos * 0.10, 2);
+                    $subtotalCalc = round($costosDirectos + $gastosGenerales + $utilidad, 2);
+                    $impuestoCalc = round($subtotalCalc * 0.18, 2);
+                    $presupuestoTotal = round($subtotalCalc + $impuestoCalc, 2);
+
+                    $updateData = [];
+                    if (Schema::hasColumn('cotizaciones', 'Total')) {
+                        $updateData['Total'] = $presupuestoTotal;
+                    }
+                    if (Schema::hasColumn('cotizaciones', 'total')) {
+                        $updateData['total'] = $presupuestoTotal;
+                    }
+                    if (Schema::hasColumn('cotizaciones', 'Subtotal')) {
+                        $updateData['Subtotal'] = $subtotalCalc;
+                    }
+                    if (Schema::hasColumn('cotizaciones', 'subtotal')) {
+                        $updateData['subtotal'] = $subtotalCalc;
+                    }
+                    if (Schema::hasColumn('cotizaciones', 'Impuesto')) {
+                        $updateData['Impuesto'] = $impuestoCalc;
+                    }
+                    if (Schema::hasColumn('cotizaciones', 'impuesto')) {
+                        $updateData['impuesto'] = $impuestoCalc;
+                    }
+                    if (empty($updateData)) {
+                        $updateData['Total'] = $presupuestoTotal;
+                    }
+
+                    $cotizacion->update($updateData);
+                });
+            }
 
             return redirect()
                 ->route('cotizaciones.show', $cotizacion)
