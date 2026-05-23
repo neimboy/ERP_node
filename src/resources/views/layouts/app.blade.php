@@ -82,9 +82,29 @@
 
                             {{-- 🟢 VENTAS --}}
                             @can('view_ventas')
+                                @php
+                                    // Determinar si el menú Ventas debe mostrarse como activo
+                                    $ventasActive = request()->is('ventas*') || request()->is('cotizaciones*') || request()->routeIs('cotizaciones.*') || request()->routeIs('ventas.cotizaciones.*');
+
+                                    // Detectar la ruta existente para cotizaciones (con o sin prefijo 'ventas')
+                                    if (Route::has('ventas.cotizaciones.index')) {
+                                        $cotRouteUrl = route('ventas.cotizaciones.index');
+                                        $cotRouteNamePattern = 'ventas.cotizaciones.*';
+                                    } elseif (Route::has('cotizaciones.index')) {
+                                        $cotRouteUrl = route('cotizaciones.index');
+                                        $cotRouteNamePattern = 'cotizaciones.*';
+                                    } else {
+                                        // Fallback a la URL esperada si la ruta nombrada no existe
+                                        $cotRouteUrl = url('/ventas/cotizaciones');
+                                        $cotRouteNamePattern = null;
+                                    }
+
+                                    $cotActive = ($cotRouteNamePattern && request()->routeIs($cotRouteNamePattern)) || request()->is('ventas/cotizaciones*') || request()->is('cotizaciones*');
+                                @endphp
+
                                 <div class="relative">
                                     <button @click="openVentas = !openVentas"
-                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ request()->is('ventas*') ? 'bg-gray-100' : '' }}">
+                                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none {{ $ventasActive ? 'bg-gray-100' : '' }}">
                                         <span>Ventas</span>
                                         <i class="fas fa-chevron-down ml-2 text-xs"></i>
                                     </button>
@@ -95,6 +115,11 @@
                                         <div class="py-1 px-2">
                                             <a href="{{ route('clientes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">👥 Clientes</a>
                                             <a href="{{ route('oportunidades.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💼 Oportunidades</a>
+                                            {{-- Cotizaciones: icono y detección de ruta/prefijo --}}
+                                            <a href="{{ $cotRouteUrl }}"
+                                               class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md {{ $cotActive ? 'bg-blue-100 font-semibold' : '' }}">
+                                                <i class="fas fa-file-invoice-dollar mr-2"></i> Cotizaciones
+                                            </a>
                                             <a href="{{ route('ordenes.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">🧾 Órdenes</a>
                                             <a href="{{ route('facturas.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📄 Facturas</a>
                                             <a href="{{ route('pagos.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💵 Pagos</a>
