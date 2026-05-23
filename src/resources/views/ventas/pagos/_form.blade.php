@@ -1,10 +1,11 @@
 <div>
     <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Factura</label>
+        @php $selectedFactura = old('Id_Factura', $pago->Id_Factura ?? request('Id_Factura') ?? ''); @endphp
         <select name="Id_Factura" class="w-full border rounded px-3 py-2" required>
             <option value="">-- Seleccionar factura --</option>
             @foreach($facturas ?? [] as $factura)
-                <option value="{{ $factura->Id_Factura }}" {{ (old('Id_Factura', $pago->Id_Factura ?? '') == $factura->Id_Factura) ? 'selected' : '' }}>
+                <option value="{{ $factura->Id_Factura }}" {{ ($selectedFactura == $factura->Id_Factura) ? 'selected' : '' }}>
                     {{ $factura->Numero_Factura }} — {{ $factura->orden->cliente->Nombre ?? 'Sin cliente' }} — Saldo: {{ number_format($factura->Saldo ?? ($factura->Total - ($factura->pagos->sum('Monto') ?? 0)), 2) }}
                 </option>
             @endforeach

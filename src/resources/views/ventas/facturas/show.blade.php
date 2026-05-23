@@ -4,6 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Factura #{{ $factura->Id_Factura }}</h2>
             <div class="space-x-2">
                 <a href="{{ route('facturas.index') }}" class="px-3 py-2 bg-gray-200 rounded">Volver</a>
+                <a href="{{ route('pagos.create', ['Id_Factura' => $factura->Id_Factura]) }}" class="px-3 py-2 bg-green-600 text-white rounded">Registrar Pago</a>
                 <button onclick="window.print()" class="px-3 py-2 bg-blue-600 text-white rounded">Imprimir</button>
             </div>
         </div>

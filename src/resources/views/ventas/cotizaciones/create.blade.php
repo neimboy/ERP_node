@@ -33,7 +33,7 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('Id_Cliente') border-red-500 @enderror">
                     <option value="">-- Seleccione Cliente --</option>
                     @foreach($clientes as $cliente)
-                        <option value="{{ $cliente->Id_Cliente }}" {{ old('Id_Cliente') == $cliente->Id_Cliente ? 'selected' : '' }}>
+                        <option value="{{ $cliente->Id_Cliente }}" {{ (old('Id_Cliente') == $cliente->Id_Cliente || (isset($selectedCliente) && $selectedCliente == $cliente->Id_Cliente)) ? 'selected' : '' }}>
                             {{ $cliente->Nombre }}
                         </option>
                     @endforeach
@@ -41,6 +41,10 @@
                 @error('Id_Cliente')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
             </div>
         </div>
+
+        @if(!empty($oportunidadId))
+            <input type="hidden" name="oportunidad_id" value="{{ $oportunidadId }}">
+        @endif
 
         <!-- Productos -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
@@ -135,16 +139,16 @@ let lineIndex = 1;
 
 document.getElementById('addLineBtn').addEventListener('click', function(e) {
     e.preventDefault();
-    
+
     const container = document.getElementById('lineasContainer');
     const template = document.querySelector('.lineaItem').cloneNode(true);
-    
+
     template.querySelectorAll('[name]').forEach(input => {
         const name = input.name;
         input.name = name.replace(/\[\d+\]/, `[${lineIndex}]`);
         if (input.type !== 'button' && !input.disabled) input.value = input.type === 'number' && name.includes('cantidad') ? '1' : '';
     });
-    
+
     container.appendChild(template);
     attachLineListeners(template);
     lineIndex++;
@@ -154,7 +158,7 @@ function attachLineListeners(row) {
     const removeBtn = row.querySelector('.removeLineBtn');
     const productoSelect = row.querySelector('.productoSelect');
     const precioInput = row.querySelector('.precioInput');
-    
+
     removeBtn.addEventListener('click', function(e) {
         e.preventDefault();
         if (document.querySelectorAll('.lineaItem').length > 1) {

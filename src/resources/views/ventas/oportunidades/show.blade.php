@@ -39,6 +39,8 @@
         @if($oportunidad->Id_Orden)
             <a href="{{ route('ordenes.show', $oportunidad->Id_Orden) }}" class="px-3 py-2 bg-blue-600 text-white rounded">Ver Orden asociada</a>
         @endif
+
+        <a href="{{ route('cotizaciones.create', ['oportunidad_id' => $oportunidad->Id_Oportunidad, 'Id_Cliente' => $oportunidad->Id_Cliente]) }}" class="px-3 py-2 bg-green-600 text-white rounded ml-2">Crear Cotización</a>
     </div>
 </div>
 @endsection

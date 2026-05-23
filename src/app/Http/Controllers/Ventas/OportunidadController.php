@@ -89,7 +89,7 @@ class OportunidadController extends Controller
     public function cerrar(Oportunidad $oportunidad)
     {
         $oportunidad->update([
-            'Estado' => 'Cerrado',
+            'Estado' => 'Cerrada',
             'Fecha_Cierre' => now(),
         ]);
 

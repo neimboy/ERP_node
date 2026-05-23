@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // REGISTRAR ALIAS DE MIDDLEWARE
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'ventas.access' => \App\Http\Middleware\VentasAccess::class,
         ]);
 
     })

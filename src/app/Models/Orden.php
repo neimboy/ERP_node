@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Orden extends Model
 {
@@ -29,5 +30,17 @@ class Orden extends Model
     public function factura()
     {
         return $this->hasOne(Factura::class, 'Id_Orden', 'Id_Orden');
+    }
+
+    /**
+     * Relación opcional hacia la cotización que generó esta orden.
+     */
+    public function cotizacion()
+    {
+        if (Schema::hasColumn($this->getTable(), 'Id_Cotizacion')) {
+            return $this->belongsTo(Cotizacion::class, 'Id_Cotizacion', 'Id_Cotizacion');
+        }
+
+        return null;
     }
 }

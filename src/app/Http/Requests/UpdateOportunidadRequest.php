@@ -8,7 +8,8 @@ class UpdateOportunidadRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->hasRole('Ventas');
+        // Permitir tanto al rol Ventas como al Super Admin
+        return $this->user() && $this->user()->hasAnyRole(['Ventas', 'Super Admin']);
     }
 
     public function rules(): array

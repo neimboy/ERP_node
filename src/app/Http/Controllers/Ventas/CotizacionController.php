@@ -7,6 +7,8 @@ use App\Models\Cotizacion;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\DetalleCotizacion;
+use App\Models\Orden;
+use App\Models\DetalleOrden;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -49,7 +51,10 @@ class CotizacionController extends Controller
         $clientes = Cliente::orderBy('Nombre')->get();
         $productos = Producto::select('Id_Producto', 'Nombre', 'Precio_Venta')->get();
 
-        return view('ventas.cotizaciones.create', compact('clientes', 'productos'));
+        $oportunidadId = request('oportunidad_id') ?? request('Id_Oportunidad') ?? null;
+        $selectedCliente = request('Id_Cliente') ?? null;
+
+        return view('ventas.cotizaciones.create', compact('clientes', 'productos', 'oportunidadId', 'selectedCliente'));
     }
 
     /**
@@ -61,14 +66,53 @@ class CotizacionController extends Controller
             Log::info('Creando cotización', ['cliente' => $request->Id_Cliente]);
 
             $cotizacion = DB::transaction(function () use ($request) {
+                // Preparar datos de cotización respetando esquemas legacy/modernos
+                $cotData = [];
+                // Cliente
+                if (Schema::hasColumn('cotizaciones', 'Id_Cliente')) {
+                    $cotData['Id_Cliente'] = $request->Id_Cliente;
+                } else {
+                    $cotData['cliente_id'] = $request->Id_Cliente;
+                }
+
+                // Fechas
+                if (Schema::hasColumn('cotizaciones', 'Fecha')) {
+                    $cotData['Fecha'] = now();
+                } else {
+                    $cotData['fecha'] = now();
+                }
+
+                if (Schema::hasColumn('cotizaciones', 'Fecha_Vencimiento')) {
+                    $cotData['Fecha_Vencimiento'] = now()->addDays(30);
+                } else {
+                    $cotData['fecha_vencimiento'] = now()->addDays(30);
+                }
+
+                // Estado default (usar valores: BORRADOR, ENVIADA, ACEPTADA, RECHAZADA)
+                if (Schema::hasColumn('cotizaciones', 'Estado')) {
+                    $cotData['Estado'] = $request->Estado ?? 'BORRADOR';
+                } else {
+                    $cotData['estado'] = $request->Estado ?? 'BORRADOR';
+                }
+
+                // Total inicial
+                if (Schema::hasColumn('cotizaciones', 'Total')) {
+                    $cotData['Total'] = 0;
+                } else {
+                    $cotData['total'] = 0;
+                }
+
+                // Oportunidad (si se envia desde la vista de oportunidad)
+                if ($request->oportunidad_id) {
+                    if (Schema::hasColumn('cotizaciones', 'oportunidad_id')) {
+                        $cotData['oportunidad_id'] = $request->oportunidad_id;
+                    } elseif (Schema::hasColumn('cotizaciones', 'Id_Oportunidad')) {
+                        $cotData['Id_Oportunidad'] = $request->oportunidad_id;
+                    }
+                }
+
                 // Crear cotización
-                $cotizacion = Cotizacion::create([
-                    'Id_Cliente' => $request->Id_Cliente,
-                    'Fecha' => now(),
-                    'Fecha_Vencimiento' => now()->addDays(30),
-                    'Estado' => 'Pendiente',
-                    'Total' => 0
-                ]);
+                $cotizacion = Cotizacion::create($cotData);
 
                 Log::info('Cotización creada: ' . $cotizacion->Id_Cotizacion);
 
@@ -183,7 +227,7 @@ class CotizacionController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error al crear cotización: ' . $e->getMessage());
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -208,7 +252,7 @@ class CotizacionController extends Controller
         $clientes = Cliente::orderBy('Nombre')->get();
         $productos = Producto::select('Id_Producto', 'Nombre', 'Precio_Venta')->get();
         $cotizacion->load('detalles');
-        
+
         return view('ventas.cotizaciones.edit', compact('cotizacion', 'clientes', 'productos'));
     }
 
@@ -345,7 +389,7 @@ class CotizacionController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error al eliminar cotización: ' . $e->getMessage());
-            
+
             return redirect()
                 ->back()
                 ->with('error', '❌ Error al eliminar: ' . $e->getMessage());
@@ -358,15 +402,42 @@ class CotizacionController extends Controller
     public function convertirAOrden(Cotizacion $cotizacion)
     {
         try {
-            if ($cotizacion->Estado !== 'Pendiente') {
-                return redirect()->back()->with('error', 'Solo se pueden convertir cotizaciones Pendientes');
+            // Solo cotizaciones ACEPTADA pueden generar orden
+            if (strtoupper($cotizacion->Estado) !== 'ACEPTADA' && strtoupper($cotizacion->estado ?? '') !== 'ACEPTADA') {
+                return redirect()->back()->with('error', 'Solo las cotizaciones en estado ACEPTADA pueden generar una orden');
             }
 
-            $cotizacion->update(['Estado' => 'Convertida']);
+            $orden = DB::transaction(function () use ($cotizacion) {
+                $orden = Orden::create([
+                    'Id_Cliente' => $cotizacion->Id_Cliente ?? $cotizacion->cliente_id ?? null,
+                    'Fecha' => now(),
+                    'Estado' => 'PENDIENTE',
+                ]);
 
-            return redirect()
-                ->route('cotizaciones.show', $cotizacion)
-                ->with('success', 'Cotización convertida a orden');
+                // Crear detalles de orden a partir de detalles de cotización
+                foreach ($cotizacion->detalles as $d) {
+                    DetalleOrden::create([
+                        'Id_Orden' => $orden->Id_Orden,
+                        'Id_Producto' => $d->Id_Producto,
+                        'Cantidad' => $d->Cantidad,
+                        'Precio' => $d->Precio_Unitario,
+                    ]);
+                }
+
+                // Si la cotización tiene columna para almacenar orden, actualizarla
+                if (Schema::hasColumn($cotizacion->getTable(), 'Id_Orden')) {
+                    $cotizacion->Id_Orden = $orden->Id_Orden;
+                    $cotizacion->save();
+                }
+                if (Schema::hasColumn($cotizacion->getTable(), 'id_orden')) {
+                    $cotizacion->id_orden = $orden->Id_Orden;
+                    $cotizacion->save();
+                }
+
+                return $orden;
+            });
+
+            return redirect()->route('ordenes.show', $orden)->with('success', 'Orden creada a partir de la cotización');
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error: ' . $e->getMessage());

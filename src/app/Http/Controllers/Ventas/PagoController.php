@@ -45,7 +45,20 @@ class PagoController extends Controller
             'Metodo' => 'required|string|max:50',
         ]);
 
-        Pago::create($validated);
+        $pago = Pago::create($validated);
+
+        // Actualizar estado de la factura y recalcular saldo
+        $factura = Factura::find($validated['Id_Factura']);
+        if ($factura) {
+            $pagado = $factura->pagos()->sum('Monto') ?? 0;
+            $estado = ((float)$pagado >= (float)($factura->Total ?? 0)) ? 'PAGADA' : 'PENDIENTE';
+            $update = ['Estado_Pago' => $estado];
+            // Si existe columna 'Saldo' en facturas, actualizarla también
+            if (\Illuminate\Support\Facades\Schema::hasColumn('facturas', 'Saldo')) {
+                $update['Saldo'] = max(0, (float)($factura->Total ?? 0) - (float)$pagado);
+            }
+            $factura->update($update);
+        }
 
         return redirect()->route('pagos.index')->with('success', 'Pago registrado');
     }
@@ -77,6 +90,18 @@ class PagoController extends Controller
         ]);
 
         $pago->update($validated);
+
+        // Recalcular estado de la factura asociada
+        $factura = Factura::find($validated['Id_Factura']);
+        if ($factura) {
+            $pagado = $factura->pagos()->sum('Monto') ?? 0;
+            $estado = ((float)$pagado >= (float)($factura->Total ?? 0)) ? 'PAGADA' : 'PENDIENTE';
+            $update = ['Estado_Pago' => $estado];
+            if (\Illuminate\Support\Facades\Schema::hasColumn('facturas', 'Saldo')) {
+                $update['Saldo'] = max(0, (float)($factura->Total ?? 0) - (float)$pagado);
+            }
+            $factura->update($update);
+        }
 
         return redirect()->route('pagos.index')->with('success', 'Pago actualizado');
     }

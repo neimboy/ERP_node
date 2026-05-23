@@ -94,6 +94,9 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             Route::resource('facturas', FacturaController::class);
             Route::resource('cotizaciones', CotizacionController::class);
+            // Generar orden desde una cotización aceptada
+            Route::post('cotizaciones/{cotizacion}/generar-orden', [CotizacionController::class, 'convertirAOrden'])
+                ->name('cotizaciones.generarOrden');
             Route::resource('pagos', PagoController::class);
             Route::resource('oportunidades', OportunidadController::class)
                 ->parameters(['oportunidades' => 'oportunidad']);
