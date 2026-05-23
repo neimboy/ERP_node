@@ -1,14 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Detalle del Proyecto')
+@section('title', 'Detalle del Proyecto de Producción')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
-            <a href="{{ route('produccion.proyectos.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
+            <a href="{{ route('proyectos.index') }}" class="text-gray-500 hover:text-gray-700">← Atras</a>
             <h1 class="text-2xl font-bold text-gray-800">{{ $proyecto->Nombre }}</h1>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Producción</span>
         </div>
-        <a href="{{ route('produccion.proyectos.edit', $proyecto->Id_Proyecto) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
+        <a href="{{ route('proyectos.edit', $proyecto->Id_Proyecto) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar</a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
@@ -41,9 +42,49 @@
         </div>
     </div>
 
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Productos Utilizados</h2>
+        @if($proyecto->productos->isEmpty())
+            <p class="text-gray-500">No se han asignado productos a este proyecto.</p>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio Venta</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($proyecto->productos as $producto)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ $producto->Nombre }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ $producto->pivot->Cantidad }}</td>
+                            <td class="px-6 py-4 text-gray-600">S/ {{ number_format($producto->Precio_Venta ?? 0, 2) }}</td>
+                            <td class="px-6 py-4 text-gray-900 font-medium">
+                                S/ {{ number_format(($producto->Precio_Venta ?? 0) * $producto->pivot->Cantidad, 2) }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <td colspan="3" class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total Productos:</td>
+                            <td class="px-6 py-3 font-bold text-gray-900">
+                                S/ {{ number_format($proyecto->productos->sum(fn($p) => ($p->Precio_Venta ?? 0) * $p->pivot->Cantidad), 2) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        @endif
+    </div>
+
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-gray-800">Empleados Asignados ({{ $proyecto->asignaciones->count() }})</h2>
-        <a href="{{ route('produccion.asignaciones.create', ['proyecto_id' => $proyecto->Id_Proyecto]) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">+ Agregar</a>
+        <a href="{{ route('asignaciones.create', ['proyecto_id' => $proyecto->Id_Proyecto]) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">+ Agregar</a>
     </div>
 
     @if($proyecto->asignaciones->isEmpty())
@@ -75,7 +116,7 @@
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $asignacion->empleado->Nombre ?? 'N/A' }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $asignacion->Horas_Asignadas }} hrs</td>
                         <td class="px-6 py-4 text-right">
-                            <form action="{{ route('produccion.asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST" class="inline">
+                            <form action="{{ route('asignaciones.destroy', $asignacion->Id_Asignacion) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium" onclick="return confirm('¿Eliminar esta asignación?')">Eliminar</button>

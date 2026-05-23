@@ -22,6 +22,11 @@ use App\Http\Controllers\RRHH\NominaController;
 // INVENTARIO
 use App\Http\Controllers\Inventario\AlmacenController;
 use App\Http\Controllers\Inventario\ProductoController;
+use App\Http\Controllers\Inventario\InventarioController;
+use App\Http\Controllers\Inventario\MovimientosController;
+use App\Http\Controllers\Inventario\ComprasController;
+use App\Http\Controllers\Inventario\ProveedoresController;
+use App\Http\Controllers\Inventario\CategoriaController;
 
 // PRODUCCIÓN
 use App\Http\Controllers\Produccion\ProyectoController;
@@ -29,16 +34,6 @@ use App\Http\Controllers\Produccion\AsignacionController;
 
 // ADMINISTRACIÓN
 use App\Http\Controllers\Admin\UserController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // ==========================================
 // DASHBOARD & PERFIL (AUTENTICADOS)
@@ -115,8 +110,40 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('inventario')
         ->middleware('role:Super Admin,Almacenero')
         ->group(function () {
-            Route::resource('almacenes', AlmacenController::class);
+            // Dashboard general del módulo Inventarios
+            Route::get('/', [InventarioController::class, 'dashboard'])
+                ->name('inventario.dashboard');
+
+            // CRUD de almacenes
+            Route::resource('almacenes', AlmacenController::class)
+                ->parameters(['almacenes' => 'almacen']);
+            // CRUD de productos
             Route::resource('productos', ProductoController::class);
+
+            // CRUD de categorías ✅ nuevo
+            Route::resource('categorias', CategoriaController::class);
+
+            // Control general de inventario
+            Route::resource('inventarios', InventarioController::class);
+
+            // Movimientos de stock (entradas/salidas)
+            Route::resource('movimientos', MovimientosController::class);
+
+            // Compras
+            Route::resource('compras', ComprasController::class);
+
+            // Proveedores
+            Route::resource('proveedores', ProveedoresController::class)
+                ->parameters(['proveedores' => 'proveedor']);
+            // Consultar stock
+            Route::get('/inventario/stock/{producto}/{almacen}',
+                [InventarioController::class, 'verStock']);
+
+            // Verificar stock antes de vender
+            Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}',
+                [InventarioController::class, 'verificarStock']);
+            Route::patch('/compras/{id}/estado', [ComprasController::class, 'updateEstado'])->name('compras.updateEstado');
+
         });
 
 
@@ -131,15 +158,13 @@ Route::middleware(['auth'])->group(function () {
                 ->names('rrhh.nominas');
         });
 
-    // 🟣 PRODUCCIÓN
+    // PRODUCCIÓN
     Route::prefix('produccion')
         ->middleware('role:Super Admin,Produccion')
         ->group(function () {
-            Route::resource('proyectos', ProyectoController::class)
-                ->names('produccion.proyectos');
+            Route::resource('proyectos', ProyectoController::class);
 
-            Route::resource('asignaciones', AsignacionController::class)
-                ->names('produccion.asignaciones');
+            Route::resource('asignaciones', AsignacionController::class);
         });
 
 });

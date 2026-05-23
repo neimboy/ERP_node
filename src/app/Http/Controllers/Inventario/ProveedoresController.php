@@ -8,43 +8,57 @@ use Illuminate\Http\Request;
 
 class ProveedoresController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $proveedores = Proveedor::all();
-        return view('proveedores.index', compact('proveedores'));
+        $query = Proveedor::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('Nombre', 'like', "%{$search}%")
+                ->orWhere('RUC', 'like', "%{$search}%");
+        }
+
+        $proveedores = $query->paginate(10);
+        return view('inventarios.proveedores.index', compact('proveedores'));
     }
+
 
     public function create()
     {
-        return view('proveedores.create');
+        return view('inventarios.proveedores.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:20',
-            'direccion' => 'nullable|string|max:255',
+            'RUC' => 'required|string|max:20|unique:proveedores,RUC',
+            'Nombre' => 'required|string|max:150',
+            'Telefono' => 'nullable|string|max:20',
         ]);
 
-        Proveedor::create($request->all());
+        Proveedor::create($request->only(['RUC','Nombre','Telefono']));
         return redirect()->route('proveedores.index')->with('success', 'Proveedor creado correctamente.');
+    }
+
+    public function show(Proveedor $proveedor)
+    {
+        return view('inventarios.proveedores.show', compact('proveedor'));
     }
 
     public function edit(Proveedor $proveedor)
     {
-        return view('proveedores.edit', compact('proveedor'));
+        return view('inventarios.proveedores.edit', compact('proveedor'));
     }
 
     public function update(Request $request, Proveedor $proveedor)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:20',
-            'direccion' => 'nullable|string|max:255',
+            'RUC' => 'required|string|max:20|unique:proveedores,RUC,' . $proveedor->Id_Proveedor . ',Id_Proveedor',
+            'Nombre' => 'required|string|max:150',
+            'Telefono' => 'nullable|string|max:20',
         ]);
 
-        $proveedor->update($request->all());
+        $proveedor->update($request->only(['RUC','Nombre','Telefono']));
         return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado correctamente.');
     }
 
