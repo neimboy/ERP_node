@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('detalle_facturas', function (Blueprint $table) {
-            $table->bigIncrements('Id');
+            $table->id('Id_Detalle');
             $table->unsignedBigInteger('Id_Factura');
             $table->unsignedBigInteger('Id_Producto');
             $table->integer('Cantidad')->default(1);
@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->decimal('Subtotal', 15, 2)->default(0);
             $table->timestamps();
 
-            $table->foreign('Id_Factura')->references('Id')->on('facturas')->onDelete('cascade');
-            $table->foreign('Id_Producto')->references('Id')->on('productos')->onDelete('restrict');
+            $table->foreign('Id_Factura')->references('Id_Factura')->on('facturas')->onDelete('cascade');
+            $table->foreign('Id_Producto')->references('Id_Producto')->on('productos')->onDelete('restrict');
         });
     }
 

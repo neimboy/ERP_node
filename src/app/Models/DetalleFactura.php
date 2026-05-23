@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DetalleFactura extends Model
 {
     protected $table = 'detalle_facturas';
+    protected $primaryKey = 'Id_Detalle';
     public $timestamps = true;
 
     protected $fillable = [
@@ -20,11 +21,11 @@ class DetalleFactura extends Model
 
     public function factura()
     {
-        return $this->belongsTo(Factura::class, 'Id_Factura', 'Id');
+        return $this->belongsTo(Factura::class, 'Id_Factura', 'Id_Factura');
     }
 
     public function producto()
     {
-        return $this->belongsTo(Producto::class, 'Id_Producto', 'Id');
+        return $this->belongsTo(Producto::class, 'Id_Producto', 'Id_Producto');
     }
 }

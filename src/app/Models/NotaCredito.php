@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class NotaCredito extends Model
 {
     protected $table = 'notas_credito';
+    protected $primaryKey = 'Id_Nota';
     public $timestamps = true;
 
     protected $fillable = [
@@ -20,6 +21,6 @@ class NotaCredito extends Model
 
     public function factura()
     {
-        return $this->belongsTo(Factura::class, 'Id_Factura', 'Id');
+        return $this->belongsTo(Factura::class, 'Id_Factura', 'Id_Factura');
     }
 }

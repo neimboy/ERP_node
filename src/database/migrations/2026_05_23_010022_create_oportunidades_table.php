@@ -8,21 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('oportunidades', function (Blueprint $table) {
-            $table->id('Id_Oportunidad'); // Siguiendo tu misma convención de mayúsculas
-            $table->unsignedBigInteger('Id_Cliente'); // Llave foránea
+        Schema::create('oportunidades_crm', function (Blueprint $table) {
+            $table->id('Id_Oportunidad');
+            $table->unsignedBigInteger('Id_Cliente');
 
-            $table->string('titulo', 150);
-            $table->decimal('monto_estimado', 10, 2)->default(0);
-            $table->string('etapa', 50)->default('Prospecto'); // Prospecto, Contactado, Propuesta, Negociacion, Ganado, Perdido
+            $table->string('Titulo', 150);
+            $table->text('Descripcion')->nullable();
+            $table->decimal('Monto_Estimado', 15, 2)->default(0);
+            $table->string('Estado', 50)->default('Prospecto');
+            $table->date('Fecha_Cierre')->nullable();
 
             $table->timestamps();
 
-            // Relación con tu tabla de clientes del módulo de ventas
             $table->foreign('Id_Cliente')
                   ->references('Id_Cliente')
                   ->on('clientes')
-                  ->onDelete('cascade'); // Si borras al cliente, se borran sus oportunidades
+                  ->onDelete('cascade');
         });
     }
 

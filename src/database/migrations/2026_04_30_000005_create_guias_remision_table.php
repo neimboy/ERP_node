@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('guias_remision', function (Blueprint $table) {
-            $table->bigIncrements('Id');
+            $table->id('Id_Guia');
             $table->unsignedBigInteger('Id_Orden');
             $table->string('Numero_Guia')->nullable();
             $table->date('Fecha_Emision')->nullable();
@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('Estado')->default('Pendiente');
             $table->timestamps();
 
-            $table->foreign('Id_Orden')->references('Id')->on('ordenes')->onDelete('cascade');
+            $table->foreign('Id_Orden')->references('Id_Orden')->on('ordenes')->onDelete('cascade');
         });
     }
 

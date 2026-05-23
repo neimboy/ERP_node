@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GuiaRemision extends Model
 {
     protected $table = 'guias_remision';
+    protected $primaryKey = 'Id_Guia';
     public $timestamps = true;
 
     protected $fillable = [
@@ -19,6 +20,6 @@ class GuiaRemision extends Model
 
     public function orden()
     {
-        return $this->belongsTo(Orden::class, 'Id_Orden', 'Id');
+        return $this->belongsTo(Orden::class, 'Id_Orden', 'Id_Orden');
     }
 }

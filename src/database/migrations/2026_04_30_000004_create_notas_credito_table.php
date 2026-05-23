@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('notas_credito', function (Blueprint $table) {
-            $table->bigIncrements('Id');
+            $table->id('Id_Nota');
             $table->unsignedBigInteger('Id_Factura');
             $table->date('Fecha')->nullable();
             $table->decimal('Monto', 15, 2)->default(0);
@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('Estado')->default('Pendiente');
             $table->timestamps();
 
-            $table->foreign('Id_Factura')->references('Id')->on('facturas')->onDelete('cascade');
+            $table->foreign('Id_Factura')->references('Id_Factura')->on('facturas')->onDelete('cascade');
         });
     }
 
