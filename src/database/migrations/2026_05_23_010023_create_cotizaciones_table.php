@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('Subtotal', 15, 2)->default(0);
             $table->decimal('Impuesto', 15, 2)->default(0);
             $table->decimal('Total', 15, 2)->default(0);
-            $table->enum('Estado', ['BORRADOR','ENVIADA','ACEPTADA','RECHAZADA'])->default('BORRADOR');
+            $table->enum('Estado', ['BORRADOR','ENVIADA','ACEPTADA','RECHAZADA','CONVERTIDA','VENCIDA','PENDIENTE'])->default('BORRADOR');
             $table->timestamps();
 
             $table->foreign('Id_Cliente')

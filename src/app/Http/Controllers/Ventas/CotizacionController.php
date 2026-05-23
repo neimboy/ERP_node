@@ -38,7 +38,7 @@ class CotizacionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $estados = ['Pendiente', 'Aceptada', 'Rechazada', 'Convertida', 'Vencida'];
+        $estados = ['BORRADOR','ENVIADA','ACEPTADA','RECHAZADA','CONVERTIDA','VENCIDA','PENDIENTE'];
 
         return view('ventas.cotizaciones.index', compact('cotizaciones', 'q', 'estado', 'estados'));
     }

@@ -8,7 +8,7 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+
             @if (session('success'))
                 <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
                     {{ session('success') }}
@@ -43,12 +43,12 @@
                             <td class="p-3">{{ $cot->Fecha_Vencimiento->format('d/m/Y') }}</td>
                             <td class="p-3 text-right font-semibold">S/ {{ number_format($cot->Total, 2) }}</td>
                             <td class="p-3">
-                                <span class="px-2 py-1 text-xs font-medium rounded 
-                                    {{ $cot->Estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                    {{ $cot->Estado === 'Aceptada' ? 'bg-green-100 text-green-800' : '' }}
-                                    {{ $cot->Estado === 'Rechazada' ? 'bg-red-100 text-red-800' : '' }}
-                                    {{ $cot->Estado === 'Convertida' ? 'bg-blue-100 text-blue-800' : '' }}
-                                    {{ $cot->Estado === 'Vencida' ? 'bg-gray-100 text-gray-800' : '' }}
+                                <span class="px-2 py-1 text-xs font-medium rounded
+                                    {{ $cot->Estado === 'PENDIENTE' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                    {{ $cot->Estado === 'ACEPTADA' ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $cot->Estado === 'RECHAZADA' ? 'bg-red-100 text-red-800' : '' }}
+                                    {{ $cot->Estado === 'CONVERTIDA' ? 'bg-blue-100 text-blue-800' : '' }}
+                                    {{ $cot->Estado === 'VENCIDA' ? 'bg-gray-100 text-gray-800' : '' }}
                                 ">
                                     {{ $cot->Estado }}
                                 </span>
@@ -73,7 +73,7 @@
     function eliminarConFetch(cotizacionId) {
         if (confirm('¿Estás seguro de que quieres eliminar esta cotización?')) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
+
             fetch(`/ventas/cotizaciones/${cotizacionId}`, {
                 method: 'DELETE',
                 headers: {
