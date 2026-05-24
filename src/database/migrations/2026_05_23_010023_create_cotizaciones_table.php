@@ -14,7 +14,7 @@ return new class extends Migration
             $table->unsignedBigInteger('Id_Oportunidad')->nullable();
 
             // Columnas en mayúsculas para alinear con los modelos existentes
-            $table->dateTime('Fecha');
+            $table->dateTime('Fecha')->useCurrent();
             $table->dateTime('Fecha_Vencimiento')->nullable();
             $table->decimal('Subtotal', 15, 2)->default(0);
             $table->decimal('Impuesto', 15, 2)->default(0);

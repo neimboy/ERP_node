@@ -17,7 +17,6 @@ use App\Services\VentasService;
 
 class OrdenController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      */
@@ -26,10 +25,12 @@ class OrdenController extends Controller
         $q = request('q');
         $estado = request('estado');
 
-        $ordenes = Orden::with(['cliente', 'detalles.producto'])
+        $ordenes = Orden::with(['cliente', 'detalles.producto', 'cotizacion'])
             ->when($q, function ($query) use ($q) {
                 $query->where('Id_Orden', $q)
-                      ->orWhereHas('cliente', function ($q2) use ($q) { $q2->where('Nombre', 'like', "%{$q}%"); });
+                      ->orWhereHas('cliente', function ($q2) use ($q) {
+                          $q2->where('Nombre', 'like', "%{$q}%");
+                      });
             })
             ->when($estado, function ($query) use ($estado) {
                 $query->where('Estado', $estado);
@@ -52,38 +53,49 @@ class OrdenController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Orden $orden)
+    public function show($id)
     {
-        $orden->load('detalles.producto', 'cliente');
+        // Forzamos la búsqueda manual por tu clave primaria legacy
+        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+
+        $orden->load('detalles.producto', 'cliente', 'cotizacion');
         return view('ventas.ordenes.show', compact('orden'));
     }
 
-    public function edit(Orden $orden)
+    public function edit($id)
     {
+        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+
         $clientes = Cliente::orderBy('Nombre')->get();
         $productos = Producto::select('Id_Producto', 'Nombre', 'Precio_Venta')->get();
         $orden->load('detalles');
+
         return view('ventas.ordenes.edit', compact('orden', 'clientes', 'productos'));
     }
 
-    public function update(Request $request, Orden $orden)
+    public function update(Request $request, $id)
     {
+        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+
         $data = $request->validate([
             'Estado' => 'required|string|max:50',
         ]);
 
         $orden->update(['Estado' => $data['Estado']]);
 
-        return redirect()->route('ordenes.show', $orden)->with('success', 'Orden actualizada.');
+        // Redirección explícita usando el ID limpio
+        return redirect()->route('ordenes.show', $orden->Id_Orden)->with('success', 'Orden actualizada.');
     }
 
-    public function destroy(Orden $orden)
+    public function destroy($id)
     {
+        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+
         if ($orden->factura) {
             return back()->with('error', 'No se puede eliminar una orden que ya tiene factura.');
         }
 
-        // eliminar detalles primero
+        // Eliminar detalles primero
         $orden->detalles()->delete();
         $orden->delete();
 
@@ -93,10 +105,12 @@ class OrdenController extends Controller
     /**
      * Genera una factura para la orden si no existe y redirige a la vista de factura.
      */
-    public function facturar(Orden $orden)
+    public function facturar($id)
     {
+        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+
         if ($orden->factura) {
-            return redirect()->route('facturas.show', $orden->factura);
+            return redirect()->route('facturas.show', $orden->factura->Id_Factura ?? $orden->factura->id);
         }
 
         $factura = null;
@@ -124,21 +138,17 @@ class OrdenController extends Controller
             } catch (\Exception $e) {
                 Log::error('Error integracion contable al facturar: ' . $e->getMessage());
             }
-
-            // Opcional: actualizar estado de la orden
-            // $orden->update(['Estado' => 'Facturada']);
         });
 
-        return redirect()->route('facturas.show', $factura)->with('success', 'Factura generada correctamente.');
+        return redirect()->route('facturas.show', $factura->Id_Factura ?? $factura->id)->with('success', 'Factura generada correctamente.');
     }
 
     public function store(StoreOrdenRequest $request)
     {
-        // Delegar la lógica compleja al servicio de ventas (transacciones, stock y facturación)
         $ventasService = new VentasService();
         $orden = $ventasService->crearOrdenConLineas((int) $request->Id_Cliente, $request->lineas);
 
-        return redirect()->route('ordenes.show', $orden?->Id_Orden ?? 0)->with('success', 'Orden creada correctamente.');
+        return redirect()->route('ordenes.show', $orden?->Id_Orden ?? $orden?->getKey() ?? 0)->with('success', 'Orden creada correctamente.');
     }
 }
 

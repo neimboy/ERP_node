@@ -40,57 +40,114 @@
                 </select>
                 @error('Id_Cliente')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
             </div>
+            <div>
+                <label for="Fecha_Vencimiento" class="block text-sm font-medium text-gray-700 mb-1">
+                    Fecha de vencimiento <span class="text-red-500">*</span>
+                </label>
+                <input type="date" id="Fecha_Vencimiento" name="Fecha_Vencimiento" required
+                    value="{{ old('Fecha_Vencimiento') }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                @error('Fecha_Vencimiento')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
+            </div>
         </div>
 
         @if(!empty($oportunidadId))
             <input type="hidden" name="oportunidad_id" value="{{ $oportunidadId }}">
         @endif
+        @if(!empty($oportunidad) && !empty($oportunidad->Monto_Estimado))
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-100 rounded">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <strong>Oportunidad:</strong> {{ $oportunidad->Titulo }} — <span class="text-sm text-gray-600">Monto estimado: S/ {{ number_format($oportunidad->Monto_Estimado, 2) }}</span>
+                    </div>
+                    <div>
+                        <button type="button" onclick="applyEstimado({{ number_format($oportunidad->Monto_Estimado, 2, '.', '') }})" class="px-3 py-1 bg-indigo-600 text-white rounded text-sm">Aplicar estimado</button>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- Productos -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">Productos</h3>
-                <button type="button" id="addLineBtn" class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
-                    + Agregar
-                </button>
-            </div>
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold text-gray-800">Productos</h3>
+        <button type="button" id="addLineBtn" class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+            + Agregar
+        </button>
+    </div>
 
-            <div id="lineasContainer" class="space-y-4">
-                <div class="lineaItem grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-gray-50 rounded-lg border">
+    <div id="lineasContainer" class="space-y-4">
+        @php $index = 0; @endphp
+
+        @if(old('lineas'))
+            {{-- SI EL FORMULARIO FALLÓ, CON ESTO RECUPERAMOS LO QUE EL USUARIO YA HABÍA ESCRITO --}}
+            @foreach(old('lineas') as $it)
+                <div class="lineaItem grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-gray-50 rounded-lg border" data-index="{{ $index }}">
                     <div>
                         <label class="text-xs font-medium text-gray-600">Producto</label>
-                        <select name="lineas[0][Id_Producto]" required class="w-full px-2 py-1 text-sm border rounded productoSelect">
+                        <select name="lineas[{{ $index }}][Id_Producto]" required class="w-full px-2 py-1 text-sm border rounded productoSelect">
                             <option value="">Seleccionar...</option>
-                            @foreach($productos as $prod)
-                                <option value="{{ $prod->Id_Producto }}" data-precio="{{ $prod->Precio_Venta ?? 0 }}">
-                                    {{ $prod->Nombre }}
+                            @foreach($productos as $p)
+                                <option value="{{ $p->Id_Producto }}" {{ ($it['Id_Producto'] ?? '') == $p->Id_Producto ? 'selected' : '' }} data-precio="{{ $p->Precio_Venta ?? 0 }}">
+                                    {{ $p->Nombre }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-
                     <div>
                         <label class="text-xs font-medium text-gray-600">Cantidad</label>
-                        <input type="number" name="lineas[0][cantidad]" min="1" value="1" required class="w-full px-2 py-1 text-sm border rounded">
+                        <input type="number" name="lineas[{{ $index }}][cantidad]" min="1" value="{{ $it['cantidad'] ?? 1 }}" required class="w-full px-2 py-1 text-sm border rounded">
                     </div>
-
                     <div>
                         <label class="text-xs font-medium text-gray-600">Precio</label>
-                        <input type="number" name="lineas[0][precio]" step="0.01" min="0" required class="w-full px-2 py-1 text-sm border rounded precioInput">
+                        <input type="number" name="lineas[{{ $index }}][precio]" step="0.01" min="0" value="{{ $it['precio'] ?? 0 }}" required class="w-full px-2 py-1 text-sm border rounded precioInput">
                     </div>
-
                     <div>
                         <label class="text-xs font-medium text-gray-600">Descuento %</label>
-                        <input type="number" name="lineas[0][descuento]" min="0" max="100" value="0" class="w-full px-2 py-1 text-sm border rounded">
+                        <input type="number" name="lineas[{{ $index }}][descuento]" min="0" max="100" value="{{ $it['descuento'] ?? 0 }}" class="w-full px-2 py-1 text-sm border rounded">
                     </div>
-
                     <div class="flex items-end">
                         <button type="button" class="w-full px-2 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 removeLineBtn">
                             Eliminar
                         </button>
                     </div>
                 </div>
+                @php $index++; @endphp
+            @endforeach
+        @else
+            {{-- VISTA INICIAL POR DEFECTO: MUESTRA UNA FILA COMPLETAMENTE LIMPIA --}}
+            <div class="lineaItem grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-gray-50 rounded-lg border" data-index="0">
+                <div>
+                    <label class="text-xs font-medium text-gray-600">Producto</label>
+                    <select name="lineas[0][Id_Producto]" required class="w-full px-2 py-1 text-sm border rounded productoSelect">
+                        <option value="">Seleccionar...</option>
+                        @foreach($productos as $p)
+                            <option value="{{ $p->Id_Producto }}" data-precio="{{ $p->Precio_Venta ?? 0 }}">
+                                {{ $p->Nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-medium text-gray-600">Cantidad</label>
+                    <input type="number" name="lineas[0][cantidad]" min="1" value="1" required class="w-full px-2 py-1 text-sm border rounded">
+                </div>
+                <div>
+                    <label class="text-xs font-medium text-gray-600">Precio</label>
+                    <input type="number" name="lineas[0][precio]" step="0.01" min="0" value="0.00" required class="w-full px-2 py-1 text-sm border rounded precioInput">
+                </div>
+                <div>
+                    <label class="text-xs font-medium text-gray-600">Descuento %</label>
+                    <input type="number" name="lineas[0][descuento]" min="0" max="100" value="0" class="w-full px-2 py-1 text-sm border rounded">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" class="w-full px-2 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 removeLineBtn">
+                        Eliminar
+                    </button>
+                </div>
             </div>
+        @endif
+    </div>
 
             <!-- Resumen financiero -->
             <div class="mt-4 bg-white p-4 border rounded">
@@ -189,6 +246,33 @@ document.querySelectorAll('.lineaItem').forEach(row => {
 });
 recalc();
 
+// Prefill desde oportunidad si el controlador pasó prefilledItems
+const prefilled = @json($prefilledItems ?? null);
+if (prefilled && prefilled.length > 0) {
+    const first = document.querySelector('.lineaItem');
+    if (first) {
+        const qty = first.querySelector('input[name$="[cantidad]"]');
+        const precio = first.querySelector('input[name$="[precio]"]');
+        const desc = first.querySelector('input[name$="[descuento]"]');
+        const productoSelect = first.querySelector('.productoSelect');
+
+        const p = prefilled[0];
+        if (qty) qty.value = p.cantidad ?? 1;
+        if (precio) precio.value = parseFloat(p.precio ?? 0).toFixed(2);
+        if (desc) desc.value = p.descuento ?? 0;
+        if (productoSelect) {
+            if (p.Id_Producto) {
+                productoSelect.value = p.Id_Producto;
+            } else {
+                // si no hay Id_Producto, seleccionamos primer producto válido
+                const opt = Array.from(productoSelect.options).find(o => o.value !== '');
+                if (opt) productoSelect.value = opt.value;
+            }
+        }
+        recalc();
+    }
+}
+
 function recalc() {
     let costosDirectos = 0;
     document.querySelectorAll('.lineaItem').forEach(row => {
@@ -221,6 +305,29 @@ function recalc() {
     document.getElementById('input-subtotal').value = subtotalCalc.toFixed(2);
     document.getElementById('input-impuesto').value = impuestoCalc.toFixed(2);
     document.getElementById('input-total').value = totalCalc.toFixed(2);
+}
+
+function applyEstimado(monto) {
+    // Aplicar el monto estimado en la primera línea si existe
+    const firstRow = document.querySelector('.lineaItem');
+    if (!firstRow) return;
+    const precioInput = firstRow.querySelector('input[name$="[precio]"]');
+    // Seleccionar primer producto disponible para cumplir FK obligatorio
+    const productoSelect = firstRow.querySelector('.productoSelect');
+    if (productoSelect) {
+        // Si no hay seleccionado, elegir la primera opción válida
+        if (!productoSelect.value || productoSelect.value === '') {
+            const opt = Array.from(productoSelect.options).find(o => o.value !== '');
+            if (opt) {
+                productoSelect.value = opt.value;
+            }
+        }
+    }
+
+    if (precioInput) {
+        precioInput.value = parseFloat(monto).toFixed(2);
+        recalc();
+    }
 }
 </script>
 

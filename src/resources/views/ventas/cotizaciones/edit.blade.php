@@ -41,6 +41,11 @@
             </div>
         </div>
 
+        <div class="mb-6">
+            <label for="Fecha_Vencimiento" class="block text-sm font-medium text-gray-700 mb-1">Fecha de vencimiento</label>
+            <input type="date" id="Fecha_Vencimiento" name="Fecha_Vencimiento" value="{{ old('Fecha_Vencimiento') ?? (optional($cotizacion->Fecha_Vencimiento)->format('Y-m-d') ?? '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+
         <div class="flex gap-3 justify-end">
             <a href="{{ route('cotizaciones.show', $cotizacion) }}" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
                 Cancelar

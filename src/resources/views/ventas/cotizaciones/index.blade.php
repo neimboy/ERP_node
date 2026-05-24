@@ -9,17 +9,7 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
+            {{-- Mensajes flash gestionados desde la plantilla principal (SweetAlert) --}}
 
             <div class="bg-white shadow-sm rounded-lg overflow-x-auto">
                 <table class="w-full min-w-full divide-y divide-gray-200">

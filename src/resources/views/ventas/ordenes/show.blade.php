@@ -1,15 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Orden #{{ $orden->Id_Orden }}</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Orden #{{ $orden->Id_Orden ?? $orden->getKey() }}
+            </h2>
 
             <div class="flex items-center space-x-2">
                 @if($orden->factura)
-                    <a href="{{ route('facturas.show', $orden->factura) }}" class="px-4 py-2 bg-blue-600 text-white rounded">Ver Factura</a>
+                    {{-- Si la orden ya tiene factura, mostramos el botón para verla --}}
+                    <a href="{{ route('facturas.show', $orden->factura) }}" class="px-4 py-2 bg-blue-600 text-white rounded">
+                        Ver Factura
+                    </a>
                 @else
-                    <form action="{{ route('ordenes.facturar', $orden) }}" method="POST" data-swal-confirm data-swal-message="Generar factura para esta orden?">
+                    {{-- Formulario corregido pasándole directamente el ID puro extraído de la instancia actual --}}
+                    <form action="{{ route('ordenes.facturar', ['orden' => $orden->Id_Orden]) }}" method="POST" data-swal-confirm data-swal-message="¿Generar factura para esta orden?">
                         @csrf
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Generar Factura</button>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">
+                            Generar Factura
+                        </button>
                     </form>
                 @endif
 
@@ -24,6 +32,15 @@
                 <strong>Cliente:</strong> {{ $orden->cliente->Nombre ?? 'N/A' }}
             </div>
 
+            @if($orden->cotizacion)
+                <div class="mb-4">
+                    <strong>Cotización origen:</strong>
+                    <a href="{{ route('cotizaciones.show', $orden->cotizacion) }}" class="text-indigo-600 hover:underline">
+                        #{{ $orden->cotizacion->Id_Cotizacion }}
+                    </a>
+                </div>
+            @endif
+
             <div class="mb-4">
                 <strong>Fecha:</strong> {{ $orden->Fecha }}
             </div>
@@ -35,6 +52,7 @@
                     $map = [
                         'Pagada' => 'bg-green-100 text-green-800',
                         'Pagado' => 'bg-green-100 text-green-800',
+                        'PENDIENTE' => 'bg-yellow-100 text-yellow-800',
                         'Pendiente' => 'bg-yellow-100 text-yellow-800',
                         'Pendiente_Pago' => 'bg-yellow-100 text-yellow-800',
                         'Facturada' => 'bg-blue-100 text-blue-800',
@@ -47,14 +65,20 @@
             <div class="mt-4">
                 <h3 class="font-bold mb-2">Detalle</h3>
                 <table class="w-full">
-                    <thead><tr class="bg-gray-50"><th class="p-2 text-left">Producto</th><th class="p-2 text-right">Cantidad</th><th class="p-2 text-right">Precio</th></tr></thead>
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="p-2 text-left">Producto</th>
+                            <th class="p-2 text-right">Cantidad</th>
+                            <th class="p-2 text-right">Precio</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @foreach($orden->detalles as $d)
-                        <tr class="border-t">
-                            <td class="p-2">{{ $d->producto->Nombre ?? '—' }}</td>
-                            <td class="p-2 text-right">{{ $d->Cantidad }}</td>
-                            <td class="p-2 text-right">S/ {{ number_format($d->Precio,2) }}</td>
-                        </tr>
+                            <tr class="border-t">
+                                <td class="p-2">{{ $d->producto->Nombre ?? '—' }}</td>
+                                <td class="p-2 text-right">{{ $d->Cantidad }}</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Precio, 2) }}</td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
+use App\Models\DetalleOportunidad;
 
 class Oportunidad extends Model
 {
@@ -50,5 +51,13 @@ class Oportunidad extends Model
     public function orden()
     {
         return $this->belongsTo(Orden::class, 'Id_Orden', 'Id_Orden');
+    }
+
+    /**
+     * Detalles (líneas) de la oportunidad
+     */
+    public function detalles()
+    {
+        return $this->hasMany(DetalleOportunidad::class, 'Id_Oportunidad', 'Id_Oportunidad');
     }
 }

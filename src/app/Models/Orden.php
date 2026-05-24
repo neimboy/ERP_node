@@ -13,8 +13,15 @@ class Orden extends Model
 
     protected $fillable = [
         'Id_Cliente',
+        'Id_Cotizacion',
         'Fecha',
         'Estado',
+        'Total',     // 🆕 Permitimos el guardado masivo de totales heredados
+        'Subtotal',  // 🆕
+        'Impuesto',  // 🆕
+        'total',     // 🆕 Versión lowercase por si acaso
+        'subtotal',  // 🆕
+        'impuesto',  // 🆕
     ];
 
     public function cliente()
@@ -33,14 +40,16 @@ class Orden extends Model
     }
 
     /**
-     * Relación opcional hacia la cotización que generó esta orden.
+     * Relación corregida hacia la cotización que generó esta orden.
      */
     public function cotizacion()
     {
+        // Si la columna física existe, retornamos la relación correspondiente.
         if (Schema::hasColumn($this->getTable(), 'Id_Cotizacion')) {
             return $this->belongsTo(Cotizacion::class, 'Id_Cotizacion', 'Id_Cotizacion');
         }
 
-        return null;
+        // Si no existe, usamos el fallback por defecto de Eloquent en vez de devolver null puro.
+        return $this->belongsTo(Cotizacion::class, 'Id_Cotizacion', 'Id_Cotizacion');
     }
 }

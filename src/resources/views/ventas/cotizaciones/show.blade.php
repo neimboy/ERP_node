@@ -9,11 +9,7 @@
     <h2 class="text-3xl font-bold text-gray-800 mt-2">Cotización #{{ $cotizacion->Id_Cotizacion }}</h2>
 </div>
 
-@if (session('success'))
-    <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-        {{ session('success') }}
-    </div>
-@endif
+{{-- Mensajes flash gestionados desde la plantilla principal para evitar duplicados --}}
 
 <!-- Encabezado -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -23,11 +19,11 @@
         <div class="space-y-3">
             <div>
                 <p class="text-sm text-gray-600">Fecha</p>
-                <p class="font-medium">{{ $cotizacion->Fecha->format('d/m/Y') }}</p>
+                <p class="font-medium">{{ optional($cotizacion->Fecha)->format('d/m/Y') ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-600">Vencimiento</p>
-                <p class="font-medium">{{ $cotizacion->Fecha_Vencimiento->format('d/m/Y') }}</p>
+                <p class="font-medium">{{ optional($cotizacion->Fecha_Vencimiento)->format('d/m/Y') ?? 'N/A' }}</p>
             </div>
         </div>
     </div>
@@ -143,16 +139,40 @@
         <button onclick="eliminarConFetch({{ $cotizacion->Id_Cotizacion }})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
             Eliminar
         </button>
-        @if($estado === 'ACEPTADA')
-        <form action="{{ route('cotizaciones.generarOrden', $cotizacion) }}" method="POST" onsubmit="return confirm('Generar orden a partir de esta cotización?')">
+        @if($estado !== 'ACEPTADA')
+        <form action="{{ route('cotizaciones.aceptar', $cotizacion) }}" method="POST" onsubmit="return confirm('Marcar cotización como ACEPTADA?')">
             @csrf
-            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Generar Orden</button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Aceptar</button>
+        </form>
+
+        <!-- Botón: Aceptar y generar orden en un solo paso (mostrar como 'Orden') -->
+        <form action="{{ route('cotizaciones.aceptar', $cotizacion) }}" method="POST" onsubmit="return confirm('Aceptar esta cotización y generar la orden ahora?')">
+            @csrf
+            <input type="hidden" name="generar_orden" value="1">
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Orden</button>
+        </form>
+        @endif
+        @if($estado === 'ACEPTADA')
+        <form action="{{ route('cotizaciones.generarOrden', $cotizacion) }}" method="POST" onsubmit="return confirm('¿Generar orden a partir de esta cotización?')">
+            @csrf
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Orden</button>
         </form>
         @endif
     </div>
 </div>
 
 <script>
+// Evitar doble envío: al enviar cualquier formulario deshabilitar el botón submit
+document.querySelectorAll('form').forEach(f => {
+    f.addEventListener('submit', function() {
+        const btn = f.querySelector('button[type="submit"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Procesando...';
+        }
+    });
+});
+
 function eliminarConFetch(cotizacionId) {
     if (confirm('¿Eliminar esta cotización?')) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

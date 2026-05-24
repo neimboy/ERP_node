@@ -87,11 +87,17 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
             Route::resource('clientes', ClienteController::class);
             Route::resource('ordenes', OrdenController::class);
+            // Ruta para facturar una orden (POST)
+            Route::post('ordenes/{orden}/facturar', [OrdenController::class, 'facturar'])->name('ordenes.facturar');
             Route::resource('facturas', FacturaController::class);
-            Route::resource('cotizaciones', CotizacionController::class);
+            Route::resource('cotizaciones', CotizacionController::class)
+                ->parameters(['cotizaciones' => 'cotizacion']);
             // Generar orden desde una cotización aceptada
             Route::post('cotizaciones/{cotizacion}/generar-orden', [CotizacionController::class, 'convertirAOrden'])
                 ->name('cotizaciones.generarOrden');
+            // Acción rápida: aceptar cotización
+            Route::post('cotizaciones/{cotizacion}/aceptar', [CotizacionController::class, 'aceptar'])
+                ->name('cotizaciones.aceptar');
             Route::resource('pagos', PagoController::class);
             Route::resource('oportunidades', OportunidadController::class)
                 ->parameters(['oportunidades' => 'oportunidad']);

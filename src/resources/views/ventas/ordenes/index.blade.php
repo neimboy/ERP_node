@@ -17,7 +17,7 @@
                             <td class="p-3">{{ $orden->Id_Orden }}</td>
                             <td class="p-3">{{ $orden->cliente->Nombre ?? 'N/A' }}</td>
                             <td class="p-3">{{ $orden->Fecha }}</td>
-                            <td class="p-3 text-right">S/ {{ number_format($orden->detalles->sum(fn($d) => $d->Precio * $d->Cantidad), 2) }}</td>
+                            <td class="p-3 text-right">S/ {{ number_format($orden->Total ?? $orden->total ?? $orden->detalles->sum(fn($d) => ($d->Precio ?? 0) * ($d->Cantidad ?? 0)), 2) }}</td>
                             <td class="p-3">
                                 @php
                                     $status = $orden->Estado ?? 'N/A';

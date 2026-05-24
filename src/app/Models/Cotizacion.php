@@ -17,6 +17,11 @@ class Cotizacion extends Model
         'Fecha_Vencimiento',
         'Estado',
         'Total',
+        'Subtotal',  // 🆕 Añadido para dar soporte a la lógica del controlador
+        'Impuesto',  // 🆕 Añadido
+        'total',     // 🆕 Soporte lowercase
+        'subtotal',  // 🆕
+        'impuesto',  // 🆕
         'Notas'
     ];
 
@@ -26,61 +31,66 @@ class Cotizacion extends Model
         'Total' => 'float'
     ];
 
-    /**
-     * Relación: Una cotización pertenece a un cliente
-     */
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            $attrsLower = array_change_key_case($model->getAttributes(), CASE_LOWER);
+
+            if ((Schema::hasColumn($model->getTable(), 'Fecha') || Schema::hasColumn($model->getTable(), 'fecha')) && empty($attrsLower['fecha'])) {
+                $fechaValor = $model->getAttribute('Fecha') ?? $model->getAttribute('fecha') ?? now();
+                $model->setAttribute('Fecha', $fechaValor);
+
+                $raw = $model->getAttributes();
+                if (array_key_exists('fecha', $raw)) {
+                    unset($raw['fecha']);
+                    $model->setRawAttributes($raw);
+                }
+            }
+
+            if ((Schema::hasColumn($model->getTable(), 'Fecha_Vencimiento') || Schema::hasColumn($model->getTable(), 'fecha_vencimiento')) && empty($attrsLower['fecha_vencimiento'])) {
+                $fv = $model->getAttribute('Fecha_Vencimiento') ?? $model->getAttribute('fecha_vencimiento') ?? ($model->getAttribute('Fecha') ? $model->getAttribute('Fecha')->addDays(30) : now()->addDays(30));
+                $model->setAttribute('Fecha_Vencimiento', $fv);
+                $raw2 = $model->getAttributes();
+                if (array_key_exists('fecha_vencimiento', $raw2)) {
+                    unset($raw2['fecha_vencimiento']);
+                    $model->setRawAttributes($raw2);
+                }
+            }
+        });
+    }
+
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'Id_Cliente', 'Id_Cliente');
     }
 
-    /**
-     * Relación: Una cotización tiene muchos detalles
-     */
     public function detalles()
     {
         return $this->hasMany(DetalleCotizacion::class, 'Id_Cotizacion', 'Id_Cotizacion');
     }
 
-    /**
-     * Relación: Una cotización puede pertenecer a una oportunidad
-     */
     public function oportunidad()
     {
         if (Schema::hasColumn($this->getTable(), 'oportunidad_id')) {
             return $this->belongsTo(Oportunidad::class, 'oportunidad_id', 'Id_Oportunidad');
         }
-
         return $this->belongsTo(Oportunidad::class, 'Id_Oportunidad', 'Id_Oportunidad');
     }
 
-    /**
-     * Relación: Una cotización puede tener una orden asociada
-     */
     public function orden()
     {
-        // Si la tabla ordenes tiene Id_Cotizacion
         if (Schema::hasColumn('ordenes', 'Id_Cotizacion')) {
             return $this->hasOne(Orden::class, 'Id_Cotizacion', 'Id_Cotizacion');
         }
-
-        // Si la cotización almacena el Id_Orden como columna
         if (Schema::hasColumn($this->getTable(), 'Id_Orden')) {
             return $this->belongsTo(Orden::class, 'Id_Orden', 'Id_Orden');
         }
-
-        // Fallback: intentar vincular por Id_Orden lowercase
         if (Schema::hasColumn($this->getTable(), 'id_orden')) {
             return $this->belongsTo(Orden::class, 'id_orden', 'Id_Orden');
         }
-
-        // Relación vacía por defecto
         return $this->hasOne(Orden::class, 'Id_Orden', 'Id_Orden');
     }
 
-    /**
-     * Calcular total
-     */
     public function calcularTotal()
     {
         return $this->detalles->sum(function ($detalle) {
@@ -89,11 +99,37 @@ class Cotizacion extends Model
     }
 
     /**
-     * Convertir a orden
+     * Mapeamos de forma limpia el cambio de estado a nivel de modelo
      */
-    public function convertirAOrden()
+    public function marcarComoConvertida(): bool
     {
-        // Lógica para convertir cotización a orden
-        $this->update(['Estado' => 'Convertida']);
+        $columnaEstado = Schema::hasColumn($this->getTable(), 'Estado') ? 'Estado' : 'estado';
+        return $this->update([$columnaEstado => 'CONVERTIDA']);
+    }
+
+    public function isExpired(): bool
+    {
+        $fv = $this->Fecha_Vencimiento ?? $this->fecha_vencimiento ?? null;
+        if (empty($fv)) return false;
+        return $fv->lt(now());
+    }
+
+    public function checkAndMarkVencida(): void
+    {
+        try {
+            if (!$this->isExpired()) return;
+
+            $estado = strtoupper($this->Estado ?? $this->estado ?? '');
+            $skip = ['ACEPTADA', 'RECHAZADA', 'CONVERTIDA', 'VENCIDA'];
+            if (in_array($estado, $skip)) return;
+
+            $columnaEstado = Schema::hasColumn($this->getTable(), 'Estado') ? 'Estado' : 'estado';
+            $this->{$columnaEstado} = 'VENCIDA';
+            $this->save();
+        } catch (\Exception $e) {
+            if (class_exists('Illuminate\Support\Facades\Log')) {
+                \Illuminate\Support\Facades\Log::error('Error marcando cotización como vencida: ' . $e->getMessage());
+            }
+        }
     }
 }
