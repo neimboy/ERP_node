@@ -93,6 +93,22 @@ class ComprasController extends Controller
         $compra->Estado = $request->Estado;
         $compra->save();
 
-        return redirect()->route('compras.index')->with('success', 'Estado actualizado correctamente.');
+        return redirect()->route('compras.index')
+                        ->with('success', 'Estado actualizado correctamente.');
     }
+
+    public function destroy($id)
+    {
+        $compra = OrdenCompra::findOrFail($id);
+
+        // 🔹 Si quieres borrar también los detalles asociados
+        $compra->detalles()->delete();
+
+        // 🔹 Finalmente borras la compra
+        $compra->delete();
+
+        return redirect()->route('compras.index')
+                        ->with('success', 'Compra eliminada correctamente.');
+    }
+
 }

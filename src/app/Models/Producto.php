@@ -58,10 +58,19 @@ class Producto extends Model
         return $this->belongsTo(Proveedor::class, 'Id_Proveedor', 'Id_Proveedor');
     }
 
+
     public function stock()
     {
-        $entradas = $this->detallesOrdenCompra()->sum('Cantidad');
-        $salidas = $this->detallesOrden()->sum('Cantidad');
+        $entradas = $this->detallesOrdenCompra()
+            ->whereHas('ordenCompra', function($q) {
+                $q->where('Estado', 'Recibida');
+            })
+            ->sum('Cantidad');
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) {
+                $q->where('Estado', 'Confirmada');
+            })
+            ->sum('Cantidad');
         $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
         $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
 
@@ -72,15 +81,26 @@ class Producto extends Model
     {
         $entradas = $this->detallesOrdenCompra()
             ->whereHas('ordenCompra', function($q) use ($almacenId) {
-                $q->where('Id_Almacen', $almacenId);
+                $q->where('Id_Almacen', $almacenId)
+                  ->where('Estado', 'Recibida');
             })
             ->sum('Cantidad');
 
-        $salidas = $this->detallesOrden()->sum('Cantidad');
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) {
+                $q->where('Estado', 'Confirmada');
+            })
+            ->sum('Cantidad');
+
         $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
         $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
 
         return $entradas - $salidas - $consumo + $retorno;
+    }
+
+    public function getStockAttribute()
+    {
+        return $this->stock();
     }
 
 }
