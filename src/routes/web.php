@@ -144,9 +144,9 @@ Route::middleware(['auth'])->group(function () {
 
             // Verificar stock antes de vender
             Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}', 
-                [InventarioController::class, 'verificarStock']);
-            Route::patch('/compras/{id}/estado', [ComprasController::class, 'updateEstado'])->name('compras.updateEstado');
+            [InventarioController::class, 'verificarStock'])->name('inventario.verificarStock');
 
+            Route::delete('notificaciones/{notificacion}', [ProductoController::class, 'destroyNotificacion'])->name('notificaciones.destroy');
         });
 
 
@@ -171,6 +171,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('proyectos/{proyecto}/agregar-productos', [ProyectoController::class, 'agregarProductos'])->name('proyectos.agregar-productos');
             Route::post('proyectos/{proyecto}/devolver-productos', [ProyectoController::class, 'devolverProductos'])->name('proyectos.devolver-productos');
             Route::post('proyectos/{proyecto}/notificar-sin-stock', [ProyectoController::class, 'notificarSinStock'])->name('proyectos.notificar-stock');
+            Route::post('notificar-sin-stock', [ProyectoController::class, 'notificarSinStockGeneral'])->name('proyectos.notificar-stock-general');
             Route::put('proyectos/{proyecto}/update-produccion', [ProyectoController::class, 'updateProduccion'])->name('proyectos.update-produccion');
             Route::put('proyectos/{proyecto}/update-servicio', [ProyectoController::class, 'updateServicio'])->name('proyectos.update-servicio');
             Route::get('proyectos/{proyecto}/reporte', [ProyectoController::class, 'reporte'])->name('proyectos.reporte');

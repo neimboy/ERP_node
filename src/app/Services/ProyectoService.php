@@ -8,6 +8,7 @@ use App\Models\ProyectoGasto;
 use App\Models\Inventario;
 use App\Models\Movimiento;
 use App\Models\Producto;
+use App\Models\Notificacion;
 use Illuminate\Support\Facades\DB;
 
 class ProyectoService
@@ -134,7 +135,7 @@ class ProyectoService
 
     public function productosDisponibles(): array
     {
-        $productos = Producto::all();
+        $productos = Producto::with(['detallesOrdenCompra', 'detallesOrden', 'movimientos'])->get();
         $result = [];
 
         foreach ($productos as $producto) {
@@ -150,12 +151,13 @@ class ProyectoService
         return $result;
     }
 
-    public function notificarSinStock(int $productoId, int $cantidadRequerida): void
+    public function notificarSinStock(int $productoId, int $cantidadRequerida, ?int $proyectoId = null): void
     {
-        session()->flash('notificacion_stock', [
+        Notificacion::create([
             'Id_Producto' => $productoId,
             'Cantidad_Requerida' => $cantidadRequerida,
-            'mensaje' => "Stock insuficiente para el producto ID {$productoId}. Se requieren {$cantidadRequerida} unidades.",
+            'Id_Proyecto' => $proyectoId,
+            'Mensaje' => "Stock insuficiente para el producto. Se requieren {$cantidadRequerida} unidades.",
         ]);
     }
 
@@ -168,13 +170,14 @@ class ProyectoService
             'Cantidad' => $cantidad,
         ]);
 
-        $inventario = Inventario::firstOrCreate(
-            ['Id_Producto' => $productoId],
-            ['Id_Almacen' => 1, 'Cantidad' => 0, 'Stock_Minimo' => 0]
+        Inventario::firstOrCreate(
+            ['Id_Producto' => $productoId, 'Id_Almacen' => 1],
+            ['Cantidad' => 0, 'Stock_Minimo' => 0]
         );
 
-        $nuevaCantidad = max(0, $inventario->Cantidad - $cantidad);
-        $inventario->update(['Cantidad' => $nuevaCantidad]);
+        Inventario::where('Id_Producto', $productoId)
+            ->where('Id_Almacen', 1)
+            ->decrement('Cantidad', $cantidad);
     }
 
     private function aumentarStock(int $productoId, int $cantidad, ?int $proyectoId = null): void
@@ -186,11 +189,13 @@ class ProyectoService
             'Cantidad' => $cantidad,
         ]);
 
-        $inventario = Inventario::firstOrCreate(
-            ['Id_Producto' => $productoId],
-            ['Id_Almacen' => 1, 'Cantidad' => 0, 'Stock_Minimo' => 0]
+        Inventario::firstOrCreate(
+            ['Id_Producto' => $productoId, 'Id_Almacen' => 1],
+            ['Cantidad' => 0, 'Stock_Minimo' => 0]
         );
 
-        $inventario->increment('Cantidad', $cantidad);
+        Inventario::where('Id_Producto', $productoId)
+            ->where('Id_Almacen', 1)
+            ->increment('Cantidad', $cantidad);
     }
 }

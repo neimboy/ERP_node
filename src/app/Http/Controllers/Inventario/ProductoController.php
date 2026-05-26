@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Categoria;
+use App\Models\Notificacion;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Producto::with(['proveedor', 'categoria']);
+        $query = Producto::with(['proveedor', 'categoria', 'detallesOrdenCompra', 'detallesOrden', 'movimientos']);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -21,7 +23,10 @@ class ProductoController extends Controller
         }
 
         $productos = $query->paginate(10);
-        return view('inventarios.productos.index', compact('productos'));
+        $notificaciones = Notificacion::with('producto', 'proyecto')
+            ->orderBy('created_at')
+            ->get();
+        return view('inventarios.productos.index', compact('productos', 'notificaciones'));
     }
 
     public function create()
@@ -77,5 +82,11 @@ class ProductoController extends Controller
     {
         $producto->delete();
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
+    }
+
+    public function destroyNotificacion(Notificacion $notificacion): RedirectResponse
+    {
+        $notificacion->delete();
+        return redirect()->route('productos.index')->with('success', 'Notificación eliminada.');
     }
 }

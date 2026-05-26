@@ -194,10 +194,27 @@ class ProyectoController extends Controller
 
         $this->proyectoService->notificarSinStock(
             $request->input('Id_Producto'),
-            $request->input('Cantidad')
+            $request->input('Cantidad'),
+            $proyecto->Id_Proyecto
         );
 
         return redirect()->route('proyectos.show', $proyecto)
+            ->with('success', 'Notificación enviada al módulo de Inventario.');
+    }
+
+    public function notificarSinStockGeneral(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'Id_Producto' => 'required|exists:productos,Id_Producto',
+            'Cantidad' => 'required|integer|min:1',
+        ]);
+
+        $this->proyectoService->notificarSinStock(
+            $request->input('Id_Producto'),
+            $request->input('Cantidad')
+        );
+
+        return redirect()->back()
             ->with('success', 'Notificación enviada al módulo de Inventario.');
     }
 }

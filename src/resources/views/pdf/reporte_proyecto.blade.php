@@ -246,7 +246,7 @@
         if ($proyecto->Tipo === 'produccion') {
             $totalCantidad = $proyecto->productos->sum('pivot.Cantidad');
             $gastoTotal = $proyecto->productos->sum(function($p) {
-                return $p->pivot->Cantidad * ($p->Precio_Compra ?? 0);
+                return $p->pivot->Cantidad * ($p->Precio_Venta ?? 0);
             });
         } else {
             $totalCantidad = $proyecto->gastos->sum('Monto');
@@ -296,12 +296,12 @@
             </thead>
             <tbody>
                 @foreach($proyecto->productos as $producto)
-                @php $subtotal = $producto->pivot->Cantidad * ($producto->Precio_Compra ?? 0); @endphp
+                @php $subtotal = $producto->pivot->Cantidad * ($producto->Precio_Venta ?? 0); @endphp
                 <tr>
                     <td>{{ $producto->Codigo ?? '—' }}</td>
                     <td>{{ $producto->Nombre }}</td>
                     <td class="text-center">{{ $producto->pivot->Cantidad }}</td>
-                    <td class="text-right">S/ {{ number_format($producto->Precio_Compra ?? 0, 2) }}</td>
+                    <td class="text-right">S/ {{ number_format($producto->Precio_Venta ?? 0, 2) }}</td>
                     <td class="text-right">S/ {{ number_format($subtotal, 2) }}</td>
                 </tr>
                 @endforeach

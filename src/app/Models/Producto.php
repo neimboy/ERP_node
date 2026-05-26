@@ -62,23 +62,25 @@ class Producto extends Model
     {
         $entradas = $this->detallesOrdenCompra()->sum('Cantidad');
         $salidas = $this->detallesOrden()->sum('Cantidad');
+        $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
+        $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
 
-        return $entradas - $salidas;
+        return $entradas - $salidas - $consumo + $retorno;
     }
 
     public function stockEnAlmacen($almacenId)
     {
-        // Entradas filtradas por almacén
         $entradas = $this->detallesOrdenCompra()
             ->whereHas('ordenCompra', function($q) use ($almacenId) {
                 $q->where('Id_Almacen', $almacenId);
             })
             ->sum('Cantidad');
 
-        // Salidas globales (sin filtro por almacén)
         $salidas = $this->detallesOrden()->sum('Cantidad');
+        $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
+        $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
 
-        return $entradas - $salidas;
+        return $entradas - $salidas - $consumo + $retorno;
     }
 
 }
