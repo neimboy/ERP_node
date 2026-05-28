@@ -44,7 +44,9 @@
                 <tr>
                     <td class="border px-4 py-2">{{ $detalle->producto->Codigo }}</td>
                     <td class="border px-4 py-2">{{ $detalle->producto->Nombre }}</td>
-                    <td class="border px-4 py-2">{{ $detalle->Cantidad }}</td>
+                    <td class="border px-4 py-2">
+                        {{ $detalle->producto->stockEnAlmacen($almacen->Id_Almacen) }}
+                    </td>
                     <td class="border px-4 py-2">{{ number_format($detalle->Costo, 2) }}</td>
                     <td class="border px-4 py-2">{{ number_format($detalle->subtotal, 2) }}</td>
                 </tr>

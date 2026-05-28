@@ -4,18 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Movimiento extends Model
+class Notificacion extends Model
 {
-    protected $table = 'movimientos';
-    protected $primaryKey = 'Id_Movimiento';
-    public $incrementing = true;
-    protected $keyType = 'int';
+    protected $table = 'notificaciones';
+    protected $primaryKey = 'Id_Notificacion';
+    public $timestamps = true;
 
     protected $fillable = [
         'Id_Producto',
+        'Cantidad_Requerida',
         'Id_Proyecto',
-        'Tipo',
-        'Cantidad',
+        'Mensaje',
     ];
 
     public function producto()

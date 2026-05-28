@@ -5,7 +5,7 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Proyectos</h1>
-        <a href="{{ route('proyectos.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nuevo</a>
+        <a href="{{ route('proyectos.tipo') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition">+ Nuevo</a>
     </div>
 
     @if($proyectos->isEmpty())
@@ -26,7 +26,14 @@
                                     'En Progreso' => 'bg-blue-100 text-blue-800',
                                     'Completado' => 'bg-green-100 text-green-800'
                                 ];
+                                $tipoColors = [
+                                    'produccion' => 'bg-indigo-100 text-indigo-800',
+                                    'servicio' => 'bg-emerald-100 text-emerald-800'
+                                ];
                             @endphp
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $tipoColors[$proyecto->Tipo] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ $proyecto->Tipo === 'produccion' ? 'Producción' : 'Servicio' }}
+                            </span>
                             <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $estadoColors[$proyecto->Estado] ?? 'bg-gray-100 text-gray-800' }}">
                                 {{ $proyecto->Estado }}
                             </span>
