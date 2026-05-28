@@ -74,7 +74,10 @@
                                             <span class="block px-3 py-1 text-xs font-bold text-gray-400 uppercase">Reportes</span>
                                             <a href="{{ route('contabilidad.libro_mayor') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📊 Libro Mayor</a>
                                             <a href="{{ route('contabilidad.estado_resultados') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📈 Estado de Resultados</a>
+                                            <a href="{{ route('contabilidad.estado_resultados_semestral') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">🗓️ Resultado Semestral</a>
                                             <a href="{{ route('contabilidad.balance_general') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📉 Balance General</a>
+                                            <a href="{{ route('contabilidad.igv_mensual') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">💰 IGV Mensual</a>
+                                            <a href="{{ route('contabilidad.resumen_gerencial') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">📌 Resumen Gerencial</a>
                                         </div>
                                     </div>
                                 </div>

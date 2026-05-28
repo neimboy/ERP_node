@@ -4,27 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migración: añade la columna Estado a la tabla periodos.
+ * Ejecutar: php artisan migrate
+ *
+ * Valores posibles: 'Abierto' | 'Cerrado'
+ * Por defecto todos los períodos existentes quedan 'Abierto'.
+ */
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('periodos', function (Blueprint $table) {
-            $table->id('Id_Periodo');
-            $table->integer('Año');
-            $table->integer('Mes');
-            $table->unique(['Año', 'Mes']);
-            $table->timestamps(); // Añadido por buena práctica
+        Schema::table('periodos', function (Blueprint $table) {
+            // Solo agregar si no existe (para entornos ya migrados)
+            if (!Schema::hasColumn('periodos', 'Estado')) {
+                $table->string('Estado', 10)->default('Abierto')->after('Mes');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('periodos');
+        Schema::table('periodos', function (Blueprint $table) {
+            $table->dropColumn('Estado');
+        });
     }
 };

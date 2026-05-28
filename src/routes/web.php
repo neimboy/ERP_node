@@ -73,23 +73,30 @@ Route::middleware(['auth'])->group(function () {
             Route::post('usuarios/{id}/rol', [UserController::class, 'assignRole'])->name('admin.users.assignRole');
         });
 
-    // 🔵 CONTABILIDAD
+   // 🔵 CONTABILIDAD
     Route::prefix('contabilidad')
-        ->middleware('role:Super Admin,Contador')
-        ->group(function () {
+    ->middleware(['role:Super Admin,Contador'])
+    ->group(function () {
 
-            // Plan de Cuentas
-            Route::get('plan-cuentas', [PlanContableController::class, 'index'])->name('contabilidad.plan_cuentas');
-            Route::post('plan-cuentas', [PlanContableController::class, 'store'])->name('contabilidad.plan_cuentas.store');
+        // Plan de Cuentas
+        Route::get('plan-cuentas', [PlanContableController::class, 'index'])->name('contabilidad.plan_cuentas');
+        Route::post('plan-cuentas', [PlanContableController::class, 'store'])->name('contabilidad.plan_cuentas.store');
+        Route::get('plan-cuentas/{id}/edit', [PlanContableController::class, 'edit'])->name('contabilidad.plan_cuentas.edit');
+        Route::put('plan-cuentas/{id}', [PlanContableController::class, 'update'])->name('contabilidad.plan_cuentas.update');
+        Route::delete('plan-cuentas/{id}', [PlanContableController::class, 'destroy'])->name('contabilidad.plan_cuentas.destroy');
+        // Asientos (CRUD) - Forzamos el parámetro a 'asiento' en singular para evitar conflictos
+        Route::resource('asientos', AsientoController::class)->parameters([
+            'asientos' => 'asiento'
+        ]);
 
-            // Asientos (CRUD) - Aquí podrías añadir ->middleware('permission:view_contabilidad') si usas permisos individuales
-            Route::resource('asientos', AsientoController::class);
-
-            // Reportes
-            Route::get('libro-mayor', [AsientoController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
-            Route::get('estado-resultados', [AsientoController::class, 'estadoResultados'])->name('contabilidad.estado_resultados');
-            Route::get('balance-general', [AsientoController::class, 'balanceGeneral'])->name('contabilidad.balance_general');
-        });
+        // Reportes
+        Route::get('libro-mayor', [AsientoController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
+        Route::get('estado-resultados', [AsientoController::class, 'estadoResultados'])->name('contabilidad.estado_resultados');
+        Route::get('balance-general', [AsientoController::class, 'balanceGeneral'])->name('contabilidad.balance_general');
+        Route::get('igv-mensual', [AsientoController::class, 'igvMensual'])->name('contabilidad.igv_mensual');
+        Route::get('estado-resultados-semestral', [AsientoController::class, 'estadoResultadosSemestral'])->name('contabilidad.estado_resultados_semestral');
+        Route::get('resumen-gerencial', [AsientoController::class, 'resumenGerencial'])->name('contabilidad.resumen_gerencial');
+    });
 
     // 🟢 VENTAS
     Route::prefix('ventas')

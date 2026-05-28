@@ -12,10 +12,6 @@ class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-<<<<<<< HEAD
-        $productos = Producto::all();
-        return view('inventarios.index', compact('productos'));
-=======
         $query = Producto::with(['proveedor', 'categoria']);
 
         if ($request->filled('search')) {
@@ -26,18 +22,13 @@ class ProductoController extends Controller
 
         $productos = $query->paginate(10);
         return view('inventarios.productos.index', compact('productos'));
->>>>>>> origin/main
     }
 
     public function create()
     {
-<<<<<<< HEAD
-        return view('inventarios.create');
-=======
         $proveedores = Proveedor::all();
         $categorias = Categoria::all();
         return view('inventarios.productos.create', compact('proveedores', 'categorias'));
->>>>>>> origin/main
     }
 
     public function store(Request $request)
@@ -57,22 +48,14 @@ class ProductoController extends Controller
 
     public function show(Producto $producto)
     {
-<<<<<<< HEAD
-        return view('inventarios.show', compact('producto'));
-=======
         return view('inventarios.productos.show', compact('producto'));
->>>>>>> origin/main
     }
 
     public function edit(Producto $producto)
     {
-<<<<<<< HEAD
-        return view('inventarios.edit', compact('producto'));
-=======
         $proveedores = Proveedor::all();
         $categorias = Categoria::all();
         return view('inventarios.productos.edit', compact('producto', 'proveedores', 'categorias'));
->>>>>>> origin/main
     }
 
     public function update(Request $request, Producto $producto)
