@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contrato;
 use App\Models\Empleado;
 use App\Models\Puesto;   
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class ContratoController extends Controller
@@ -60,5 +61,42 @@ class ContratoController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'No se pudo eliminar el contrato: ' . $e->getMessage());
         }
+    }
+
+    public function edit($id)
+    {
+        $contrato = Contrato::findOrFail($id);
+        $empleados = Empleado::all();
+        $puestos = Puesto::all();
+
+        return view('rrhh.contratos.edit', compact('contrato', 'empleados', 'puestos'));
+    }
+
+    public function descargarPDF($id)
+    {
+        $contrato = Contrato::with(['empleado', 'puesto'])->findOrFail($id);
+
+        $path = public_path('images/logo-erp.png');
+        $logoData = '';
+        if (file_exists($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $logoData = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
+        $textoQR = "CONTRATO VERIFICADO - YUNIX INGENIEROS\n" .
+                   "ID Registro: YUNIX-CTR-" . $contrato->Id_Contrato . "\n" .
+                   "Empleado: " . $contrato->empleado->Nombre . " " . $contrato->empleado->Apellido . "\n" .
+                   "Puesto: " . $contrato->puesto->Nombre_Puesto . "\n" .
+                   "Sueldo: S/ " . number_format($contrato->puesto->Salario_Base ?? 1025, 2);
+
+        $qrData = "http://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($textoQR);
+
+        $pdf = Pdf::loadView('rrhh.contratos.pdf', compact('contrato', 'logoData', 'qrData'));
+        
+        $pdf->getDomPDF()->set_option("isRemoteEnabled", true);
+        $pdf->getDomPDF()->set_option("isHtml5ParserEnabled", true);
+        
+        return $pdf->stream('Contrato_Laboral_' . $contrato->empleado->Nombre . '.pdf');
     }
 }

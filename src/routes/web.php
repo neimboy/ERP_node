@@ -125,12 +125,16 @@ Route::middleware(['auth'])->group(function () {
 
             Route::resource('empleados', EmpleadoController::class)
                 ->names('rrhh.empleados');
+            Route::get('/rrhh/empleados/inactivos', [EmpleadoController::class, 'inactivos'])
+                ->name('rrhh.empleados.inactivos');
             Route::resource('nominas', NominaController::class)
                 ->names('rrhh.nominas');
             Route::resource('puestos', PuestoController::class)
                 ->names('rrhh.puestos');
             Route::resource('contratos', ContratoController::class)
                 ->names('rrhh.contratos');
+            Route::get('/rrhh/contratos/{id}/pdf', [ContratoController::class, 'descargarPDF'])
+                ->name('rrhh.contratos.pdf');
         });
 
     // 🟣 PRODUCCIÓN

@@ -10,7 +10,7 @@ class EmpleadoController extends Controller
 {
     public function index()
     {
-        $empleados = Empleado::all();
+        $empleados = Empleado::where('Estado', 1)->get();
         return view('rrhh.empleados.index', compact('empleados'));
     }
 
@@ -51,7 +51,7 @@ class EmpleadoController extends Controller
                             ->with('success', '¡Empleado guardado exitosamente!');
 
         } catch (\Exception $e) {
-            // Si hay un error de base de datos, volvemos atrás con el mensaje
+
             return back()->withInput()->with('error', 'Error en la base de datos: ' . $e->getMessage());
         }
     }
@@ -81,8 +81,16 @@ class EmpleadoController extends Controller
     public function destroy(string $id)
     {
         $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
-        $empleado->delete();
+        $empleado->Estado = 0;
+        $empleado->save();
 
-        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado eliminado correctamente');
+        return redirect()->route('rrhh.empleados.index')
+                        ->with('success', 'Empleado retirado del registro correctamente.');
+    }
+
+    public function inactivos()
+    {
+        $empleados = Empleado::where('Estado', 0)->get();
+        return view('rrhh.empleados.index', compact('empleados'));
     }
 }

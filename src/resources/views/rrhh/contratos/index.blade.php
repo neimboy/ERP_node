@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-<script src="https://cdn.tailwindcss.com"></script>
-
 <div class="min-h-screen bg-gray-100 p-8">
     <div class="max-w-6xl mx-auto">
         
-        {{-- Encabezado Estilo Panel (Igual a Nóminas) --}}
+        {{-- Encabezado Estilo Panel --}}
         <div class="flex justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-600">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">Listado de Contratos</h1>
@@ -17,15 +15,7 @@
                 Nuevo Contrato
             </a>
         </div>
-
-        {{-- Alerta de Éxito --}}
-        @if(session('success'))
-            <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm" role="alert">
-                <p class="font-bold">¡Logrado!</p>
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-
+        
         {{-- Tabla --}}
         <div class="bg-white shadow-xl rounded-lg overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
@@ -56,9 +46,18 @@
                             {{ $c->Fecha_Fin ?? 'Indefinido' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                             <a href="{{ route('rrhh.contratos.edit', $c->Id_Contrato) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Editar</a>
+                             {{-- Botón Editar --}}
+                             <a href="{{ route('rrhh.contratos.edit', $c->Id_Contrato) }}" class="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors">
+                                <i class="fas fa-edit mr-1"></i> Editar
+                             </a>
+
+                             {{-- Botón PDF --}}
+                             <a href="{{ route('rrhh.contratos.pdf', $c->Id_Contrato) }}" 
+                                class="text-red-600 hover:text-red-800 transition-colors"
+                                title="Generar PDF">
+                                <i class="fas fa-file-pdf mr-1"></i> PDF
+                             </a>
                         </td>
-                        
                     </tr>
                     @empty
                     <tr>
