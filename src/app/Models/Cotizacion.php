@@ -22,13 +22,21 @@ class Cotizacion extends Model
         'total',     // 🆕 Soporte lowercase
         'subtotal',  // 🆕
         'impuesto',  // 🆕
+        'Costos_Directos',
+        'Gastos_Generales',
+        'Utilidad',
         'Notas'
     ];
 
     protected $casts = [
         'Fecha' => 'datetime',
         'Fecha_Vencimiento' => 'datetime',
-        'Total' => 'float'
+        'Total' => 'float',
+        'Costos_Directos' => 'float',
+        'Gastos_Generales' => 'float',
+        'Utilidad' => 'float',
+        'Subtotal' => 'float',
+        'Impuesto' => 'float'
     ];
 
     protected static function booted()
@@ -93,8 +101,9 @@ class Cotizacion extends Model
 
     public function calcularTotal()
     {
+        // Usar el total guardado en cada detalle (precio*cantidad - descuento)
         return $this->detalles->sum(function ($detalle) {
-            return $detalle->Cantidad * $detalle->Precio_Unitario;
+            return $detalle->Total;
         });
     }
 

@@ -153,7 +153,7 @@ class CotizacionController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validar datos mínimos (Fecha_Vencimiento es obligatoria según requerimiento)
+            // Validar datos mínimos
             $request->validate([
                 'Id_Cliente' => 'required',
                 'Fecha_Vencimiento' => 'required|date'
@@ -162,184 +162,133 @@ class CotizacionController extends Controller
             Log::info('Creando cotización', ['cliente' => $request->Id_Cliente]);
 
             $cotizacion = DB::transaction(function () use ($request) {
-                // Preparar datos de cotización respetando esquemas legacy/modernos
+                // Preparar datos básicos de la cotización
                 $cotData = [];
-                // Cliente
                 if (Schema::hasColumn('cotizaciones', 'Id_Cliente')) {
                     $cotData['Id_Cliente'] = $request->Id_Cliente;
                 } else {
                     $cotData['cliente_id'] = $request->Id_Cliente;
                 }
 
-                // Fechas: aceptar fecha enviada por el formulario si existe
                 $inputFecha = $request->input('Fecha') ?? $request->input('fecha') ?? null;
                 $inputFV = $request->input('Fecha_Vencimiento') ?? $request->input('fecha_vencimiento') ?? null;
-
                 if (Schema::hasColumn('cotizaciones', 'Fecha')) {
                     $cotData['Fecha'] = $inputFecha ? $inputFecha : now();
                 } else {
                     $cotData['fecha'] = $inputFecha ? $inputFecha : now();
                 }
-
                 if (Schema::hasColumn('cotizaciones', 'Fecha_Vencimiento')) {
                     $cotData['Fecha_Vencimiento'] = $inputFV ? $inputFV : now()->addDays(30);
                 } else {
                     $cotData['fecha_vencimiento'] = $inputFV ? $inputFV : now()->addDays(30);
                 }
 
-                // Estado default (usar valores: BORRADOR, ENVIADA, ACEPTADA, RECHAZADA)
                 if (Schema::hasColumn('cotizaciones', 'Estado')) {
                     $cotData['Estado'] = $request->Estado ?? 'BORRADOR';
                 } else {
                     $cotData['estado'] = $request->Estado ?? 'BORRADOR';
                 }
 
-                // Total inicial
-                if (Schema::hasColumn('cotizaciones', 'Total')) {
-                    $cotData['Total'] = 0;
-                } else {
-                    $cotData['total'] = 0;
+                // Crear cotización
+                $cotizacion = Cotizacion::create($cotData);
+
+                $totalLineasCents = 0; // suma de totales netos de las líneas (en centavos)
+                $cdCents = 0; // Costos directos en centavos
+
+                // Normalizar suministro de líneas (lineas || items)
+                $inputLines = $request->lineas ?? $request->items ?? [];
+
+                if (empty($inputLines)) {
+                    throw new \Exception('La cotización debe contener al menos una línea');
                 }
 
-                // Oportunidad (si se envia desde la vista de oportunidad)
-                if ($request->oportunidad_id) {
-                    if (Schema::hasColumn('cotizaciones', 'oportunidad_id')) {
-                        $cotData['oportunidad_id'] = $request->oportunidad_id;
-                    } elseif (Schema::hasColumn('cotizaciones', 'Id_Oportunidad')) {
-                        $cotData['Id_Oportunidad'] = $request->oportunidad_id;
-                    }
-                }
-
-                // Evitar claves duplicadas por mayúsculas/minúsculas (ej. Fecha vs fecha)
-                $normalized = [];
-                foreach ($cotData as $k => $v) {
-                    $lk = strtolower($k);
-                    if (!isset($normalized[$lk])) {
-                        $normalized[$lk] = [$k, $v];
-                    }
-                }
-                $finalCotData = [];
-                foreach ($normalized as $entry) {
-                    $finalCotData[$entry[0]] = $entry[1];
-                }
-
-                // Crear cotización usando datos normalizados
-                $cotizacion = Cotizacion::create($finalCotData);
-
-                Log::info('Cotización creada: ' . $cotizacion->Id_Cotizacion);
-
-                $total = 0;
-
-                // Crear detalles (soporte para 'lineas' legacy)
-                if ($request->lineas) {
-                    foreach ($request->lineas as $linea) {
-                        $producto = Producto::find($linea['Id_Producto']);
-
-                        if (!$producto) {
-                            throw new \Exception('Producto no encontrado: ' . $linea['Id_Producto']);
-                        }
-
-                        $cantidad = intval($linea['cantidad'] ?? 1);
-                        $precio = floatval($linea['precio'] ?? $producto->Precio_Venta ?? 0);
-                        $descuento = floatval($linea['descuento'] ?? 0);
-
-                        $subtotal = $cantidad * $precio;
-                        $desc_monto = $subtotal * ($descuento / 100);
-                        $subtotal_final = $subtotal - $desc_monto;
-
-                        DetalleCotizacion::create([
-                            'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
-                            'Id_Producto' => $producto->Id_Producto,
-                            'Cantidad' => $cantidad,
-                            'Precio_Unitario' => $precio,
-                            'Descuento' => $descuento,
-                            'Total' => $subtotal_final
-                        ]);
-
-                        $total += $subtotal_final;
-                    }
-                }
-
-                // Si se usara una forma alternativa 'items', soportarla también
-                if ($request->items) {
-                    foreach ($request->items as $it) {
-                        $prodId = $it['producto_id'] ?? $it['Id_Producto'] ?? null;
+                foreach ($inputLines as $line) {
+                    $prodId = $line['Id_Producto'] ?? $line['producto_id'] ?? null;
+                    $producto = null;
+                    if ($prodId) {
                         $producto = Producto::find($prodId);
-                        if (!$producto && $prodId) {
-                            // intentar buscar por Id_Producto
-                            $producto = Producto::where('Id_Producto', $prodId)->first();
-                        }
-
-                        $cantidad = floatval($it['cantidad'] ?? 1);
-                        $precio = floatval($it['precio'] ?? ($producto->Precio_Venta ?? 0));
-                        $descuento = floatval($it['descuento'] ?? 0);
-
-                        $subtotal = $cantidad * $precio;
-                        $desc_monto = $subtotal * ($descuento / 100);
-                        $subtotal_final = $subtotal - $desc_monto;
-
-                        DetalleCotizacion::create([
-                            'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
-                            'Id_Producto' => $producto->Id_Producto ?? null,
-                            'Cantidad' => $cantidad,
-                            'Precio_Unitario' => $precio,
-                            'Descuento' => $descuento,
-                            'Total' => $subtotal_final
-                        ]);
-
-                        $total += $subtotal_final;
                     }
+
+                    // Determinar cantidades y precios
+                    $cantidad = intval($line['cantidad'] ?? $line['Cantidad'] ?? 1);
+                    $precioUnitario = isset($line['precio']) ? floatval($line['precio']) : ($producto->Precio_Venta ?? 0);
+
+                    // Determinar costo unitario: preferir Precio_Compra, fallback a último costo de compra
+                    $costoUnitario = 0;
+                    if ($producto) {
+                        if (isset($producto->Precio_Compra) && floatval($producto->Precio_Compra) > 0) {
+                            $costoUnitario = floatval($producto->Precio_Compra);
+                        } else {
+                            $lastCosto = DetalleOrdenCompra::where('Id_Producto', $producto->Id_Producto)
+                                ->whereHas('ordenCompra', function ($q) {
+                                    $q->where('Estado', 'Recibida');
+                                })
+                                ->orderByDesc('Id_Detalle')
+                                ->value('Costo');
+                            if (!is_null($lastCosto) && $lastCosto !== '') {
+                                $costoUnitario = floatval($lastCosto);
+                            }
+                        }
+                    } else {
+                        // Producto no encontrado: permitir línea con precio/costo explícito si fue enviado
+                        $costoUnitario = isset($line['costo']) ? floatval($line['costo']) : 0;
+                    }
+
+                    $descuento = floatval($line['descuento'] ?? $line['Descuento'] ?? 0);
+
+                    // Trabajar en centavos para evitar redondeos prematuros
+                    $precioCents = (int) round(floatval($precioUnitario) * 100);
+                    $costoCents = (int) round(floatval($costoUnitario) * 100);
+
+                    $subtotalLineaCents = $precioCents * $cantidad;
+                    $descuentoLineaCents = (int) round($subtotalLineaCents * ($descuento / 100.0));
+                    $totalLineaCents = $subtotalLineaCents - $descuentoLineaCents;
+
+                    DetalleCotizacion::create([
+                        'Id_Cotizacion' => $cotizacion->Id_Cotizacion,
+                        'Id_Producto' => $producto->Id_Producto ?? null,
+                        'Cantidad' => $cantidad,
+                        'Precio_Unitario' => $precioCents / 100.0,
+                        'Costo_Unitario' => $costoCents / 100.0,
+                        'Descuento' => $descuento,
+                        'Total' => $totalLineaCents / 100.0
+                    ]);
+
+                    $totalLineasCents += $totalLineaCents;
+                    $cdCents += ($costoCents * $cantidad);
                 }
 
-                // Calcular desglose financiero
-                $costosDirectos = round(floatval($total), 2);
-                $gastosGenerales = round($costosDirectos * 0.06, 2); // 6% sobre CD
-                $utilidad = round($costosDirectos * 0.10, 2); // 10% sobre CD
-                $subtotalCalc = round($costosDirectos + $gastosGenerales + $utilidad, 2);
-                $impuestoCalc = round($subtotalCalc * 0.18, 2); // IGV 18%
-                $presupuestoTotal = round($subtotalCalc + $impuestoCalc, 2);
+                // Cálculos financieros (usar centavos y redondear sólo al persistir)
+                $gastosGeneralesCents = (int) round($cdCents * 0.06);
+                $utilidadCents = (int) round($cdCents * 0.10);
+                $subtotalCalcCents = $cdCents + $gastosGeneralesCents + $utilidadCents;
+                $impuestoCents = (int) round($subtotalCalcCents * 0.18);
+                $presupuestoTotalCents = $subtotalCalcCents + $impuestoCents;
 
-                // Preparar datos para actualizar según columnas existentes
                 $updateData = [];
-                if (Schema::hasColumn('cotizaciones', 'Total')) {
-                    $updateData['Total'] = $presupuestoTotal;
+                if (Schema::hasColumn('cotizaciones', 'Costos_Directos')) {
+                    $updateData['Costos_Directos'] = $cdCents / 100.0;
                 }
-                if (Schema::hasColumn('cotizaciones', 'total')) {
-                    $updateData['total'] = $presupuestoTotal;
+                if (Schema::hasColumn('cotizaciones', 'Gastos_Generales')) {
+                    $updateData['Gastos_Generales'] = $gastosGeneralesCents / 100.0;
+                }
+                if (Schema::hasColumn('cotizaciones', 'Utilidad')) {
+                    $updateData['Utilidad'] = $utilidadCents / 100.0;
                 }
                 if (Schema::hasColumn('cotizaciones', 'Subtotal')) {
-                    $updateData['Subtotal'] = $subtotalCalc;
-                }
-                if (Schema::hasColumn('cotizaciones', 'subtotal')) {
-                    $updateData['subtotal'] = $subtotalCalc;
+                    $updateData['Subtotal'] = $subtotalCalcCents / 100.0;
                 }
                 if (Schema::hasColumn('cotizaciones', 'Impuesto')) {
-                    $updateData['Impuesto'] = $impuestoCalc;
+                    $updateData['Impuesto'] = $impuestoCents / 100.0;
                 }
-                if (Schema::hasColumn('cotizaciones', 'impuesto')) {
-                    $updateData['impuesto'] = $impuestoCalc;
+                if (Schema::hasColumn('cotizaciones', 'Total')) {
+                    $updateData['Total'] = $presupuestoTotalCents / 100.0;
                 }
-
-                // Fallback: si no se detecta columna 'Total' intentar actualizar 'Total' (legacy)
                 if (empty($updateData)) {
-                    $updateData['Total'] = $presupuestoTotal;
+                    $updateData['Total'] = $presupuestoTotalCents / 100.0;
                 }
 
-                // Normalizar claves del array para evitar duplicados case-insensitive
-                $norm = [];
-                foreach ($updateData as $k => $v) {
-                    $lk = strtolower($k);
-                    if (!isset($norm[$lk])) {
-                        $norm[$lk] = [$k, $v];
-                    }
-                }
-                $finalUpdate = [];
-                foreach ($norm as $entry) {
-                    $finalUpdate[$entry[0]] = $entry[1];
-                }
-
-                // Actualizar totales
-                $cotizacion->update($finalUpdate);
+                $cotizacion->update($updateData);
 
                 return $cotizacion;
             });
@@ -706,23 +655,117 @@ public function convertirAOrden(Cotizacion $cotizacion)
     public function aceptar(Request $request, Cotizacion $cotizacion)
     {
         try {
-            $update = [];
-            if (Schema::hasColumn($cotizacion->getTable(), 'Estado')) {
-                $update['Estado'] = 'ACEPTADA';
-            } elseif (Schema::hasColumn($cotizacion->getTable(), 'estado')) {
-                $update['estado'] = 'ACEPTADA';
-            }
+            // Operación transaccional: revalidar stock, crear orden y disparar evento
+            $ordenCreada = null;
 
-            if (!empty($update)) {
-                $cotizacion->update($update);
-            }
+            DB::transaction(function () use (&$ordenCreada, $cotizacion, $request) {
+                // Bloquear la cotización para evitar race conditions
+                $cot = Cotizacion::where('Id_Cotizacion', $cotizacion->Id_Cotizacion)
+                    ->lockForUpdate()
+                    ->with('detalles')
+                    ->firstOrFail();
 
-            // Si se solicitó generar orden al aceptar, delegar a convertirAOrden
-            if ($request->boolean('generar_orden')) {
-                return $this->convertirAOrden($cotizacion);
+                // 1) Revalidar stock en tiempo real
+                $insuficientes = [];
+                foreach ($cot->detalles as $detalle) {
+                    if (empty($detalle->Id_Producto)) continue; // saltar líneas no relacionadas a catálogo
+
+                    $producto = Producto::where('Id_Producto', $detalle->Id_Producto)->first();
+                    if (!$producto) {
+                        $insuficientes[] = [
+                            'producto' => $detalle->Id_Producto,
+                            'error' => 'Producto no encontrado'
+                        ];
+                        continue;
+                    }
+
+                    $stockDisponible = $producto->stock ?? 0;
+                    if ($stockDisponible < $detalle->Cantidad) {
+                        $insuficientes[] = [
+                            'producto' => $producto->Id_Producto,
+                            'requerido' => $detalle->Cantidad,
+                            'disponible' => $stockDisponible
+                        ];
+                    }
+                }
+
+                if (!empty($insuficientes)) {
+                    throw new \App\Exceptions\StockInsufficientException('Stock insuficiente', $insuficientes);
+                }
+
+                // 2) (Opcional) Verificar crédito del cliente si existe el servicio
+                if (class_exists('\App\Services\ClienteService')) {
+                    try {
+                        $clienteService = new \App\Services\ClienteService();
+                        if (method_exists($clienteService, 'verificarCreditoDisponible')) {
+                            $creditoOk = $clienteService->verificarCreditoDisponible($cot->Id_Cliente ?? $cot->cliente_id ?? null, $cot->Total ?? $cot->total ?? 0);
+                            if (!$creditoOk) {
+                                throw new \Exception('Cliente sin crédito suficiente');
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Si la verificación de crédito falla por ausencia de datos, tratamos como error de validación
+                        throw $e;
+                    }
+                }
+
+                // 3) Marcar ACEPTADA
+                $colEstado = Schema::hasColumn($cot->getTable(), 'Estado') ? 'Estado' : 'estado';
+                $cot->{$colEstado} = 'ACEPTADA';
+                $cot->save();
+
+                // 4) Crear Orden de Venta (mapeo simple)
+                $orderData = [
+                    'Id_Cliente' => $cot->Id_Cliente ?? $cot->cliente_id ?? null,
+                    'Fecha' => now(),
+                    'Estado' => 'PENDIENTE',
+                ];
+
+                if (Schema::hasColumn('ordenes', 'Total'))     $orderData['Total'] = $cot->Total ?? $cot->total ?? 0;
+                if (Schema::hasColumn('ordenes', 'Subtotal'))  $orderData['Subtotal'] = $cot->Subtotal ?? $cot->subtotal ?? 0;
+                if (Schema::hasColumn('ordenes', 'Impuesto'))  $orderData['Impuesto'] = $cot->Impuesto ?? $cot->impuesto ?? 0;
+                if (Schema::hasColumn('ordenes', 'Id_Cotizacion')) $orderData['Id_Cotizacion'] = $cot->Id_Cotizacion;
+
+                $orden = Orden::create($orderData);
+
+                foreach ($cot->detalles as $detalle) {
+                    DetalleOrden::create([
+                        'Id_Orden' => $orden->Id_Orden,
+                        'Id_Producto' => $detalle->Id_Producto,
+                        'Cantidad' => $detalle->Cantidad,
+                        'Precio' => $detalle->Precio_Unitario
+                    ]);
+                }
+
+                // 5) Vincular cotización y marcar como CONVERTIDA
+                if (Schema::hasColumn($cot->getTable(), 'Id_Orden')) {
+                    $cot->Id_Orden = $orden->Id_Orden;
+                }
+                $cot->{$colEstado} = 'CONVERTIDA';
+                $cot->save();
+
+                $ordenCreada = $orden;
+
+                // 6) Disparar evento interno ORDEN_APROBADA
+                try {
+                    event(new \App\Events\OrdenAprobada($ordenCreada, $cot));
+                } catch (\Exception $e) {
+                    // Loguear pero no revertir la transacción sólo por fallo en listeners
+                    Log::error('Error dispatching OrdenAprobada event: ' . $e->getMessage());
+                }
+            });
+
+            if ($ordenCreada) {
+                return redirect()->route('ordenes.show', $ordenCreada)
+                    ->with('success', '✅ Orden #' . $ordenCreada->Id_Orden . ' creada y evento ORDEN_APROBADA disparado');
             }
 
             return redirect()->route('cotizaciones.show', $cotizacion)->with('success', '✅ Cotización marcada como ACEPTADA');
+
+        } catch (\App\Exceptions\StockInsufficientException $ex) {
+            $details = $ex->getDetails();
+            $msg = 'Stock insuficiente para uno o más productos';
+            return redirect()->back()->with('error', $msg)->with('stock_errors', $details);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', '❌ Error: ' . $e->getMessage());
         }

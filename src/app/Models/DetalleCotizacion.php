@@ -15,6 +15,7 @@ class DetalleCotizacion extends Model
         'Id_Producto',
         'Cantidad',
         'Precio_Unitario',
+        'Costo_Unitario',
         'Descuento',
         'Total'
     ];
@@ -22,6 +23,7 @@ class DetalleCotizacion extends Model
     protected $casts = [
         'Cantidad' => 'integer',
         'Precio_Unitario' => 'float',
+        'Costo_Unitario' => 'float',
         'Descuento' => 'float',
         'Total' => 'float'
     ];
