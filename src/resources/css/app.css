@@ -1,3 +1,496 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================
+   ERP SISTEMA DE GESTIÓN EMPRESARIAL
+   Tema Corporativo - Profesional & Elegante
+   ============================================ */
+
+/* --- 1. VARIABLES Y CONFIGURACIÓN BASE --- */
+@layer base {
+    :root {
+        /* Paleta Corporativa Principal */
+        --color-primary: #1e3a5f;
+        --color-primary-light: #2c5282;
+        --color-primary-dark: #0f2340;
+        
+        /* Acentos Estratégicos */
+        --color-accent: #3182ce;
+        --color-success: #38a169;
+        --color-warning: #d69e2e;
+        --color-danger: #e53e3e;
+        --color-info: #5a67d8;
+        
+        /* Contabilidad - Colores Semánticos */
+        --debe: #276749;
+        --haber: #c53030;
+        --activo: #2b6cb0;
+        --pasivo: #c05621;
+        --patrimonio: #6b46c1;
+        --ingreso: #2c7a7b;
+        --gasto: #718096;
+        
+        /* Fondos y Superficies */
+        --bg-page: #f7fafc;
+        --bg-surface: #ffffff;
+        --bg-hover: #edf2f7;
+        
+        /* Bordes */
+        --border-light: #e2e8f0;
+        --border-medium: #cbd5e0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply antialiased text-gray-800;
+        background-color: var(--bg-page);
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    /* Tipografía mejorada */
+    h1, h2, h3, h4, h5, h6 {
+        @apply tracking-tight;
+    }
+}
+
+/* --- 2. COMPONENTES REUTILIZABLES --- */
+@layer components {
+    
+    /* ========== TARJETAS ========== */
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        @apply px-6 py-4 border-b border-gray-100 font-semibold text-gray-700;
+    }
+    
+    .card-body {
+        @apply p-6;
+    }
+    
+    .card-footer {
+        @apply px-6 py-4 bg-gray-50/50 border-t border-gray-100;
+    }
+
+    /* ========== BOTONES ========== */
+    .btn {
+        @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm
+               transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    
+    .btn:hover {
+        @apply transform -translate-y-0.5;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:active {
+        @apply transform translate-y-0;
+    }
+    
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+    }
+    
+    .btn-success {
+        @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500;
+    }
+    
+    .btn-danger {
+        @apply bg-red-500 text-white hover:bg-red-600 focus:ring-red-400;
+    }
+    
+    .btn-secondary {
+        @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-400;
+    }
+    
+    .btn-ghost {
+        @apply bg-transparent text-gray-600 hover:bg-gray-100 focus:ring-gray-300;
+    }
+    
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+    
+    .btn-lg {
+        @apply px-6 py-3 text-base;
+    }
+
+    /* ========== TABLAS ========== */
+    .table {
+        @apply w-full text-sm;
+    }
+    
+    .table thead th {
+        @apply px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider
+               bg-gray-50 border-b-2 border-gray-200;
+    }
+    
+    .table tbody td {
+        @apply px-4 py-3 border-b border-gray-100 text-gray-700;
+    }
+    
+    .table tbody tr {
+        @apply transition-colors duration-150;
+    }
+    
+    .table tbody tr:hover {
+        @apply bg-blue-50/30;
+    }
+    
+    .table tfoot td {
+        @apply px-4 py-3 font-semibold bg-gray-50 border-t-2 border-gray-200;
+    }
+
+    /* ========== BADGES / ETIQUETAS ========== */
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .badge-success {
+        @apply bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20;
+    }
+    
+    .badge-danger {
+        @apply bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20;
+    }
+    
+    .badge-warning {
+        @apply bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20;
+    }
+    
+    .badge-info {
+        @apply bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-600/20;
+    }
+    
+    .badge-gray {
+        @apply bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/20;
+    }
+    
+    .badge-purple {
+        @apply bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/20;
+    }
+
+    /* ========== ALERTAS ========== */
+    .alert {
+        @apply border-l-4 p-4 rounded-r-lg shadow-sm mb-4;
+    }
+    
+    .alert-success {
+        @apply bg-emerald-50 border-emerald-500 text-emerald-800;
+    }
+    
+    .alert-danger {
+        @apply bg-red-50 border-red-500 text-red-800;
+    }
+    
+    .alert-warning {
+        @apply bg-amber-50 border-amber-500 text-amber-800;
+    }
+    
+    .alert-info {
+        @apply bg-sky-50 border-sky-500 text-sky-800;
+    }
+
+    /* ========== FORMULARIOS ========== */
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+    
+    .form-input {
+        @apply block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+               focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+               placeholder-gray-400 transition-colors duration-200;
+    }
+    
+    .form-select {
+        @apply block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+               bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+               transition-colors duration-200;
+    }
+    
+    .form-textarea {
+        @apply block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+               focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+               placeholder-gray-400 transition-colors duration-200 resize-none;
+    }
+
+    /* ========== ENCABEZADO DE PÁGINA ========== */
+    .page-header {
+        @apply mb-6 pb-4 border-b border-gray-200;
+    }
+    
+    .page-header .breadcrumb {
+        @apply text-xs font-semibold text-gray-400 uppercase tracking-widest;
+    }
+    
+    .page-header .title {
+        @apply text-2xl font-bold text-gray-800 mt-1;
+    }
+    
+    .page-header .subtitle {
+        @apply text-sm text-gray-500 mt-0.5;
+    }
+
+    /* ========== SECCIÓN ========== */
+    .section-title {
+        @apply text-lg font-semibold text-gray-700 mb-4 flex items-center;
+    }
+    
+    .section-title::before {
+        content: '';
+        @apply w-1 h-6 bg-blue-500 rounded-full mr-3;
+    }
+}
+
+/* --- 3. MÓDULO DE CONTABILIDAD - ESTILOS ESPECÍFICOS --- */
+@layer components {
+    
+    /* ========== TARJETAS KPI (Dashboard Gerencial) ========== */
+    .kpi-card {
+        @apply relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5
+               transition-all duration-300;
+    }
+    
+    .kpi-card::before {
+        content: '';
+        @apply absolute top-0 left-0 w-full h-1;
+    }
+    
+    .kpi-card.kpi-ingresos::before { background: var(--ingreso); }
+    .kpi-card.kpi-gastos::before { background: var(--gasto); }
+    .kpi-card.kpi-activos::before { background: var(--activo); }
+    .kpi-card.kpi-pasivos::before { background: var(--pasivo); }
+    .kpi-card.kpi-patrimonio::before { background: var(--patrimonio); }
+    .kpi-card.kpi-default::before { background: var(--color-accent); }
+    
+    .kpi-card:hover {
+        @apply transform -translate-y-1;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kpi-card .kpi-value {
+        @apply text-2xl font-bold text-gray-800 tracking-tight;
+    }
+    
+    .kpi-card .kpi-label {
+        @apply text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1;
+    }
+    
+    .kpi-card .kpi-icon {
+        @apply absolute top-4 right-4 text-3xl opacity-20;
+    }
+
+    /* ========== ASIENTO CUADRADO / DESCUADRADO ========== */
+    .asiento-cuadrado {
+        @apply border-l-4 border-emerald-500 bg-white;
+    }
+    
+    .asiento-descuadrado {
+        @apply border-l-4 border-red-500 bg-red-50/30;
+    }
+
+    /* ========== TOTALES DEBE / HABER ========== */
+    .text-debe {
+        @apply text-emerald-700 font-semibold;
+    }
+    
+    .text-haber {
+        @apply text-red-600 font-semibold;
+    }
+    
+    .bg-debe-light {
+        @apply bg-emerald-50;
+    }
+    
+    .bg-haber-light {
+        @apply bg-red-50;
+    }
+
+    /* ========== PERÍODO ABIERTO / CERRADO ========== */
+    .periodo-abierto {
+        @apply bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-sm font-medium inline-flex items-center;
+    }
+    
+    .periodo-abierto::before {
+        content: '';
+        @apply w-2 h-2 bg-emerald-500 rounded-full mr-2;
+    }
+    
+    .periodo-cerrado {
+        @apply bg-gray-100 text-gray-500 border border-gray-200 px-3 py-1 rounded-full text-sm font-medium inline-flex items-center;
+    }
+    
+    .periodo-cerrado::before {
+        content: '';
+        @apply w-2 h-2 bg-gray-400 rounded-full mr-2;
+    }
+
+    /* ========== PLAN DE CUENTAS - AGRUPACIÓN POR TIPO ========== */
+    .cuenta-grupo-activo { @apply border-l-4 border-blue-500 bg-blue-50/50; }
+    .cuenta-grupo-pasivo { @apply border-l-4 border-orange-500 bg-orange-50/50; }
+    .cuenta-grupo-patrimonio { @apply border-l-4 border-purple-500 bg-purple-50/50; }
+    .cuenta-grupo-ingreso { @apply border-l-4 border-teal-500 bg-teal-50/50; }
+    .cuenta-grupo-gasto { @apply border-l-4 border-gray-400 bg-gray-50/50; }
+    .cuenta-grupo-costo { @apply border-l-4 border-amber-500 bg-amber-50/50; }
+
+    /* ========== ESTADO DE RESULTADOS ========== */
+    .resultado-utilidad {
+        @apply text-3xl font-extrabold tracking-tight;
+    }
+    
+    .resultado-utilidad.positivo {
+        @apply text-emerald-600;
+    }
+    
+    .resultado-utilidad.negativo {
+        @apply text-red-600;
+    }
+
+    /* ========== BALANCE GENERAL ========== */
+    .balance-activo-section {
+        @apply bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-6;
+    }
+    
+    .balance-pasivo-section {
+        @apply bg-gradient-to-br from-orange-50 to-white border border-orange-100 rounded-xl p-6;
+    }
+    
+    .balance-patrimonio-section {
+        @apply bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-6;
+    }
+
+    /* ========== LÍNEAS DE DETALLE DE ASIENTO ========== */
+    .detalle-linea {
+        @apply bg-gray-50/50 border border-gray-200 rounded-lg p-4 mb-2
+               transition-all duration-200;
+    }
+    
+    .detalle-linea:hover {
+        @apply border-blue-300 bg-blue-50/20;
+    }
+    
+    .detalle-linea:focus-within {
+        @apply border-blue-400 ring-2 ring-blue-100;
+    }
+
+    /* ========== TABLA DE ASIENTOS - FILAS ========== */
+    .asiento-row {
+        @apply transition-colors duration-150;
+    }
+    
+    .asiento-row:hover {
+        @apply bg-blue-50/50;
+    }
+
+    /* ========== MARGEN DE RENTABILIDAD (Semestral) ========== */
+    .margen-excelente {
+        @apply bg-emerald-100 text-emerald-800;
+    }
+    
+    .margen-bueno {
+        @apply bg-amber-100 text-amber-800;
+    }
+    
+    .margen-malo {
+        @apply bg-red-100 text-red-800;
+    }
+
+    /* ========== NÚMERO DE ASIENTO ========== */
+    .asiento-numero {
+        @apply font-mono text-sm font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded;
+    }
+
+    /* ========== GLOSA TRUNCADA ========== */
+    .glosa-truncate {
+        @apply truncate max-w-xs;
+    }
+}
+
+/* --- 4. UTILIDADES PERSONALIZADAS --- */
+@layer utilities {
+    
+    /* Animaciones sutiles */
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Sombras personalizadas */
+    .shadow-card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    
+    .shadow-card-hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Bordes redondeados consistentes */
+    .rounded-card {
+        @apply rounded-xl;
+    }
+}
+
+/* --- 5. IMPRESIÓN --- */
+@media print {
+    body {
+        @apply bg-white text-black;
+    }
+    
+    nav, .btn, button, .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .table thead th {
+        @apply bg-gray-200 text-black;
+    }
+    
+    @page {
+        margin: 1cm;
+    }
+}
+
+/* --- 6. SCROLLBAR PERSONALIZADO --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+}

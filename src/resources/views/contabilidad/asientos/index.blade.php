@@ -1,142 +1,251 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4 px-4">
+<div class="max-w-7xl mx-auto">
 
-    {{-- Encabezado --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    {{-- ENCABEZADO --}}
+    <div class="page-header flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-            <span class="text-uppercase text-muted small fw-bold">Módulo de Contabilidad</span>
-            <h2 class="h3 mb-0 fw-bold">📒 Asientos Contables</h2>
-            <p class="text-muted mb-0">Registro del Libro Diario – Partida Doble</p>
+            <span class="breadcrumb">Módulo de Contabilidad</span>
+            <h2 class="title flex items-center gap-2">
+                <span>📒</span> Asientos Contables
+            </h2>
+            <p class="subtitle">Registro del Libro Diario – Partida Doble</p>
         </div>
-        <div class="d-flex gap-2 flex-wrap justify-content-end">
-            <a href="{{ route('asientos.create') }}" class="btn btn-primary btn-sm">+ Nuevo Asiento</a>
-            <a href="{{ route('contabilidad.libro_mayor') }}" class="btn btn-outline-secondary btn-sm">📗 Libro Mayor</a>
-            <a href="{{ route('contabilidad.balance_general') }}" class="btn btn-outline-secondary btn-sm">🏦 Balance</a>
-            <a href="{{ route('contabilidad.estado_resultados') }}" class="btn btn-outline-secondary btn-sm">📈 Resultados</a>
-            <a href="{{ route('contabilidad.estado_resultados_semestral') }}" class="btn btn-outline-secondary btn-sm">📊 Semestral</a>
-            <a href="{{ route('contabilidad.igv_mensual') }}" class="btn btn-outline-secondary btn-sm">🧾 IGV</a>
-            <a href="{{ route('contabilidad.resumen_gerencial') }}" class="btn btn-outline-info btn-sm">📋 Gerencial</a>
-            <a href="{{ route('contabilidad.plan_cuentas') }}" class="btn btn-outline-dark btn-sm">📒 Plan Cuentas</a>
+        
+        {{-- Botones de acceso rápido --}}
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('asientos.create') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus mr-1"></i> Nuevo Asiento
+            </a>
+            <div class="hidden sm:flex flex-wrap gap-2">
+                <a href="{{ route('contabilidad.libro_mayor') }}" class="btn btn-ghost btn-sm text-gray-600" title="Libro Mayor">
+                    <span>📗</span>
+                </a>
+                <a href="{{ route('contabilidad.balance_general') }}" class="btn btn-ghost btn-sm text-gray-600" title="Balance General">
+                    <span>🏦</span>
+                </a>
+                <a href="{{ route('contabilidad.estado_resultados') }}" class="btn btn-ghost btn-sm text-gray-600" title="Estado de Resultados">
+                    <span>📈</span>
+                </a>
+                <a href="{{ route('contabilidad.estado_resultados_semestral') }}" class="btn btn-ghost btn-sm text-gray-600" title="Resultado Semestral">
+                    <span>📊</span>
+                </a>
+                <a href="{{ route('contabilidad.igv_mensual') }}" class="btn btn-ghost btn-sm text-gray-600" title="IGV Mensual">
+                    <span>🧾</span>
+                </a>
+                <a href="{{ route('contabilidad.resumen_gerencial') }}" class="btn btn-ghost btn-sm text-blue-600" title="Resumen Gerencial">
+                    <span>📋</span>
+                </a>
+                <a href="{{ route('contabilidad.plan_cuentas') }}" class="btn btn-ghost btn-sm text-gray-600" title="Plan de Cuentas">
+                    <span>📒</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    {{-- Alertas --}}
+    {{-- ALERTAS --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm">
-            ✅ {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success animate-fade-in flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     @endif
+    
     @if(session('warning'))
-        <div class="alert alert-warning alert-dismissible fade show shadow-sm">
-            ⚠️ {{ session('warning') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-warning animate-fade-in flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ session('warning') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-amber-600 hover:text-amber-800">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     @endif
 
-    {{-- Tabla de asientos --}}
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark text-uppercase" style="font-size: 0.8rem;">
-                        <tr>
-                            <th class="ps-4 py-3" style="width: 6%;"># Asiento</th>
-                            <th class="py-3" style="width: 10%;">Fecha</th>
-                            <th class="py-3" style="width: 15%;">Período</th>
-                            <th class="py-3">Glosa / Descripción</th>
-                            <th class="py-3 text-end" style="width: 12%;">Total Debe</th>
-                            <th class="py-3 text-end" style="width: 12%;">Total Haber</th>
-                            <th class="py-3 text-center" style="width: 8%;">Líneas</th>
-                            <th class="py-3 text-center pe-4" style="width: 10%;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($asientos as $asiento)
+    {{-- TABLA DE ASIENTOS --}}
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="pl-5 w-16"># Asiento</th>
+                        <th class="w-24">Fecha</th>
+                        <th class="w-36">Período</th>
+                        <th>Glosa / Descripción</th>
+                        <th class="text-right w-36">Total Debe</th>
+                        <th class="text-right w-36">Total Haber</th>
+                        <th class="text-center w-20">Líneas</th>
+                        <th class="text-center pr-5 w-28">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($asientos as $asiento)
                         @php
                             $totalDebe  = $asiento->detalles->sum('Debe');
                             $totalHaber = $asiento->detalles->sum('Haber');
                             $cuadra     = abs($totalDebe - $totalHaber) <= 0.01;
                         @endphp
-                        <tr>
-                            <td class="ps-4 fw-bold font-monospace text-primary">
-                                #{{ str_pad($asiento->Id_Asiento, 4, '0', STR_PAD_LEFT) }}
+                        <tr class="asiento-row {{ $cuadra ? 'asiento-cuadrado' : 'asiento-descuadrado' }}">
+                            {{-- Número de asiento --}}
+                            <td class="pl-5">
+                                <span class="asiento-numero">
+                                    #{{ str_pad($asiento->Id_Asiento, 4, '0', STR_PAD_LEFT) }}
+                                </span>
                             </td>
-                            <td class="font-monospace">
-                                {{ \Carbon\Carbon::parse($asiento->Fecha)->format('d/m/Y') }}
+                            
+                            {{-- Fecha --}}
+                            <td>
+                                <span class="font-mono text-sm text-gray-600">
+                                    {{ \Carbon\Carbon::parse($asiento->Fecha)->format('d/m/Y') }}
+                                </span>
                             </td>
+                            
+                            {{-- Período --}}
                             <td>
                                 @if($asiento->periodo)
-                                    <span class="badge bg-light text-dark border">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
+                                        {{ $asiento->periodo->Estado === 'Abierto' ? 'periodo-abierto' : 'periodo-cerrado' }}">
                                         {{ $asiento->periodo->label ?? ($asiento->periodo->Año . '-' . str_pad($asiento->periodo->Mes, 2, '0', STR_PAD_LEFT)) }}
                                     </span>
                                 @else
-                                    <span class="text-muted small">—</span>
+                                    <span class="text-gray-400 text-sm">—</span>
                                 @endif
                             </td>
+                            
+                            {{-- Glosa --}}
                             <td>
-                                <span class="d-inline-block text-truncate" style="max-width: 350px;" title="{{ $asiento->Glosa }}">
+                                <span class="glosa-truncate block" title="{{ $asiento->Glosa }}">
                                     {{ $asiento->Glosa }}
                                 </span>
                             </td>
-                            <td class="text-end font-monospace pe-3">
-                                S/. {{ number_format($totalDebe, 2) }}
+                            
+                            {{-- Total Debe --}}
+                            <td class="text-right">
+                                <span class="font-mono text-sm {{ $totalDebe > 0 ? 'text-debe' : 'text-gray-400' }}">
+                                    {{ $totalDebe > 0 ? 'S/. ' . number_format($totalDebe, 2) : '—' }}
+                                </span>
                             </td>
-                            <td class="text-end font-monospace pe-3">
-                                S/. {{ number_format($totalHaber, 2) }}
+                            
+                            {{-- Total Haber --}}
+                            <td class="text-right">
+                                <span class="font-mono text-sm {{ $totalHaber > 0 ? 'text-haber' : 'text-gray-400' }}">
+                                    {{ $totalHaber > 0 ? 'S/. ' . number_format($totalHaber, 2) : '—' }}
+                                </span>
                             </td>
+                            
+                            {{-- Cantidad de líneas --}}
                             <td class="text-center">
-                                <span class="badge bg-secondary rounded-pill">{{ $asiento->detalles->count() }}</span>
+                                <span class="badge {{ $asiento->detalles->count() >= 2 ? 'badge-info' : 'badge-warning' }}">
+                                    {{ $asiento->detalles->count() }}
+                                </span>
                             </td>
-                            <td class="text-center pe-4">
-                                @if(!$cuadra)
-                                    <span class="badge bg-danger me-1" title="Asiento descuadrado">⚠</span>
-                                @endif
-                                <a href="{{ route('asientos.show', $asiento->Id_Asiento) }}"
-                                   class="btn btn-xs btn-outline-primary btn-sm py-0 px-2">Ver</a>
-                                <form action="{{ route('asientos.destroy', $asiento->Id_Asiento) }}"
-                                      method="POST" class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar el asiento #{{ $asiento->Id_Asiento }}? Esta acción también eliminará sus líneas de detalle.')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-xs btn-outline-danger btn-sm py-0 px-2">✕</button>
-                                </form>
+                            
+                            {{-- Acciones --}}
+                            <td class="text-center pr-5">
+                                <div class="flex items-center justify-center gap-1">
+                                    @if(!$cuadra)
+                                        <span class="text-red-500 text-sm" title="Asiento descuadrado">⚠️</span>
+                                    @endif
+                                    
+                                    <a href="{{ route('asientos.show', $asiento->Id_Asiento) }}"
+                                       class="btn btn-ghost btn-sm text-blue-600 hover:bg-blue-50"
+                                       title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    @if($asiento->periodo && $asiento->periodo->Estado === 'Abierto')
+                                        <a href="{{ route('asientos.edit', $asiento->Id_Asiento) }}"
+                                           class="btn btn-ghost btn-sm text-amber-600 hover:bg-amber-50"
+                                           title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
+                                    
+                                    <form action="{{ route('asientos.destroy', $asiento->Id_Asiento) }}"
+                                          method="POST" class="inline"
+                                          onsubmit="return confirm('¿Eliminar el asiento #{{ $asiento->Id_Asiento }}?\n\nEsta acción también eliminará sus {{ $asiento->detalles->count() }} líneas de detalle y no se puede deshacer.')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                                class="btn btn-ghost btn-sm text-red-500 hover:bg-red-50"
+                                                title="Eliminar"
+                                                {{ $asiento->periodo && $asiento->periodo->Estado !== 'Abierto' ? 'disabled' : '' }}>
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
-                        @empty
+                    @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <p class="fs-3 mb-2">📭</p>
-                                <p class="mb-1">No hay asientos contables registrados.</p>
-                                <a href="{{ route('asientos.create') }}" class="btn btn-primary btn-sm mt-2">
-                                    + Registrar el primer asiento
-                                </a>
+                            <td colspan="8" class="text-center py-16">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-5xl mb-4">📭</span>
+                                    <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                                        No hay asientos contables registrados
+                                    </h3>
+                                    <p class="text-gray-400 mb-4">
+                                        Comienza registrando tu primer asiento en el libro diario
+                                    </p>
+                                    <a href="{{ route('asientos.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus mr-2"></i> Registrar Primer Asiento
+                                    </a>
+                                </div>
                             </td>
                         </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
-        {{-- Paginación --}}
+        {{-- PAGINACIÓN --}}
         @if($asientos->hasPages())
-        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center px-4 py-3">
-            <small class="text-muted">
-                Mostrando {{ $asientos->firstItem() }}–{{ $asientos->lastItem() }} de {{ $asientos->total() }} asientos
-            </small>
-            {{ $asientos->links() }}
-        </div>
+            <div class="px-5 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <span class="text-sm text-gray-500">
+                    Mostrando 
+                    <span class="font-medium text-gray-700">{{ $asientos->firstItem() }}</span> 
+                    – 
+                    <span class="font-medium text-gray-700">{{ $asientos->lastItem() }}</span> 
+                    de 
+                    <span class="font-medium text-gray-700">{{ $asientos->total() }}</span> 
+                    asientos
+                </span>
+                <div class="flex gap-1">
+                    {{ $asientos->links() }}
+                </div>
+            </div>
         @endif
     </div>
 
-</div>
+    {{-- LEYENDA --}}
+    <div class="mt-4 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
+                <span>Asiento cuadrado</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                <span>Asiento descuadrado</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                <span>Período abierto</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                <span>Período cerrado</span>
+            </div>
+            <span class="text-gray-400">|</span>
+            <span>Solo se pueden editar/eliminar asientos de períodos abiertos</span>
+        </div>
+    </div>
 
-<style>
-@media print {
-    .btn, nav, footer, .card-footer { display: none !important; }
-    body { font-size: 11px; }
-}
-</style>
+</div>
 @endsection
