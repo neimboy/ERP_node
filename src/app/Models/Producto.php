@@ -102,5 +102,8 @@ class Producto extends Model
     {
         return $this->stock();
     }
-
+    public function sinStock()
+    {
+        return $this->stock <= 0;
+    }
 }

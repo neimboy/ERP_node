@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Inventario;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use App\Models\OrdenCompra;
 use App\Models\Proveedor;
 use App\Models\Almacen;
 use App\Models\Producto;
+use App\Models\Compra;
 use Illuminate\Http\Request;
 
 class ComprasController extends Controller
@@ -110,5 +112,28 @@ class ComprasController extends Controller
         return redirect()->route('compras.index')
                         ->with('success', 'Compra eliminada correctamente.');
     }
+    //comprobante de compra
+    public function comprobantePdf($id)
+    {
+        $compra = OrdenCompra::with('detalles.producto','proveedor')
+                    ->where('Id_Orden_Compra', $id)
+                    ->firstOrFail();
+
+        $pdf = Pdf::loadView('inventarios.compras.comprobante', compact('compra'));
+        return $pdf->download('comprobante_'.$compra->Id_Orden_Compra.'.pdf');
+    }
+
+
+    public function comprobantePreview($id)
+    {
+        $compra = OrdenCompra::with('detalles.producto','proveedor')
+                    ->where('Id_Orden_Compra', $id)
+                    ->firstOrFail();
+
+        // Renderiza la vista normal en HTML
+        return view('inventarios.compras.comprobante', compact('compra'));
+    }
+
+
 
 }

@@ -149,18 +149,25 @@ Route::middleware(['auth'])->group(function () {
             // Compras
             Route::resource('compras', ComprasController::class);
 
+            Route::patch('compras/{id}/estado', [ComprasController::class, 'updateEstado'])
+                ->name('compras.updateEstado');
             // Proveedores
             Route::resource('proveedores', ProveedoresController::class)
                 ->parameters(['proveedores' => 'proveedor']);
             // Consultar stock
             Route::get('/inventario/stock/{producto}/{almacen}', 
                 [InventarioController::class, 'verStock']);
-
             // Verificar stock antes de vender
             Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}', 
             [InventarioController::class, 'verificarStock'])->name('inventario.verificarStock');
 
+            Route::get('/compras/{id}/comprobante/pdf', [ComprasController::class, 'comprobantePdf'])
+                 ->name('compras.comprobante.pdf');
+            Route::get('inventario/compras/{id}/comprobante/preview', [ComprasController::class, 'comprobantePreview'])
+                 ->name('compras.comprobante.preview');
+
             Route::delete('notificaciones/{notificacion}', [ProductoController::class, 'destroyNotificacion'])->name('notificaciones.destroy');
+
         });
 
 

@@ -66,11 +66,11 @@
 
     <div class="flex space-x-3 mt-6">
         <a href="{{ route('compras.index') }}" 
-           class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
-           ← Volver
+        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+        ← Volver
         </a>
         <form action="{{ route('compras.destroy', $compra->Id_Orden_Compra) }}" method="POST" 
-              onsubmit="return confirm('¿Seguro que deseas eliminar esta compra?');">
+            onsubmit="return confirm('¿Seguro que deseas eliminar esta compra?');">
             @csrf
             @method('DELETE')
             <button type="submit" 
@@ -78,6 +78,13 @@
                 Eliminar
             </button>
         </form>
+
+        <!-- Botón para descarga PDF -->
+        <a href="{{ route('compras.comprobante.pdf', $compra->Id_Orden_Compra) }}" 
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+        Descargar PDF
+        </a>
     </div>
+
 </div>
 @endsection
