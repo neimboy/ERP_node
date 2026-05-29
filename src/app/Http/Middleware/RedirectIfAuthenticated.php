@@ -15,7 +15,7 @@ class RedirectIfAuthenticated
 
         foreach (\ as \) {
             if (Auth::guard(\)->check()) {
-                return redirect('/home');
+                return redirect()->route('dashboard');
             }
         }
 

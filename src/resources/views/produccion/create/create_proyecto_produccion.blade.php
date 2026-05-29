@@ -61,7 +61,7 @@
             </form>
         </div>
 
-        <div class="w-96">
+        <div class="w-96 space-y-4">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 sticky top-6">
                 <div class="p-4 border-b border-gray-100">
                     <h3 class="font-semibold text-gray-800">Productos en Inventario</h3>
@@ -97,6 +97,42 @@
                         <p class="text-gray-400 text-sm text-center py-4">No hay productos disponibles.</p>
                     @endforelse
                 </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                <h3 class="font-semibold text-gray-800 mb-3">Notificar Falta de Stock</h3>
+                <div class="mb-2 relative">
+                    <input type="text" id="buscadorNotificarStock" placeholder="Buscar..."
+                           class="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:ring-2 focus:ring-indigo-500">
+                    <svg class="absolute left-2.5 top-2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <form action="{{ route('proyectos.notificar-stock-general') }}" method="POST">
+                    @csrf
+                    <div id="notificarSeleccionContainer" class="space-y-2 mb-3">
+                        <p class="text-xs text-gray-400">Selecciona un producto de la lista.</p>
+                    </div>
+                    <div class="max-h-40 overflow-y-auto space-y-1 mb-3" id="listaNotificarStock">
+                        @foreach($productos as $p)
+                            <div class="producto-item-notificar flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer transition"
+                                 data-id="{{ $p['Id_Producto'] }}"
+                                 data-nombre="{{ $p['Nombre'] }}"
+                                 data-stock="{{ $p['Stock_Total'] }}">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-medium text-gray-800 truncate">{{ $p['Nombre'] }}</p>
+                                    <p class="text-xs text-gray-500">Stock: <span class="{{ $p['Stock_Total'] > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $p['Stock_Total'] }}</span></p>
+                                </div>
+                                <button type="button" class="btn-notificar-producto text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Notificar</button>
+                </form>
             </div>
         </div>
     </div>
@@ -233,4 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<script src="{{ asset('js/editar-proyecto-produccion.js') }}"></script>
 @endsection

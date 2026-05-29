@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateProyectoProduccionRequest;
 use App\Http\Requests\UpdateProyectoServicioRequest;
 use App\Models\Proyecto;
 use App\Models\Cliente;
+use App\Services\PdfService;
 use App\Services\ProyectoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -127,6 +128,18 @@ class ProyectoController extends Controller
             ->with('success', 'Servicio actualizado correctamente.');
     }
 
+    public function reporte(Proyecto $proyecto, PdfService $pdfService)
+    {
+        $proyecto->load('cliente', 'asignaciones.empleado', 'productos', 'gastos');
+
+        $folio = 'REP-' . date('Y') . '-' . str_pad($proyecto->Id_Proyecto, 4, '0', STR_PAD_LEFT);
+
+        return $pdfService->visualizar('reporte_proyecto', [
+            'proyecto' => $proyecto,
+            'folio' => $folio,
+        ], "reporte_{$proyecto->Id_Proyecto}");
+    }
+
     public function destroy(Proyecto $proyecto): RedirectResponse
     {
         $proyecto->delete();
@@ -181,10 +194,27 @@ class ProyectoController extends Controller
 
         $this->proyectoService->notificarSinStock(
             $request->input('Id_Producto'),
-            $request->input('Cantidad')
+            $request->input('Cantidad'),
+            $proyecto->Id_Proyecto
         );
 
         return redirect()->route('proyectos.show', $proyecto)
+            ->with('success', 'Notificación enviada al módulo de Inventario.');
+    }
+
+    public function notificarSinStockGeneral(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'Id_Producto' => 'required|exists:productos,Id_Producto',
+            'Cantidad' => 'required|integer|min:1',
+        ]);
+
+        $this->proyectoService->notificarSinStock(
+            $request->input('Id_Producto'),
+            $request->input('Cantidad')
+        );
+
+        return redirect()->back()
             ->with('success', 'Notificación enviada al módulo de Inventario.');
     }
 }

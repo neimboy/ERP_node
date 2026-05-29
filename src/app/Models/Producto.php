@@ -59,42 +59,48 @@ class Producto extends Model
     }
 
 
-    public function stockEnAlmacen($almacenId)
-    {
-        // Entradas filtradas por almacén y estado Recibida
-        $entradas = $this->detallesOrdenCompra()
-            ->whereHas('ordenCompra', function($q) use ($almacenId) {
-                $q->where('Id_Almacen', $almacenId)
-                ->where('Estado', 'Recibida'); // ✅ solo recibidas
-            })
-            ->sum('Cantidad');
-
-        // Salidas filtradas por estado Confirmada
-        $salidas = $this->detallesOrden()
-            ->whereHas('orden', function($q) {
-                $q->where('Estado', 'Confirmada'); // ✅ solo confirmadas
-            })
-            ->sum('Cantidad');
-
-        return $entradas - $salidas;
-    }
-
-    // En Producto.php
-    public function getStockAttribute()
+    public function stock()
     {
         $entradas = $this->detallesOrdenCompra()
             ->whereHas('ordenCompra', function($q) {
-                $q->where('Estado', 'Recibida'); // solo compras recibidas
+                $q->where('Estado', 'Recibida');
+            })
+            ->sum('Cantidad');
+        $salidas = $this->detallesOrden()
+            ->whereHas('orden', function($q) {
+                $q->where('Estado', 'Confirmada');
+            })
+            ->sum('Cantidad');
+        $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
+        $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
+
+        return $entradas - $salidas - $consumo + $retorno;
+    }
+
+    public function stockEnAlmacen($almacenId)
+    {
+        $entradas = $this->detallesOrdenCompra()
+            ->whereHas('ordenCompra', function($q) use ($almacenId) {
+                $q->where('Id_Almacen', $almacenId)
+                  ->where('Estado', 'Recibida');
             })
             ->sum('Cantidad');
 
         $salidas = $this->detallesOrden()
             ->whereHas('orden', function($q) {
-                $q->where('Estado', 'Confirmada'); // solo ventas confirmadas
+                $q->where('Estado', 'Confirmada');
             })
             ->sum('Cantidad');
 
-        return $entradas - $salidas;
+        $consumo = $this->movimientos()->where('Tipo', 'salida_produccion')->sum('Cantidad');
+        $retorno = $this->movimientos()->where('Tipo', 'entrada_devolucion')->sum('Cantidad');
+
+        return $entradas - $salidas - $consumo + $retorno;
+    }
+
+    public function getStockAttribute()
+    {
+        return $this->stock();
     }
     public function sinStock()
     {
