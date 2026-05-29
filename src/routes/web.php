@@ -6,7 +6,7 @@ use App\Http\Controllers\ProfileController;
 // CONTABILIDAD
 use App\Http\Controllers\Contabilidad\AsientoController;
 use App\Http\Controllers\Contabilidad\PlanContableController;
-
+use App\Http\Controllers\Contabilidad\PeriodoController;
 // VENTAS
 use App\Http\Controllers\Ventas\ClienteController;
 use App\Http\Controllers\Ventas\OrdenController;
@@ -80,10 +80,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('plan-cuentas/{id}/edit', [PlanContableController::class, 'edit'])->name('contabilidad.plan_cuentas.edit');
         Route::put('plan-cuentas/{id}', [PlanContableController::class, 'update'])->name('contabilidad.plan_cuentas.update');
         Route::delete('plan-cuentas/{id}', [PlanContableController::class, 'destroy'])->name('contabilidad.plan_cuentas.destroy');
-        // Asientos (CRUD) - Forzamos el parámetro a 'asiento' en singular para evitar conflictos
+
+        // Asientos (CRUD)
         Route::resource('asientos', AsientoController::class)->parameters([
-            'asientos' => 'asiento'
+            'asientos' => 'asiento',
         ]);
+
+        // Períodos contables
+        Route::get('periodos', [PeriodoController::class, 'index'])->name('contabilidad.periodos');
+        Route::post('periodos', [PeriodoController::class, 'store'])->name('contabilidad.periodos.store');
+        Route::patch('periodos/{periodo}/toggle', [PeriodoController::class, 'toggleEstado'])->name('contabilidad.periodos.toggle');
+        Route::delete('periodos/{periodo}', [PeriodoController::class, 'destroy'])->name('contabilidad.periodos.destroy');
 
         // Reportes
         Route::get('libro-mayor', [AsientoController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
