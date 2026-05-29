@@ -17,6 +17,8 @@ use App\Http\Controllers\Ventas\OportunidadController;
 // RRHH
 use App\Http\Controllers\RRHH\EmpleadoController;
 use App\Http\Controllers\RRHH\NominaController;
+use App\Http\Controllers\RRHH\PuestoController;
+use App\Http\Controllers\RRHH\ContratoController;
 
 // INVENTARIO
 use App\Http\Controllers\Inventario\AlmacenController;
@@ -175,8 +177,18 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('rrhh')
         ->middleware('role:Super Admin,RRHH') 
         ->group(function () {
-            Route::resource('empleados', EmpleadoController::class);
-            Route::resource('nominas', NominaController::class);
+            Route::resource('empleados', EmpleadoController::class)
+                ->names('rrhh.empleados');
+            Route::get('/rrhh/empleados/inactivos', [EmpleadoController::class, 'inactivos'])
+                ->name('rrhh.empleados.inactivos');
+            Route::resource('nominas', NominaController::class)
+                ->names('rrhh.nominas');
+            Route::resource('puestos', PuestoController::class)
+                ->names('rrhh.puestos');
+            Route::resource('contratos', ContratoController::class)
+                ->names('rrhh.contratos');
+            Route::get('/rrhh/contratos/{id}/pdf', [ContratoController::class, 'descargarPDF'])
+                ->name('rrhh.contratos.pdf');
         });
 
     // PRODUCCIÓN

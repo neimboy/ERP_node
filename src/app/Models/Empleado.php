@@ -16,7 +16,8 @@ class Empleado extends Model
         'Correo',
         'Telefono',
         'Fecha_Ingreso',
-        'Estado'
+        'Estado', 
+        'Id_Puesto'
     ];
 
     public function proyectos()
@@ -24,5 +25,15 @@ class Empleado extends Model
         return $this->belongsToMany(Proyecto::class, 'asignaciones', 'Id_Empleado', 'Id_Proyecto')
                     ->withPivot('Horas_Asignadas')
                     ->withTimestamps();
+    }
+
+    public function puesto()
+    {
+        return $this->belongsTo(Puesto::class, 'Id_Puesto');
+    }
+
+    public function nominas()
+    {
+        return $this->hasMany(Nomina::class, 'Id_Empleado');
     }
 }

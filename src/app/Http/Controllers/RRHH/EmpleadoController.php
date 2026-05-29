@@ -10,7 +10,7 @@ class EmpleadoController extends Controller
 {
     public function index()
     {
-        $empleados = Empleado::all();
+        $empleados = Empleado::where('Estado', 1)->get();
         return view('rrhh.empleados.index', compact('empleados'));
     }
 
@@ -24,21 +24,27 @@ public function store(Request $request)
         $request->validate([
             'DNI'           => 'required|unique:empleados,DNI',
             'Nombre'        => 'required|string|max:150',
-            'Correo'       => 'nullable|email',
+            'Correo'        => 'nullable|email',
             'Telefono'      => 'nullable|string|max:20',
             'Fecha_Ingreso' => 'required|date',
         ]);
 
-        \App\Models\Empleado::create([
-            'DNI'        => $request->DNI,
-            'Nombre'     => $request->Nombre,
-            'Correo'    => $request->Correo,
-            'Telefono'  => $request->Telefono,
-            'Fecha_Ingreso' => $request->Fecha_Ingreso,
-            'Estado'   => $request->Estado ?? 1,
-        ]);
+        try { // <--- ¡AQUÍ FALTABA ESTO!
+            \App\Models\Empleado::create([
+                'DNI'           => $request->DNI,
+                'Nombre'        => $request->Nombre,
+                'Correo'        => $request->Correo,
+                'Telefono'      => $request->Telefono,
+                'Fecha_Ingreso' => $request->Fecha_Ingreso,
+                'Estado'        => $request->Estado ?? 1,
+            ]);
 
-        return redirect()->route('empleados.index')->with('success', '¡Empleado guardado exitosamente!');
+            return redirect()->route('rrhh.empleados.index')
+                             ->with('success', '¡Empleado guardado exitosamente!');
+
+        } catch (\Exception $e) { // Ahora este catch ya tiene sentido
+            return back()->withInput()->with('error', 'Error en la base de datos: ' . $e->getMessage());
+        }
     }
 
     public function edit(string $id)
@@ -66,8 +72,16 @@ public function store(Request $request)
     public function destroy(string $id)
     {
         $empleado = Empleado::where('Id_Empleado', $id)->firstOrFail();
-        $empleado->delete();
+        $empleado->Estado = 0;
+        $empleado->save();
 
-        return redirect()->route('empleados.index')->with('success', 'Empleado eliminado correctamente');
+        return redirect()->route('rrhh.empleados.index')
+                        ->with('success', 'Empleado retirado del registro correctamente.');
+    }
+
+    public function inactivos()
+    {
+        $empleados = Empleado::where('Estado', 0)->get();
+        return view('rrhh.empleados.index', compact('empleados'));
     }
 }
