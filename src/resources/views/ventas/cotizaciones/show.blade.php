@@ -136,26 +136,10 @@
         <a href="{{ route('cotizaciones.edit', $cotizacion) }}" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
             Editar
         </a>
-        <button onclick="eliminarConFetch({{ $cotizacion->Id_Cotizacion }})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-            Eliminar
-        </button>
         @if($estado !== 'ACEPTADA')
         <form action="{{ route('cotizaciones.aceptar', $cotizacion) }}" method="POST" onsubmit="return confirm('Marcar cotización como ACEPTADA?')">
             @csrf
             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Aceptar</button>
-        </form>
-
-        <!-- Botón: Aceptar y generar orden en un solo paso (mostrar como 'Orden') -->
-        <form action="{{ route('cotizaciones.aceptar', $cotizacion) }}" method="POST" onsubmit="return confirm('Aceptar esta cotización y generar la orden ahora?')">
-            @csrf
-            <input type="hidden" name="generar_orden" value="1">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Orden</button>
-        </form>
-        @endif
-        @if($estado === 'ACEPTADA')
-        <form action="{{ route('cotizaciones.generarOrden', $cotizacion) }}" method="POST" onsubmit="return confirm('¿Generar orden a partir de esta cotización?')">
-            @csrf
-            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Orden</button>
         </form>
         @endif
     </div>
@@ -172,28 +156,6 @@ document.querySelectorAll('form').forEach(f => {
         }
     });
 });
-
-function eliminarConFetch(cotizacionId) {
-    if (confirm('¿Eliminar esta cotización?')) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        fetch(`/ventas/cotizaciones/${cotizacionId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok || response.status === 302) {
-                setTimeout(() => {
-                    window.location.href = '/ventas/cotizaciones';
-                }, 500);
-            }
-        })
-        .catch(error => alert('Error: ' + error));
-    }
-}
 </script>
 
 @endsection

@@ -134,16 +134,36 @@ class VentasService
                     $producto->save();
                 }
 
-                $precio = $producto->Precio_Venta ?? $producto->precio ?? 0;
+                $precioUnitario = $producto->Precio_Venta ?? $producto->precio ?? 0;
+
+                // Determinar costo unitario si está disponible
+                $costoUnitario = $producto->Precio_Compra ?? null;
+                if (is_null($costoUnitario)) {
+                    $lastCosto = \App\Models\DetalleOrdenCompra::where('Id_Producto', $Id_Producto)
+                        ->whereHas('ordenCompra', function ($q) {
+                            $q->where('Estado', 'Recibida');
+                        })
+                        ->orderByDesc('Id_Detalle')
+                        ->value('Costo');
+                    if (!is_null($lastCosto) && $lastCosto !== '') {
+                        $costoUnitario = $lastCosto;
+                    }
+                }
+
+                $subtotalLinea = $precioUnitario * $cantidad;
 
                 DetalleOrden::create([
                     'Id_Orden' => $orden->Id_Orden,
                     'Id_Producto' => $Id_Producto,
                     'Cantidad' => $cantidad,
-                    'Precio' => $precio,
+                    'Precio_Unitario' => $precioUnitario,
+                    'Costo_Unitario' => $costoUnitario ?? 0,
+                    'Descuento' => 0,
+                    'Total' => $subtotalLinea,
+                    'Precio' => $precioUnitario,
                 ]);
 
-                $total += $precio * $cantidad;
+                $total += $subtotalLinea;
             }
 
             // Crear factura asociada

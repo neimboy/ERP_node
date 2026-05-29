@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('ordenes', OrdenController::class);
             // Ruta para facturar una orden (POST)
             Route::post('ordenes/{orden}/facturar', [OrdenController::class, 'facturar'])->name('ordenes.facturar');
+            // Confirmar ejecución de la orden (marcar EJECUTADA)
+            Route::post('ordenes/{orden}/confirmar-ejecucion', [OrdenController::class, 'confirmarEjecucion'])->name('ordenes.confirmarEjecucion');
             Route::resource('facturas', FacturaController::class);
             Route::resource('cotizaciones', CotizacionController::class)
                 ->parameters(['cotizaciones' => 'cotizacion']);

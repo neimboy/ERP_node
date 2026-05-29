@@ -610,27 +610,28 @@ public function convertirAOrden(Cotizacion $cotizacion)
             // Crear la nueva orden
             $orden = Orden::create($orderData);
 
-            // Crear los detalles de la orden traspasando cantidades y precios finales
+            // Crear los detalles de la orden traspasando cantidades, precios y snapshot de costos
             foreach ($cot->detalles as $detalle) {
                 DetalleOrden::create([
-                    'Id_Orden'    => $orden->Id_Orden,
-                    'Id_Producto' => $detalle->Id_Producto,
-                    'Cantidad'    => $detalle->Cantidad,
-                    'Precio'      => $detalle->Precio_Unitario, // O $detalle->Total si guardas el neto
+                    'Id_Orden'        => $orden->Id_Orden,
+                    'Id_Producto'     => $detalle->Id_Producto,
+                    'Cantidad'        => $detalle->Cantidad,
+                    'Precio_Unitario' => $detalle->Precio_Unitario ?? $detalle->Precio ?? 0,
+                    'Costo_Unitario'  => $detalle->Costo_Unitario ?? 0,
+                    'Descuento'       => $detalle->Descuento ?? 0,
+                    'Total'           => $detalle->Total ?? (($detalle->Precio_Unitario ?? $detalle->Precio ?? 0) * $detalle->Cantidad),
+                    // Mantener el campo legacy `Precio` para compatibilidad
+                    'Precio'          => $detalle->Precio_Unitario ?? $detalle->Precio ?? 0,
                 ]);
             }
 
-            // Marcar la cotización como CONVERTIDA
-            if (Schema::hasColumn($cot->getTable(), 'Estado')) {
-                $cot->Estado = 'CONVERTIDA';
-            } else {
-                $cot->estado = 'CONVERTIDA';
-            }
-
+            // Vincular la cotización con la orden sin cambiar su estado (debe permanecer ACEPTADA)
             if (Schema::hasColumn($cot->getTable(), 'Id_Orden')) {
                 $cot->Id_Orden = $orden->Id_Orden;
             }
 
+            // Asegurar que permanezca en ACEPTADA
+            $cot->{$colEstado} = 'ACEPTADA';
             $cot->save();
             $ordenCreada = $orden; // Guardamos el modelo completo para el redirect
         });
@@ -730,18 +731,22 @@ public function convertirAOrden(Cotizacion $cotizacion)
 
                 foreach ($cot->detalles as $detalle) {
                     DetalleOrden::create([
-                        'Id_Orden' => $orden->Id_Orden,
-                        'Id_Producto' => $detalle->Id_Producto,
-                        'Cantidad' => $detalle->Cantidad,
-                        'Precio' => $detalle->Precio_Unitario
+                        'Id_Orden'        => $orden->Id_Orden,
+                        'Id_Producto'     => $detalle->Id_Producto,
+                        'Cantidad'        => $detalle->Cantidad,
+                        'Precio_Unitario' => $detalle->Precio_Unitario ?? $detalle->Precio ?? 0,
+                        'Costo_Unitario'  => $detalle->Costo_Unitario ?? 0,
+                        'Descuento'       => $detalle->Descuento ?? 0,
+                        'Total'           => $detalle->Total ?? (($detalle->Precio_Unitario ?? $detalle->Precio ?? 0) * $detalle->Cantidad),
+                        'Precio'          => $detalle->Precio_Unitario ?? $detalle->Precio ?? 0,
                     ]);
                 }
 
-                // 5) Vincular cotización y marcar como CONVERTIDA
+                // 5) Vincular cotización con la orden y mantener el estado ACEPTADA
                 if (Schema::hasColumn($cot->getTable(), 'Id_Orden')) {
                     $cot->Id_Orden = $orden->Id_Orden;
                 }
-                $cot->{$colEstado} = 'CONVERTIDA';
+                $cot->{$colEstado} = 'ACEPTADA';
                 $cot->save();
 
                 $ordenCreada = $orden;

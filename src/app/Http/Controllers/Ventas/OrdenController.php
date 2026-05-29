@@ -143,6 +143,32 @@ class OrdenController extends Controller
         return redirect()->route('facturas.show', $factura->Id_Factura ?? $factura->id)->with('success', 'Factura generada correctamente.');
     }
 
+    /**
+     * Confirmar ejecución de la orden: marcar EJECUTADA y disparar evento.
+     */
+    public function confirmarEjecucion($id)
+    {
+        $orden = Orden::where('Id_Orden', $id)->with('detalles')->firstOrFail();
+
+        $current = strtoupper($orden->Estado ?? $orden->estado ?? '');
+        if ($current === 'EJECUTADA') {
+            return redirect()->route('ordenes.show', $orden->Id_Orden)->with('info', 'Orden ya marcada como ejecutada.');
+        }
+
+        DB::transaction(function () use ($orden) {
+            $orden->Estado = 'EJECUTADA';
+            $orden->save();
+
+            try {
+                event(new \App\Events\OrdenEjecutada($orden, $orden->detalles));
+            } catch (\Exception $e) {
+                Log::error('Error dispatching OrdenEjecutada event: ' . $e->getMessage());
+            }
+        });
+
+        return redirect()->route('ordenes.show', $orden->Id_Orden)->with('success', 'Orden marcada como EJECUTADA y evento ORDEN_EJECUTADA disparado.');
+    }
+
     public function store(StoreOrdenRequest $request)
     {
         $ventasService = new VentasService();

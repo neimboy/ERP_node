@@ -21,6 +21,15 @@
                     </form>
                 @endif
 
+                @if(strtoupper($orden->Estado ?? $orden->estado ?? '') !== 'EJECUTADA')
+                    <form action="{{ route('ordenes.confirmarEjecucion', ['orden' => $orden->Id_Orden]) }}" method="POST" data-swal-confirm data-swal-message="¿Confirmar ejecución de esta orden?">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded">
+                            Confirmar Ejecución
+                        </button>
+                    </form>
+                @endif
+
                 <a href="{{ route('ordenes.index') }}" class="px-4 py-2 bg-gray-200 rounded">Volver</a>
             </div>
         </div>
@@ -69,7 +78,10 @@
                         <tr class="bg-gray-50">
                             <th class="p-2 text-left">Producto</th>
                             <th class="p-2 text-right">Cantidad</th>
-                            <th class="p-2 text-right">Precio</th>
+                            <th class="p-2 text-right">Precio Unit.</th>
+                            <th class="p-2 text-right">Costo Unit.</th>
+                            <th class="p-2 text-right">Descuento</th>
+                            <th class="p-2 text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,7 +89,10 @@
                             <tr class="border-t">
                                 <td class="p-2">{{ $d->producto->Nombre ?? '—' }}</td>
                                 <td class="p-2 text-right">{{ $d->Cantidad }}</td>
-                                <td class="p-2 text-right">S/ {{ number_format($d->Precio, 2) }}</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Precio_Unitario ?? $d->Precio ?? 0, 2) }}</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Costo_Unitario ?? 0, 2) }}</td>
+                                <td class="p-2 text-right">{{ number_format($d->Descuento ?? 0, 2) }}%</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Total ?? (($d->Precio_Unitario ?? $d->Precio ?? 0) * $d->Cantidad), 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

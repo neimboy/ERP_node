@@ -15,6 +15,18 @@ class DetalleOrden extends Model
         'Id_Producto',
         'Cantidad',
         'Precio',
+        'Precio_Unitario',
+        'Costo_Unitario',
+        'Descuento',
+        'Total',
+    ];
+
+    protected $casts = [
+        'Precio' => 'decimal:2',
+        'Precio_Unitario' => 'decimal:2',
+        'Costo_Unitario' => 'decimal:2',
+        'Descuento' => 'decimal:2',
+        'Total' => 'decimal:2',
     ];
 
     public function orden()
