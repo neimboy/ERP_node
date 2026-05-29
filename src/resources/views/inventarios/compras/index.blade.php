@@ -57,18 +57,23 @@
                     <td class="border px-4 py-2 text-right space-x-2">
                         <a href="{{ route('compras.show', $compra->Id_Orden_Compra) }}" 
                            class="text-green-600 hover:underline">Ver</a>
-
+                        
                         <!-- Formulario inline para actualizar estado -->
                         <form action="{{ route('compras.updateEstado', $compra->Id_Orden_Compra) }}" method="POST" class="inline">
                             @csrf
                             @method('PATCH')
                             <select name="Estado" onchange="this.form.submit()" 
-                                    class="text-sm border-gray-300 rounded px-2 py-1">
+                                class="text-sm rounded px-2 py-1
+                                    @if($compra->Estado === 'Pendiente') bg-yellow-500 text-white
+                                    @elseif($compra->Estado === 'Recibida') bg-green-600 text-white
+                                    @elseif($compra->Estado === 'Cancelada') bg-red-600 text-white
+                                    @endif">
                                 <option value="Pendiente" {{ $compra->Estado === 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
                                 <option value="Recibida" {{ $compra->Estado === 'Recibida' ? 'selected' : '' }}>Recibida</option>
                                 <option value="Cancelada" {{ $compra->Estado === 'Cancelada' ? 'selected' : '' }}>Cancelada</option>
                             </select>
                         </form>
+
 
                         <form action="{{ route('compras.destroy', $compra->Id_Orden_Compra) }}" 
                               method="POST" class="inline"

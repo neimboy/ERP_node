@@ -96,5 +96,8 @@ class Producto extends Model
 
         return $entradas - $salidas;
     }
-
+    public function sinStock()
+    {
+        return $this->stock <= 0;
+    }
 }

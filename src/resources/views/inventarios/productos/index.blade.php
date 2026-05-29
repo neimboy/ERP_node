@@ -22,6 +22,22 @@
         </form>
     </div>
 
+    <!-- 🔹 Alerta de productos sin stock -->
+    @php
+        $productosSinStock = $productos->filter(fn($p) => $p->stock == 0);
+    @endphp
+
+    @if($productosSinStock->count() > 0)
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            ⚠️ Atención: Los siguientes productos están sin stock:
+            <ul class="list-disc list-inside">
+                @foreach($productosSinStock as $producto)
+                    <li>{{ $producto->Nombre }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <table class="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
         <thead class="bg-gray-100 text-sm">
             <tr>
@@ -44,7 +60,8 @@
                     <td class="border px-4 py-2">{{ number_format($producto->Precio_Venta, 2) }}</td>
                     <td class="border px-4 py-2">{{ $producto->proveedor->Nombre ?? 'Sin proveedor' }}</td>
                     <td class="border px-4 py-2">{{ $producto->categoria->Nombre ?? 'Sin categoría' }}</td>
-                    <td class="border px-4 py-2">
+                    <td class="border px-4 py-2 
+                        @if($producto->stock == 0) text-red-600 font-bold @endif">
                         {{ $producto->stock }} <!-- ✅ usa el accesor dinámico -->
                     </td>
 

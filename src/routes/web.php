@@ -134,11 +134,15 @@ Route::middleware(['auth'])->group(function () {
             // Consultar stock
             Route::get('/inventario/stock/{producto}/{almacen}', 
                 [InventarioController::class, 'verStock']);
-
             // Verificar stock antes de vender
             Route::get('/inventario/verificar-stock/{producto}/{almacen}/{cantidad}', 
                 [InventarioController::class, 'verificarStock']);
             Route::patch('/compras/{id}/estado', [ComprasController::class, 'updateEstado'])->name('compras.updateEstado');
+
+            Route::get('/compras/{id}/comprobante/pdf', [ComprasController::class, 'comprobantePdf'])
+                 ->name('compras.comprobante.pdf');
+            Route::get('inventario/compras/{id}/comprobante/preview', [ComprasController::class, 'comprobantePreview'])
+                 ->name('compras.comprobante.preview');
 
         });
 
