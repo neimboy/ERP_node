@@ -53,16 +53,18 @@ class OrdenController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(int $id)
     {
-        // Forzamos la búsqueda manual por tu clave primaria legacy
-        $orden = Orden::where('Id_Orden', $id)->firstOrFail();
+        // Cargamos la orden con sus detalles, cliente y la cotización asociada (eager loading)
+        $orden = Orden::with(['detalles.producto', 'cliente', 'cotizacion'])
+            ->where('Id_Orden', $id)
+            ->firstOrFail();
 
-        $orden->load('detalles.producto', 'cliente', 'cotizacion');
+        // Si no tiene cotización, podríamos calcular totales desde los detalles (caso raro)
         return view('ventas.ordenes.show', compact('orden'));
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $orden = Orden::where('Id_Orden', $id)->firstOrFail();
 
@@ -73,7 +75,7 @@ class OrdenController extends Controller
         return view('ventas.ordenes.edit', compact('orden', 'clientes', 'productos'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $orden = Orden::where('Id_Orden', $id)->firstOrFail();
 
@@ -87,7 +89,7 @@ class OrdenController extends Controller
         return redirect()->route('ordenes.show', $orden->Id_Orden)->with('success', 'Orden actualizada.');
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $orden = Orden::where('Id_Orden', $id)->firstOrFail();
 
@@ -105,7 +107,7 @@ class OrdenController extends Controller
     /**
      * Genera una factura para la orden si no existe y redirige a la vista de factura.
      */
-    public function facturar($id)
+    public function facturar(int $id)
     {
         $orden = Orden::where('Id_Orden', $id)->firstOrFail();
 
@@ -146,7 +148,7 @@ class OrdenController extends Controller
     /**
      * Confirmar ejecución de la orden: marcar EJECUTADA y disparar evento.
      */
-    public function confirmarEjecucion($id)
+    public function confirmarEjecucion(int $id)
     {
         $orden = Orden::where('Id_Orden', $id)->with('detalles')->firstOrFail();
 

@@ -98,6 +98,44 @@
                     </tbody>
                 </table>
             </div>
+
+            @if($orden->cotizacion)
+                <div class="mt-6 bg-white shadow rounded p-4">
+                    <h3 class="font-bold mb-2">Desglose Financiero (Basado en Cotización #{{ $orden->cotizacion->Id_Cotizacion }})</h3>
+                    <table class="w-full">
+                        <tbody>
+                            <tr>
+                                <td class="p-2">Costos Directos</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Costos_Directos ?? $orden->cotizacion->costos_directos ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2">Gastos Generales (6%)</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Gastos_Generales ?? $orden->cotizacion->gastos_generales ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2">Utilidad (10%)</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Utilidad ?? $orden->cotizacion->utilidad ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2">Subtotal</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Subtotal ?? $orden->cotizacion->subtotal ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2">IGV (18%)</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Impuesto ?? $orden->cotizacion->IGV ?? $orden->cotizacion->igv ?? 0, 2) }}</td>
+                            </tr>
+                            <tr class="border-t font-bold">
+                                <td class="p-2">PRESUPUESTO TOTAL</td>
+                                <td class="p-2 text-right">S/ {{ number_format($orden->cotizacion->Total ?? $orden->cotizacion->total ?? 0, 2) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="mt-6">
+                    <div class="text-yellow-600">No hay cotización asociada a esta orden.</div>
+                </div>
+            @endif
         </div>
     </div>
 

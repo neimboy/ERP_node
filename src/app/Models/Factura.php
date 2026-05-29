@@ -8,7 +8,16 @@ class Factura extends Model
 {
     protected $table = 'facturas';
     protected $primaryKey = 'Id_Factura';
-    protected $fillable = ['Id_Orden', 'Fecha', 'Total', 'Estado_Pago'];
+    protected $fillable = [
+        'Id_Orden', 'Id_Cliente', 'Numero_Factura', 'Fecha',
+        'Subtotal', 'IGV', 'Total', 'Estado_Pago', 'Estado'
+    ];
+
+    protected $casts = [
+        'Subtotal' => 'decimal:2',
+        'IGV' => 'decimal:2',
+        'Total' => 'decimal:2',
+    ];
 
     public function orden()
     {
@@ -18,6 +27,11 @@ class Factura extends Model
     public function pagos()
     {
         return $this->hasMany(Pago::class, 'Id_Factura', 'Id_Factura');
+    }
+
+    public function detalles()
+    {
+        return $this->hasMany(DetalleFactura::class, 'Id_Factura', 'Id_Factura');
     }
 
     /**

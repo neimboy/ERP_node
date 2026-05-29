@@ -17,9 +17,6 @@ class StoreFacturaRequest extends FormRequest
     {
         return [
             'Id_Orden' => ['required', 'exists:ordenes,Id_Orden'],
-            'Fecha' => ['required', 'date'],
-            'Total' => ['required', 'numeric'],
-            'Estado_Pago' => ['required', 'string', 'max:50'],
         ];
     }
 
@@ -28,6 +25,17 @@ class StoreFacturaRequest extends FormRequest
         $validator->after(function ($validator) {
             $ordenId = $this->input('Id_Orden');
             if ($ordenId) {
+                $orden = \App\Models\Orden::where('Id_Orden', $ordenId)->first();
+                if (!$orden) {
+                    $validator->errors()->add('Id_Orden', 'Orden no encontrada.');
+                    return;
+                }
+
+                if (strtoupper($orden->Estado ?? '') !== 'EJECUTADA') {
+                    $validator->errors()->add('Id_Orden', 'La orden debe estar en estado EJECUTADA.');
+                    return;
+                }
+
                 $exists = Factura::where('Id_Orden', $ordenId)->exists();
                 if ($exists) {
                     $validator->errors()->add('Id_Orden', 'La orden ya tiene una factura asociada.');

@@ -38,21 +38,27 @@
                         <tr class="bg-gray-50"><th class="p-2 text-left">Producto</th><th class="p-2 text-right">Cantidad</th><th class="p-2 text-right">Precio</th><th class="p-2 text-right">Subtotal</th></tr>
                     </thead>
                     <tbody>
-                        @php $total = 0; @endphp
-                        @foreach($factura->orden->detalles as $d)
-                            @php $sub = ($d->Precio * $d->Cantidad); $total += $sub; @endphp
+                        @foreach($factura->detalles as $d)
                             <tr class="border-t">
                                 <td class="p-2">{{ $d->producto->Nombre ?? '—' }}</td>
                                 <td class="p-2 text-right">{{ $d->Cantidad }}</td>
-                                <td class="p-2 text-right">S/ {{ number_format($d->Precio,2) }}</td>
-                                <td class="p-2 text-right">S/ {{ number_format($sub,2) }}</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Precio_Unitario,2) }}</td>
+                                <td class="p-2 text-right">S/ {{ number_format($d->Total,2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="border-t">
+                            <td colspan="3" class="p-2 text-right">Subtotal</td>
+                            <td class="p-2 text-right">S/ {{ number_format($factura->Subtotal ?? 0,2) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="p-2 text-right">IGV (18%)</td>
+                            <td class="p-2 text-right">S/ {{ number_format($factura->IGV ?? 0,2) }}</td>
+                        </tr>
+                        <tr class="border-t">
                             <td colspan="3" class="p-2 text-right font-bold">Total</td>
-                            <td class="p-2 text-right font-bold">S/ {{ number_format($factura->Total ?? $total,2) }}</td>
+                            <td class="p-2 text-right font-bold">S/ {{ number_format($factura->Total ?? 0,2) }}</td>
                         </tr>
                     </tfoot>
                 </table>

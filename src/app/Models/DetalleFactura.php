@@ -11,12 +11,15 @@ class DetalleFactura extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'Id_Factura', 'Id_Producto', 'Cantidad', 'Precio_Unitario', 'Subtotal'
+        'Id_Factura', 'Id_Producto', 'Cantidad', 'Precio_Unitario', 'Costo_Unitario', 'Descuento', 'Subtotal', 'Total'
     ];
 
     protected $casts = [
         'Precio_Unitario' => 'decimal:2',
+        'Costo_Unitario' => 'decimal:2',
+        'Descuento' => 'decimal:2',
         'Subtotal' => 'decimal:2',
+        'Total' => 'decimal:2',
     ];
 
     public function factura()
