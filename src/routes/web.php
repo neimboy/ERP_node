@@ -135,6 +135,8 @@ Route::middleware(['auth'])->group(function () {
             // Compras
             Route::resource('compras', ComprasController::class);
 
+            Route::patch('compras/{id}/estado', [ComprasController::class, 'updateEstado'])
+                ->name('compras.updateEstado');
             // Proveedores
             Route::resource('proveedores', ProveedoresController::class)
                 ->parameters(['proveedores' => 'proveedor']);
