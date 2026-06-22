@@ -44,7 +44,7 @@ npm run build
 Las migraciones crean automáticamente las 22 tablas del ERP en la base de datos `erp_node`.
 
 ```bash
-docker exec laravel_app php artisan migrate
+docker exec laravel_app php artisan migrate --seed
 ```
 
 ### 6. Corregir permisos de storage

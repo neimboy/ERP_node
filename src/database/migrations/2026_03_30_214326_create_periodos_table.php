@@ -15,18 +15,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('periodos', function (Blueprint $table) {
-            // Solo agregar si no existe (para entornos ya migrados)
-            if (!Schema::hasColumn('periodos', 'Estado')) {
-                $table->string('Estado', 10)->default('Abierto')->after('Mes');
-            }
+        Schema::create('periodos', function (Blueprint $table) {
+            $table->id('Id_Periodo');
+            $table->integer('Año');
+            $table->integer('Mes');
+            $table->string('Estado',10)->default('Abierto');
+            $table->timestamps();
+
         });
     }
 
     public function down(): void
     {
-        Schema::table('periodos', function (Blueprint $table) {
-            $table->dropColumn('Estado');
-        });
+        Schema::dropIfExists('periodos');
     }
 };
