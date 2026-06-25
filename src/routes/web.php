@@ -109,6 +109,8 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
             Route::resource('clientes', ClienteController::class);
             Route::resource('ordenes', OrdenController::class);
+            Route::post('ordenes/{ordene}/facturar', [OrdenController::class, 'facturar'])
+                ->name('ordenes.facturar');
             Route::resource('facturas', FacturaController::class);
             Route::resource('pagos', PagoController::class);
             // Forzar nombre del parámetro a `oportunidad` (singular en español)

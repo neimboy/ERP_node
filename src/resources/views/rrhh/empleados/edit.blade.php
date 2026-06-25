@@ -5,16 +5,16 @@
                 <h1 class="text-3xl font-bold text-gray-800">Editar Empleado</h1>
                 <p class="text-gray-500">Modifica la información de {{ $empleado->Nombre }}</p>
             </div>
-            <a href="{{ route('empleados.index') }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
+            <a href="{{ route('rrhh.empleados.index') }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
                 &larr; Volver al panel
             </a>
         </div>
 
         <div class="bg-white shadow-xl rounded-lg overflow-hidden p-8">
-            <form action="{{ route('empleados.update', $empleado->Id_Empleado) }}" method="POST">
+            <form action="{{ route('rrhh.empleados.update', $empleado->Id_Empleado) }}" method="POST">
                 @csrf
-                @method('PUT') 
-                
+                @method('PUT')
+
                 <div class="grid grid-cols-1 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">DNI</label>

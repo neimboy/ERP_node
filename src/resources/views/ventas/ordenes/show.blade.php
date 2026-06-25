@@ -7,7 +7,7 @@
                 @if($orden->factura)
                     <a href="{{ route('facturas.show', $orden->factura) }}" class="px-4 py-2 bg-blue-600 text-white rounded">Ver Factura</a>
                 @else
-                    <form action="{{ route('ordenes.facturar', $orden) }}" method="POST" data-swal-confirm data-swal-message="Generar factura para esta orden?">
+                    <form action="{{ url('ventas/ordenes/' . $orden->Id_Orden . '/facturar') }}" method="POST" data-swal-confirm data-swal-message="Generar factura para esta orden?">
                         @csrf
                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Generar Factura</button>
                     </form>

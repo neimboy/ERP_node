@@ -8,13 +8,13 @@
 <body class="bg-gray-100 p-10">
     <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h2 class="text-2xl font-bold mb-6 border-b pb-2">Registrar Nuevo Empleado</h2>
-        
-        <form action="{{ route('empleados.store') }}" method="POST">
+
+        <form action="{{ route('rrhh.empleados.store') }}" method="POST">
             @csrf
             <div class="grid grid-cols-1 gap-4">
                 <div>
                     <label class="block font-semibold">DNI:</label>
-                    <input type="text" name="DNI" value="{{ old('DNI') }}" 
+                    <input type="text" name="DNI" value="{{ old('DNI') }}"
                         class="w-full border p-2 rounded @error('DNI') border-red-500 @enderror" required>
                     @error('DNI')
                         <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
@@ -23,7 +23,7 @@
 
                 <div>
                     <label class="block font-semibold">Nombre Completo:</label>
-                    <input type="text" name="Nombre" value="{{ old('Nombre') }}" 
+                    <input type="text" name="Nombre" value="{{ old('Nombre') }}"
                         class="w-full border p-2 rounded @error('Nombre') border-red-500 @enderror" required>
                     @error('Nombre')
                         <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
@@ -32,7 +32,7 @@
 
                 <div>
                     <label class="block font-semibold">Correo:</label>
-                    <input type="email" name="Correo" value="{{ old('Correo') }}" 
+                    <input type="email" name="Correo" value="{{ old('Correo') }}"
                         class="w-full border p-2 rounded @error('Correo') border-red-500 @enderror">
                     @error('Correo')
                         <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
@@ -41,7 +41,7 @@
 
                 <div>
                     <label class="block font-semibold">Teléfono:</label>
-                    <input type="text" name="Telefono" value="{{ old('Telefono') }}" 
+                    <input type="text" name="Telefono" value="{{ old('Telefono') }}"
                         class="w-full border p-2 rounded @error('Telefono') border-red-500 @enderror">
                     @error('Telefono')
                         <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
@@ -50,7 +50,7 @@
 
                 <div>
                     <label class="block font-semibold">Fecha de Ingreso:</label>
-                    <input type="date" name="Fecha_Ingreso" value="{{ old('Fecha_Ingreso') }}" 
+                    <input type="date" name="Fecha_Ingreso" value="{{ old('Fecha_Ingreso') }}"
                         class="w-full border p-2 rounded @error('Fecha_Ingreso') border-red-500 @enderror" required>
                     @error('Fecha_Ingreso')
                         <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>

@@ -66,7 +66,7 @@ public function store(Request $request)
         $empleado = \App\Models\Empleado::where('Id_Empleado', $id)->firstOrFail();
         $empleado->update($request->all());
 
-        return redirect()->route('empleados.index')->with('success', 'Empleado actualizado');
+        return redirect()->route('rrhh.empleados.index')->with('success', 'Empleado actualizado');
     }
 
     public function destroy(string $id)
